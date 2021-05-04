@@ -1,0 +1,63 @@
+%%% Preambolo del documento %%%
+% Non toccate questa roba, a meno che non siate abbastanza sgamati da sapere quello che state facendo, tipo vi piacciono di più certi pacchetti rispetto ad altri, o magari ve ne manca qualcuno.
+
+\documentclass[a4paper, titlepage]{article}
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage[italian]{babel}
+\usepackage{amsmath}
+\usepackage{listings}
+\usepackage{textcomp}
+\usepackage{multirow}
+\usepackage{multicol}
+\usepackage{booktabs}
+\usepackage{graphicx}
+\usepackage{floatflt}
+\usepackage{epsfig}
+\usepackage{pstricks}
+\usepackage{subfigure}
+\usepackage[labelfont=bf, font=scriptsize]{caption}
+\usepackage[italian]{varioref}
+\usepackage[suftesi]{frontespizio}
+\usepackage{color}
+\usepackage{tikz}
+\usepackage{caption}
+\usepackage{pgfplots}
+\usepackage{comment}
+\usepackage{lipsum}
+\pgfplotsset{compat=1.16}
+
+
+\begin{document}
+
+\begin{frontespizio}
+\Universita{Padova}
+\Logo{figures/logo_unipd}
+\Divisione{Dipartimento di Ingegneria dell'Informazione}
+\Corso[Laurea]{Computer Engineering} 
+\Annoaccademico{2020-2021}
+%\Titoletto{Relazione di laboratorio}
+\Titolo{Conformational Analysis of\newline Protein Structural Ensembles}
+%\Sottotitolo{Data relazione}
+\NCandidati{Gruppo di lavoro} 
+\Candidato[1218949]{Mikele \textsc{Milia}, \textsf{mikele.milia@studenti.unipd.it}}
+\Candidato[1234012]{Giulia \textsc{Pezzutti}, \textsf{giulia.pezzutti@studenti.unipd.it}}
+\Candidato[2019160]{Federica \textsc{Vettor}, \textsf{federica.vettor.1@studenti.unipd.it}}
+\NRelatore{Docente}{} 
+\Relatore{Prof. Damiano \textsc{Piovesan}}
+\end{frontespizio}
+\IfFileExists{\jobname-frn.pdf}{}{%
+\immediate\write18{pdflatex \jobname-frn}} % ASSOLUTAMENTE CTT
+
+\tableofcontents
+
+\newpage
+
+\input{sections/section_1.tex}
+
+\newpage
+
+%\appendix
+%\input{sections/appendix_A.tex}
+
+\end{document}
