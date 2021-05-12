@@ -1,9 +1,20 @@
 import numpy as np
 import math
-
+import glob
+import os
 from Bio.PDB import PPBuilder
 from matplotlib import pyplot as plt
 from matplotlib import patches
+
+
+def extract_filenames(folder, extension):
+    names = []
+    paths = glob.glob(folder+"/*."+extension)
+    for path in paths:
+        base = os.path.basename(path)
+        file = os.path.splitext(base)[0]
+        names.append(file)
+    return names
 
 
 def radius_gyration(chain):

@@ -2,17 +2,20 @@ import csv
 from Bio.PDB import *
 from functions import *
 
-
-pdb_id_list = ['00020e001', '00020e002', '00020e003', '00020e004', '00020e005']
+folder = "data" #Questo deve diventare input da riga di comando
+pdb_id_list = extract_filenames("data", "pdb")
+# ['00020e001', '00020e002', '00020e003', '00020e004', '00020e005']
 
 for pdb_id in pdb_id_list:
 
-    input = "data/PED{}.pdb".format(pdb_id)
+    input = "{}/{}.pdb".format(folder, pdb_id)
+    print(input)
     structure = PDBParser(QUIET=True).get_structure(pdb_id, input)
 
     for model in structure:
 
-        output = "output/PED{}_{}.csv".format(pdb_id, str(model.id))
+        # capire come far decidere la cartella di output
+        output = "output/{}_{}.csv".format(pdb_id, str(model.id))
         features = {'N': 0, 'RG': 0, 'ASA': [], 'SS': [], 'DIST': None}
 
         features['N'] = len(list(model['A'].get_residues()))
