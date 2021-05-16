@@ -35,10 +35,12 @@ for pdb_id in pdb_id_list:
 
         features['DIST'] = get_distance_matrix(list(model.get_residues()))
 
-        a_file = open(output, "w")
-        writer = csv.writer(a_file)
+        # a_file = open(output, "w")
+        # writer = csv.writer(a_file)
+        # for key, value in features.items():
+        #     writer.writerow([key, value])
+        # a_file.close()
 
-        for key, value in features.items():
-            writer.writerow([key, value])
-
-        a_file.close()
+        with open(output, 'w') as f:
+            for key in features.keys():
+                f.write("%s,%f\n" % (key, features[key]))
