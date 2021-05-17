@@ -17,7 +17,7 @@ for pdb_id in pdb_id_list:
     for model in structure:
 
         # capire come far decidere la cartella di output
-        output = "data/features_files/{}/{}_{}.csv".format(pdb_id, pdb_id, str(model.id))
+        output = "{}/features_files/{}/{}_{}.csv".format(folder, pdb_id, pdb_id, str(model.id))
         features = {'N': 0, 'RG': 0, 'ASA': [], 'SS': [], 'DIST': []}
 
         features['N'] = len(list(model['A'].get_residues()))
