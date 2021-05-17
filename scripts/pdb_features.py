@@ -1,8 +1,10 @@
 import csv
+
+import numpy as np
 from Bio.PDB import *
 from functions import *
 
-folder = "data" #Questo deve diventare input da riga di comando
+folder = "data" # Questo deve diventare input da riga di comando
 pdb_id_list = extract_filenames("data", "pdb")
 # ['00020e001', '00020e002', '00020e003', '00020e004', '00020e005']
 
@@ -33,6 +35,11 @@ for pdb_id in pdb_id_list:
 
         features['SS'] = SSRama(model, dssp_dict)
 
-        features['DIST'] = get_distance_matrix(list(model.get_residues()))
+        dist = np.asmatrix(get_distance_matrix(list(model.get_residues())))
+        features['DIST'] = dist[np.triu_indices(features['N'], 1)]
+
+        # IN CASO PER RITORNARE ALLA MATRICE TRIANGOLARE
+        # o = np.zeros((132, 132))
+        # o[np.triu_indices(132, 1)] = features['DIST']
 
         save_features_csv(output, features)

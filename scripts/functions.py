@@ -23,16 +23,16 @@ def save_features_csv(output, features):
             f.write("%s" % key)
             if key in ['N', 'RG']:
                 f.write(",%f" % features[key])
-            if key in ['ASA']:
+            if key in ['ASA', 'DIST']:
                 for e in features[key]:
                     f.write(",%f" % e)
             if key in ['SS']:
                 for e in features[key]:
                     f.write(",%s" % e)
-            if key in ['DIST']:
-                for e in features[key]:
-                    for i in e:
-                        f.write(",%f" % i)
+            # if key in ['DIST']:
+            #     for e in features[key]:
+            #         for i in e:
+            #             f.write(",%f" % i)
             f.write("\n")
 
 
