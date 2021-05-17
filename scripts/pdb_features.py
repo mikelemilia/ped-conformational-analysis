@@ -15,8 +15,8 @@ for pdb_id in pdb_id_list:
     for model in structure:
 
         # capire come far decidere la cartella di output
-        output = "output/{}_{}.csv".format(pdb_id, str(model.id))
-        features = {'N': 0, 'RG': 0, 'ASA': [], 'SS': [], 'DIST': None}
+        output = "data/features_files/{}/{}_{}.csv".format(pdb_id, pdb_id, str(model.id))
+        features = {'N': 0, 'RG': 0, 'ASA': [], 'SS': [], 'DIST': []}
 
         features['N'] = len(list(model['A'].get_residues()))
         features['RG'] = radius_gyration(model['A'])
@@ -35,12 +35,4 @@ for pdb_id in pdb_id_list:
 
         features['DIST'] = get_distance_matrix(list(model.get_residues()))
 
-        # a_file = open(output, "w")
-        # writer = csv.writer(a_file)
-        # for key, value in features.items():
-        #     writer.writerow([key, value])
-        # a_file.close()
-
-        with open(output, 'w') as f:
-            for key in features.keys():
-                f.write("%s,%f\n" % (key, features[key]))
+        save_features_csv(output, features)

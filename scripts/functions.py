@@ -17,6 +17,25 @@ def extract_filenames(folder, extension):
     return names
 
 
+def save_features_csv(output, features):
+    with open(output, 'w') as f:
+        for key in features.keys():
+            f.write("%s" % key)
+            if key in ['N', 'RG']:
+                f.write(",%f" % features[key])
+            if key in ['ASA']:
+                for e in features[key]:
+                    f.write(",%f" % e)
+            if key in ['SS']:
+                for e in features[key]:
+                    f.write(",%s" % e)
+            if key in ['DIST']:
+                for e in features[key]:
+                    for i in e:
+                        f.write(",%f" % i)
+            f.write("\n")
+
+
 def radius_gyration(chain):
 
     # Heavy atoms coordinates
@@ -70,7 +89,7 @@ def SSRama(structure, dssp_dict):
 
     # Get SS from phi/psi and compare with DSSP
 
-    ss = [None]
+    ss = []
     for chain_id in rama:
         for residue, phi, psi in zip(*rama[chain_id]):
             ss_class = None
@@ -80,7 +99,7 @@ def SSRama(structure, dssp_dict):
                     break
             ss.append(ss_class)
             # print(residue, ss_class, dssp_dict.get((chain_id, residue.id))[2], phi, psi)
-    ss.append(None)
+    # ss.append(None)
 
     # # Plot Ramachandran SS regions
     # f, axes = plt.subplots(1, len(rama), figsize=(12, 12))
