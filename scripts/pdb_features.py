@@ -14,13 +14,14 @@ for pdb_id in pdb_id_list:
     print(input)
     structure = PDBParser(QUIET=True).get_structure(pdb_id, input)
 
+    output = "{}/features_files/{}_features.csv".format(folder, pdb_id)
+
     for model in structure:
 
         # capire come far decidere la cartella di output
-        output = "{}/features_files/{}/{}_{}.csv".format(folder, pdb_id, pdb_id, str(model.id))
         features = {'N': 0, 'RG': 0, 'ASA': [], 'SS': [], 'DIST': []}
 
-        features['N'] = len(list(model['A'].get_residues()))
+        features['N'] = int(len(list(model['A'].get_residues())))
         features['RG'] = radius_gyration(model['A'])
 
         dssp = DSSP(model, input, dssp="binx/dssp/mkdssp")  # WARNING Check the path of mkdssp
@@ -42,4 +43,4 @@ for pdb_id in pdb_id_list:
         # o = np.zeros((132, 132))
         # o[np.triu_indices(132, 1)] = features['DIST']
 
-        save_features_csv(output, features)
+        save_features_csv(output, features, str(model.id))

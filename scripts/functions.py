@@ -17,23 +17,34 @@ def extract_filenames(folder, extension):
     return names
 
 
-def save_features_csv(output, features):
-    with open(output, 'w') as f:
+def save_features_csv(output, features, model_id):
+
+    with open(output, 'a') as f:
+        f.write("%s" % model_id)
         for key in features.keys():
-            f.write("%s" % key)
+
             if key in ['N', 'RG']:
                 f.write(",%f" % features[key])
+
             if key in ['ASA']:
                 for e in features[key]:
                     f.write(",%f" % e)
+
             if key in ['SS']:
                 for e in features[key]:
-                    f.write(",%s" % e)
+                    if e == 'E':
+                        f.write(",%d" % 1)
+                    if e == 'P':
+                        f.write(",%d" % 2)
+                    if e == 'H':
+                        f.write(",%d" % 3)
+                    if e == 'L':
+                        f.write(",%d" % 4)
             if key in ['DIST']:
-                for e in features[key]:
-                    for i in range(e.shape[1]):
-                        f.write(",%f" % e[0, i])
-            f.write("\n")
+                for i in range(features[key].shape[1]):
+                    f.write(",%f" % features[key][0, i])
+
+        f.write("\n")
 
 
 def radius_gyration(chain):
@@ -59,7 +70,7 @@ def radius_gyration(chain):
 def SSRama(structure, dssp_dict):
     # List of Ramachandran areas corresponding to different secondary structure classes
     # E = beta sheet, P = polyproline I && II,
-    # H = alpha-helix, R = left-handed helix
+    # H = alpha-helix, L = left-handed helix
     # (lower-left phi and psi, width, height, class, color)
     rama_ss_ranges = [(-180, -180, 80, 60, 'E', 'blue'),
                       (-180, 50, 80, 130, 'E', 'blue'),
@@ -99,7 +110,6 @@ def SSRama(structure, dssp_dict):
                     break
             ss.append(ss_class)
             # print(residue, ss_class, dssp_dict.get((chain_id, residue.id))[2], phi, psi)
-    # ss.append(None)
 
     # # Plot Ramachandran SS regions
     # f, axes = plt.subplots(1, len(rama), figsize=(12, 12))
