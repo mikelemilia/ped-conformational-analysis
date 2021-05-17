@@ -3,7 +3,6 @@ from sklearn_extra import cluster
 from sklearn.metrics import silhouette_score
 from sklearn.decomposition import PCA, KernelPCA
 from sklearn.cluster import AffinityPropagation
-from pythonds.graphs import Graph
 import networkx as nx
 import pandas
 
