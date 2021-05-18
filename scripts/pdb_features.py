@@ -1,11 +1,12 @@
 import csv
-
+import os
 import numpy as np
 from Bio.PDB import *
 from functions import *
 
 folder = "data" # Questo deve diventare input da riga di comando
-pdb_id_list = extract_filenames("data", "pdb")
+os.makedirs("{}/features_files".format(folder), exist_ok=True)
+pdb_id_list = extract_filenames(folder, "pdb")
 # ['00020e001', '00020e002', '00020e003', '00020e004', '00020e005']
 
 for pdb_id in pdb_id_list:
