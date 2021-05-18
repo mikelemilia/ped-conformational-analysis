@@ -4,7 +4,7 @@ import numpy as np
 from Bio.PDB import *
 from functions import *
 
-folder = "data" # Questo deve diventare input da riga di comando
+folder = "data"     # TODO: Questo deve diventare input da riga di comando
 os.makedirs("{}/features_files".format(folder), exist_ok=True)
 pdb_id_list = extract_filenames(folder, "pdb")
 # ['00020e001', '00020e002', '00020e003', '00020e004', '00020e005']
@@ -16,10 +16,10 @@ for pdb_id in pdb_id_list:
     structure = PDBParser(QUIET=True).get_structure(pdb_id, input)
 
     output = "{}/features_files/{}_features.csv".format(folder, pdb_id)
+    os.remove(output)
 
     for model in structure:
 
-        # capire come far decidere la cartella di output
         features = {'N': 0, 'RG': 0, 'ASA': [], 'SS': [], 'DIST': []}
 
         features['N'] = int(len(list(model['A'].get_residues())))

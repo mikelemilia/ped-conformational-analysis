@@ -40,11 +40,27 @@ def save_features_csv(output, features, model_id):
                         f.write(",%d" % 3)
                     if e == 'L':
                         f.write(",%d" % 4)
+
             if key in ['DIST']:
                 for i in range(features[key].shape[1]):
                     f.write(",%f" % features[key][0, i])
 
         f.write("\n")
+
+
+def extract_features_csv(csv):
+
+    row = csv
+    features = {'N': 0, 'RG': 0, 'ASA': [], 'SS': [], 'DIST': []}
+
+    model_id = row[0]
+    features['N'] = int(row[1])
+    features['RG'] = row[2]
+    features['ASA'].append(row[3:(features['N'] + 3)])
+    features['SS'].append(row[(features['N'] + 3):(2 * features['N']-2+3)])
+    features['DIST'].append(row[(2 * features['N']-2+3):])
+
+    return model_id, features
 
 
 def radius_gyration(chain):

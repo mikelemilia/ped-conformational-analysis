@@ -5,8 +5,6 @@ from sklearn.decomposition import PCA, KernelPCA
 from sklearn.cluster import AffinityPropagation
 import networkx as nx
 import pandas
-
-
 from functions import *
 
 folder = 'data/features_files/'
@@ -16,11 +14,11 @@ for features_file in features_files:
 
     path = folder + features_file + '.csv'
     print(path)
-    df = pandas.read_csv(path, index_col=0, header=None)
+    df = pandas.read_csv(path, index_col=None, header=None)
 
-    p = np.full((df.shape[0], df.shape[1]-1), None)
+    p = np.full((df.shape[0], df.shape[1]), None)
     for row in range(0, df.shape[0]):
-        p[row, :] = np.array(df.iloc[row][1:])
+        p[row, :] = np.array(df.iloc[row])
 
     points = p[:, 2:]
 
@@ -35,7 +33,7 @@ for features_file in features_files:
     silhouettes = []
 
     for k in K_set:
-        kMed = cluster.KMedoids(n_clusters=k, metric='euclidean', init='k-medoids++')
+        kMed = cluster.KMedoids(n_clusters=k, metric='euclidean', init='k-medoids++', method='pam', max_iter=500)
         labels = kMed.fit_predict(pca_points)
 
         s = silhouette_score(pca_points, labels)
@@ -69,3 +67,6 @@ for features_file in features_files:
 
     nx.draw(g, with_labels=True)
     plt.show()
+
+    f = extract_features_csv(p[1,:])
+    print(f)
