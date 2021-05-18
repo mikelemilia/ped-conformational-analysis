@@ -44,4 +44,4 @@ venv.bak/
 .idea/
 
 output/
-dataset/features_files
+data/features_files
