@@ -8,21 +8,7 @@ from utils import *
 
 if __name__ == "__main__":
 
-    # TODO : move the parser inside an utility function
-
-    # Create the parser
-    my_parser = argparse.ArgumentParser(description='PED tool')
-
-    # Add the arguments
-    my_parser.add_argument('path',
-                           metavar='path',
-                           type=str,
-                           help='the path to input folder')
-
-    # Execute the parse_args() method
-    args = my_parser.parse_args()
-
-    folder = args.path
+    folder = parser()
 
     if not os.path.isdir(folder):
         print('The path specified does not exist')
@@ -33,6 +19,7 @@ if __name__ == "__main__":
 
         for pdb_id in pdb_id_list:
 
+            print("Analyzing {}...".format(pdb_id))
             path = os.path.join(folder, pdb_id + '.pdb')
 
             features = Features(path, pdb_id)
@@ -45,8 +32,7 @@ if __name__ == "__main__":
                 feat = features.compute_features()
                 features.save(path_features)
 
-            print(feat)
-            test = Clustering(feat)
+            test = Clustering(pdb_id, feat)
 
             test.compute_clustering()
             test.generate_graph()

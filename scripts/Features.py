@@ -161,25 +161,27 @@ class Features:
 
         return self.features
 
-        # row = csv
-        # features = {'N': 0, 'RG': 0, 'ASA': [], 'SS': [], 'DIST': []}
-        #
-        # model_id = row[0]
-        # features['N'] = int(row[1])
-        # features['RG'] = float(row[2])
-        #
-        # for elem in range(3, features['N'] + 3):
-        #     features['ASA'].append(row[3 + elem])
-        #
-        # for elem in range(features['N'] + 3, 2 * features['N'] - 2 + 3):  # removed first and last element (None)
-        #     features['SS'].append(row[elem])
-        #
-        # for elem in range(2 * features['N'] - 2 + 3, len(csv)):
-        #     features['DIST'].append(row[elem])
-        #
-        # return model_id, features
+    def extract_vectors_feature(self, key, models=slice(None)):
+
+        if key == 'N':
+            return self.residues
+
+        if key == 'RG':
+            return self.features[models, 2]
+
+        if key == 'ASA':
+            return self.features[models, 3:(self.residues + 3)]
+
+        if key == 'SS':
+            return self.features[models, (self.residues + 3):(2 * self.residues - 2 + 3)]  # removed first and last
+
+        if key == 'DIST':
+            return self.features[models, (2 * self.residues - 2 + 3):]
+
+        return None
 
     def save(self, output):
+
         with open(output, 'w') as f:
             for model in self.features:
                 f.write("%s" % model[0])  # index of the model
@@ -189,6 +191,7 @@ class Features:
         print("{}_features.csv saved".format(self.id))
 
     def plot_secondary_structure(self, rama):
+
         # Plot Ramachandran SS regions
         f, axes = plt.subplots(1, len(rama), figsize=(12, 12))
         axes = np.array(axes).reshape(
@@ -211,4 +214,3 @@ class Features:
 
         plt.tight_layout()  # Remove figure padding
         plt.show()
-

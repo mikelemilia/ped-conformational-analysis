@@ -8,9 +8,10 @@ from sklearn_extra import cluster
 
 class Clustering:
 
-    def __init__(self, features):
+    def __init__(self, identifier, features):
+        self.id = identifier
         self.centroids = []
-
+        self.labels = []
         features = np.asmatrix(features)
         self.points = features[:, 1:]
 
@@ -57,11 +58,8 @@ class Clustering:
         print(s_max)
 
         kMed = cluster.KMedoids(n_clusters=k_opt, metric=self.metrics, init='k-medoids++', max_iter=1000)
-        labels = kMed.fit_predict(self.points)
+        self.labels = kMed.fit_predict(self.points)
         self.centroids = kMed.medoid_indices_
-
-
-
 
     def generate_graph(self):
         # Graph
@@ -71,7 +69,11 @@ class Clustering:
 
         for i in range(len(self.centroids)):
             for j in range(i + 1, len(self.centroids)):
-                g.add_edge(self.centroids[i], self.centroids[j], weight=np.sum(self.points[self.centroids[i]] - self.points[self.centroids[j]]))
+                g.add_edge(self.centroids[i], self.centroids[j],
+                           weight=np.sum(self.points[self.centroids[i]] - self.points[self.centroids[j]]))
 
         nx.draw(g, with_labels=True)
+        path = "output/{}_graph.png".format(self.id)
+        plt.savefig(path)
         plt.show()
+
