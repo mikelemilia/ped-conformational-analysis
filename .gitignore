@@ -45,3 +45,4 @@ venv.bak/
 
 output/
 data/features_files
+tests/

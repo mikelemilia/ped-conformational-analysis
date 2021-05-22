@@ -9,13 +9,15 @@ from sklearn_extra import cluster
 class Clustering:
 
     def __init__(self, identifier, features):
+
         self.id = identifier
         self.centroids = []
         self.labels = []
-        features = np.asmatrix(features)
+        features = np.asmatrix(features, dtype='float64')
         self.points = features[:, 1:]
 
     def metrics(self, x, y):
+
         indexes = self.extract_indeces(x[0])
 
         rg = x[indexes[0]] - y[indexes[0]]
@@ -30,6 +32,7 @@ class Clustering:
         return m
 
     def extract_indeces(self, n):
+
         indexes = [2, 3, int(3 + n), int(2 * n - 2 + 3)]
 
         return indexes
@@ -54,14 +57,16 @@ class Clustering:
         s_max = max(silhouettes)
         k_opt = k_set[silhouettes.index(s_max)]
 
-        print(k_opt)
-        print(s_max)
+        print('Number of representative conformations: {}'.format(k_opt))
+        print('Correspondent silhouette value: {}'.format(s_max))
 
         kMed = cluster.KMedoids(n_clusters=k_opt, metric=self.metrics, init='k-medoids++', max_iter=1000)
         self.labels = kMed.fit_predict(self.points)
         self.centroids = kMed.medoid_indices_
+        print('Indexes of the representative conformations: {}'.format(self.centroids))
 
     def generate_graph(self):
+
         # Graph
         g = nx.Graph()
         for medoid in self.centroids:

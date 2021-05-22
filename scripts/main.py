@@ -1,10 +1,9 @@
-import argparse
 import sys
 from Features import Features
 from Clustering import Clustering
-
 from utils import *
 
+# TODO: resolve problems of dataset PED00142
 
 if __name__ == "__main__":
 
@@ -27,15 +26,18 @@ if __name__ == "__main__":
             path_features = "{}/features_files/{}_features.csv".format(folder, pdb_id)
 
             if os.path.exists(path_features):
+                print('\nLoading features...')
                 feat = features.extract_features(path_features)
             else:
+                print('\nComputing features...')
                 feat = features.compute_features()
                 features.save(path_features)
 
+            print('\nClustering...')
             test = Clustering(pdb_id, feat)
 
             test.compute_clustering()
             test.generate_graph()
 
-            print('------------------\n')
+            print('\n------------------\n')
 
