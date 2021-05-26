@@ -1,13 +1,32 @@
 import csv
 import math
-
 import numpy as np
 import pandas
 from Bio.PDB import PDBParser, DSSP, PPBuilder
 from matplotlib import pyplot as plt, patches
 
 
-class Features:
+def extract_vectors_feature(features, key, models=slice(None)):
+    residues = int(features[0, 1])
+    if key == 'N':
+        return residues
+
+    if key == 'RG':
+        return features[models, 2]
+
+    if key == 'ASA':
+        return features[models, 3:(residues + 3)]
+
+    if key == 'SS':
+        return features[models, (residues + 3):(2 * residues - 2 + 3)]  # removed first and last
+
+    if key == 'DIST':
+        return features[models, (2 * residues - 2 + 3):]
+
+    return None
+
+
+class Model_Features:
 
     def __init__(self, path, identifier):
         self.path = path
@@ -29,7 +48,7 @@ class Features:
 
         self.compute = False
 
-    def compute_features(self):
+    def compute(self):
 
         structure = PDBParser(QUIET=True).get_structure(self.id, self.path)
 
@@ -149,7 +168,7 @@ class Features:
 
         return distances
 
-    def extract_features(self, output):
+    def extract(self, output):
 
         df = pandas.read_csv(output, index_col=None, header=None)
 
@@ -161,30 +180,11 @@ class Features:
 
         return self.features
 
-    def extract_vectors_feature(self, key, models=slice(None)):
-
-        if key == 'N':
-            return self.residues
-
-        if key == 'RG':
-            return self.features[models, 2]
-
-        if key == 'ASA':
-            return self.features[models, 3:(self.residues + 3)]
-
-        if key == 'SS':
-            return self.features[models, (self.residues + 3):(2 * self.residues - 2 + 3)]  # removed first and last
-
-        if key == 'DIST':
-            return self.features[models, (2 * self.residues - 2 + 3):]
-
-        return None
-
     def save(self, output):
 
         with open(output, 'w') as f:
             for model in self.features:
-                f.write("%s" % model[0])  # index of the model
+                f.write("%d" % model[0])  # index of the model
                 for i in range(1, len(model)):
                     f.write(",%f" % model[i])
                 f.write("\n")
