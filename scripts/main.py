@@ -34,11 +34,11 @@ if __name__ == "__main__":
                 feat = model_features.compute()
                 model_features.save(path_features)
 
-            # print('\nClustering...')
-            # test = Clustering(pdb_id, feat)
-            #
-            # test.compute_clustering()
-            # test.generate_graph()
+            print('\nClustering...')
+            test = Clustering(pdb_id, feat)
+
+            test.compute_clustering()
+            test.generate_graph()
 
             print('\n------------------\n')
 

@@ -77,7 +77,8 @@ class Clustering:
                 g.add_edge(self.centroids[i], self.centroids[j],
                            weight=np.sum(self.points[self.centroids[i]] - self.points[self.centroids[j]]))
 
-        nx.draw(g, with_labels=True)
+        options = {'node_color': 'orange', 'node_size': 700, 'width': 2}
+        nx.draw_spectral(g, with_labels=True, **options)
         path = "output/{}_graph.png".format(self.id)
         plt.savefig(path)
         plt.show()
