@@ -4,18 +4,19 @@ from Bio.PDB import Superimposer, PDBParser
 from Model_features import extract_vectors_feature, Model_Features
 from utils import *
 
+
 class PED_features():
 
-    def __init__(self, path):
-        ped_names = extract_filenames(path, 'csv')
+    def __init__(self, path, ped_name):
+        ped_names = extract_filenames(path, ped_name, 'csv')
         self.ped_ids = []
         for ped_name in ped_names:
-            self.ped_ids.append(ped_name.removesuffix('_features'))
-        self.ped_name = (self.ped_ids[0].split('e'))[0]
+            self.ped_ids.append(ped_name.split('_')[0])
+        self.ped_name = ped_name
 
         paths = []
         for i in range(len(self.ped_ids)):
-            paths.append('data/features_files/' + ped_names[i] + '.csv') # TODO: sistemare input
+            paths.append(path + ped_names[i] + '.csv')
 
         self.models_features = []
         for path in paths:
@@ -133,7 +134,7 @@ class PED_features():
                 for i in range(1, len(ped)):
                     f.write(",%f" % ped[i])
                 f.write("\n")
-        print("{}_features.csv saved".format(self.ped_name))
+        print("{}.csv saved".format(self.ped_name))
 
     def extract(self, path):
 

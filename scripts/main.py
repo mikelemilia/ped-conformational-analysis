@@ -8,14 +8,16 @@ from PED_features import *
 
 if __name__ == "__main__":
 
-    folder = parser()
+    folder, ped_name = parser()
 
     if not os.path.isdir(folder):
         print('The path specified does not exist')
         sys.exit()
     else:
-        os.makedirs("{}/features_files".format(folder), exist_ok=True)
-        pdb_id_list = extract_filenames(folder, "pdb")
+
+        model_features_folder = folder + '/model_features/'
+        os.makedirs(model_features_folder, exist_ok=True)
+        pdb_id_list = extract_filenames(folder, ped_name, "pdb")
 
         for pdb_id in pdb_id_list:
 
@@ -24,7 +26,7 @@ if __name__ == "__main__":
 
             model_features = Model_Features(path, pdb_id)
 
-            path_features = "{}/features_files/{}_features.csv".format(folder, pdb_id)
+            path_features = "{}/{}_features.csv".format(model_features_folder, pdb_id)
 
             if os.path.exists(path_features):
                 print('\nLoading features...')
@@ -34,26 +36,28 @@ if __name__ == "__main__":
                 feat = model_features.compute()
                 model_features.save(path_features)
 
-            print('\nClustering...')
-            test = Clustering(pdb_id, feat)
-
-            test.compute_clustering()
-            test.generate_graph()
+            # print('\nClustering...')
+            # test = Clustering(pdb_id, feat)
+            #
+            # test.compute_clustering()
+            # test.generate_graph()
 
             print('\n------------------\n')
 
         print('Task2...')
-        ped_features = PED_features(folder+'/features_files')
 
-        path_PED_features = "{}/features_files/{}_features.csv".format(folder, ped_features.get_ped_name())
+        ped_features = PED_features(model_features_folder, ped_name)
+        ped_features_folder = folder + '/ped_features/'
 
-        if os.path.exists(path_PED_features):
+        path_ped_features = "{}/{}_features.csv".format(ped_features_folder, ped_name)
+
+        if os.path.exists(path_ped_features):
             print('\nLoading features comparison...')
-            ped_feat = ped_features.extract(path_PED_features)
+            ped_feat = ped_features.extract(path_ped_features)
             print(ped_feat)
         else:
             print('\nComparing features...')
             ped_feat = ped_features.compare()
-            ped_features.save(path_PED_features)
+            ped_features.save(path_ped_features)
 
         # ATTENZIONE: alla fine di ped_feat, ultima riga, ci sono dei Nan!!
