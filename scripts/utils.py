@@ -1,6 +1,7 @@
 import argparse
 import glob
 import os
+import re
 
 
 def parser():
@@ -16,6 +17,11 @@ def parser():
 
     folder = args.path
     ped_name = args.ped_name
+
+    if not re.match('^PED[0-9]{5}$', ped_name):
+        print("Wrong PED name")
+        exit(1)
+
     return folder, ped_name
 
 

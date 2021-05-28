@@ -1,5 +1,8 @@
 import csv
 import math
+import os
+import sys
+
 import numpy as np
 import pandas
 from Bio.PDB import PDBParser, DSSP, PPBuilder
@@ -18,18 +21,20 @@ def extract_vectors_feature(features, key, models=slice(None)):
         return features[models, 3:(residues + 3)]
 
     if key == 'SS':
-        return features[models, (residues + 3):(2 * residues - 2 + 3)]  # removed first and last
+        return features[models, (residues + 3):(2 * residues + 3)]  # removed first and last
 
     if key == 'DIST':
-        return features[models, (2 * residues - 2 + 3):]
+        return features[models, (2 * residues + 3):]
 
     return None
 
 
 class Model_Features:
 
-    def __init__(self, path, identifier):
-        self.path = path
+    def __init__(self, folder, identifier):
+        # Path to the PDB
+        self.path = os.path.join(folder, identifier + '.pdb')
+        # PDB id
         self.id = identifier
 
         # E = beta sheet, P = polyproline I && II,
@@ -45,8 +50,21 @@ class Model_Features:
 
         self.features = []
         self.residues = None
+        # Folder to the feature file
+        self.folder = folder + '/model_features/'
+        os.makedirs(self.folder, exist_ok=True)
+        # Feature file name
+        self.file = identifier + '_features.csv'
 
-        self.compute = False
+    def choice_maker(self):
+        if os.path.exists(self.folder + self.file):
+            print('\nLoading features...')
+            feat = self.extract(self.folder + self.file)
+        else:
+            print('\nComputing features...')
+            feat = self.compute()
+            self.save(self.folder + self.file)
+        return feat
 
     def compute(self):
 
@@ -95,6 +113,10 @@ class Model_Features:
                             features_model.append(3)
                         if e == 'L':
                             features_model.append(4)
+                        if e == '-':
+                            features_model.append(0)
+
+            print(self.id, len(features['ASA']),  len(features['SS']),  len(features['DIST']))
 
             self.features.append(features_model)
 
@@ -127,9 +149,7 @@ class Model_Features:
 
         for chain in model:
             for pp in ppb.build_peptides(chain):
-
                 phi_psi = pp.get_phi_psi_list()  # [(phi_residue_1, psi_residue_1), ...]
-
                 for i, residue in enumerate(pp):
                     # Convert radians to degrees and remove first and last value that are None
                     if phi_psi[i][0] is not None and phi_psi[i][1] is not None:
@@ -137,6 +157,18 @@ class Model_Features:
                         rama[chain.id][0].append(residue)
                         rama[chain.id][1].append(math.degrees(phi_psi[i][0]))
                         rama[chain.id][2].append(math.degrees(phi_psi[i][1]))
+                    else:
+                        rama.setdefault(chain.id, [[], [], []])
+                        rama[chain.id][0].append(residue)
+                        rama[chain.id][1].append(math.nan)
+                        rama[chain.id][2].append(math.nan)
+
+            if len(rama[chain.id][0]) < (self.residues):
+                for i in range(self.residues - len(rama[chain.id][0])):
+                    rama.setdefault(chain.id, [[], [], []])
+                    rama[chain.id][0].append(None)
+                    rama[chain.id][1].append(math.nan)
+                    rama[chain.id][2].append(math.nan)
 
         # Get SS from phi/psi and compare with DSSP
 
@@ -144,10 +176,14 @@ class Model_Features:
         for chain_id in rama:
             for residue, phi, psi in zip(*rama[chain_id]):
                 ss_class = None
-                for x, y, width, height, ss_c, color in self.ranges:
-                    if x <= phi < x + width and y <= psi < y + height:
-                        ss_class = ss_c
-                        break
+                if math.isnan(phi) and math.isnan(psi):
+                    ss_class = '-'
+                else:
+                    for x, y, width, height, ss_c, color in self.ranges:
+                        if x <= phi < x + width and y <= psi < y + height:
+                            ss_class = ss_c
+                            break
+
                 ss.append(ss_class)
 
         return ss

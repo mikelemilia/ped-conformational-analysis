@@ -7,25 +7,47 @@ from utils import *
 
 class PED_features():
 
-    def __init__(self, path, ped_name):
-        ped_names = extract_filenames(path, ped_name, 'csv')
+    def __init__(self, folder, ped_name):
+        # Extract all the files PEDxxxxxexxx_features.csv
+        model_folder = folder + '/model_features/'
+        ped_names = extract_filenames(model_folder, ped_name, 'csv')
+
+        # Extract PEDxxxxxexxx from filenames
         self.ped_ids = []
-        for ped_name in ped_names:
-            self.ped_ids.append(ped_name.split('_')[0])
+        for name in ped_names:
+            self.ped_ids.append(name.split('_')[0])
+
+        # PEDxxxxx name
         self.ped_name = ped_name
 
-        paths = []
-        for i in range(len(self.ped_ids)):
-            paths.append(path + ped_names[i] + '.csv')
-
+        # Build all the paths to the features files and extract them
         self.models_features = []
-        for path in paths:
+        for i in range(len(self.ped_ids)):
+            path = model_folder + ped_names[i] + '.csv'
             models = Model_Features('data', self.ped_name)
             self.models_features.append(models.extract(path))
 
+        # Prepare the variables for the subsequent analysis
         self.num_residues = int(self.models_features[0][0, 1])
-
         self.ped_features = []
+
+        # Folders
+        self.data_folder = folder
+        self.folder = folder + '/ped_features/'
+        os.makedirs(self.folder, exist_ok=True)
+        self.file = ped_name + '_features.csv'
+
+    def choice_maker(self):
+
+        if os.path.exists(self.folder + self.file):
+            print('\nLoading features comparison...')
+            ped_feat = self.extract(self.folder + self.file)
+        else:
+            print('\nComparing features...')
+            ped_feat = self.compare()
+            self.save(self.folder + self.file)
+
+        return ped_feat
 
     def compare(self):
 
@@ -57,6 +79,7 @@ class PED_features():
         entropies = []
         for i in range(ss.shape[1]):
             unique, counts = np.unique(ss[:, i], return_counts=True)
+            counts = counts[1:]
             probs = counts / np.sum(counts)
             entropy = -np.sum(probs * np.log(probs))
             entropies.append(entropy)
@@ -72,7 +95,7 @@ class PED_features():
         window_size = 9
 
         ped_id = self.ped_ids[k]
-        structure = PDBParser(QUIET=True).get_structure(ped_id, "data/{}.pdb".format(ped_id))
+        structure = PDBParser(QUIET=True).get_structure(ped_id, "{}/{}.pdb".format(self.data_folder, ped_id))
         ref_model = [atom for atom in structure[0].get_atoms() if atom.get_name() == "CA"]  # TODO: capire!!!
 
         for i, model in enumerate(structure):
@@ -145,6 +168,3 @@ class PED_features():
             self.ped_features[row, :] = np.array(df.iloc[row])
 
         return self.ped_features
-
-    def get_ped_name(self):
-        return self.ped_name
