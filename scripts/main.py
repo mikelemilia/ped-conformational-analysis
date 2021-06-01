@@ -1,7 +1,7 @@
 import math
 import sys
 from Model_features import Model_Features
-from Clustering import Clustering
+from Clustering import *
 from utils import *
 from PED_features import *
 
@@ -24,10 +24,11 @@ if __name__ == "__main__":
             feat = model_features.choice_maker()
 
             # print('\nClustering...')
-            # test = Clustering(pdb_id, feat)
+            test = Clustering(pdb_id, feat)
             #
             # test.compute_clustering()
-            # test.generate_graph()
+            # graph = test.generate_graph()
+            # test.generate_pymol_img(graph)
 
             print('\n------------------\n')
 
