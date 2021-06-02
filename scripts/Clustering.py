@@ -18,7 +18,7 @@ class Clustering:
         self.id = identifier
         self.centroids = []
         self.labels = []
-        features = np.asmatrix(features, dtype='float64')
+        self.features = np.asmatrix(features, dtype='float64')
         self.points = features[:, 1:]
 
     def metrics(self, x, y):
@@ -92,17 +92,19 @@ class Clustering:
     # def generate_pymol_img(self, g):
     #     pymol.finish_launching()  # Open Pymol
     #     # Load the structure conformations
+    #     h = g.nodes().value()
     #     for j in g.nodes().value():
-    #         structure = PDBParser(QUIET=True).get_structure(j)
+    #         structure = PDBParser(QUIET=True).get_structure(self.id)
     #         # Superimpose all models to the first model, fragment-by-fragment (sliding window)
     #         super_imposer = Superimposer()
     #
-    #         structure_rmsd_fragments = []  # RMSD, no_models X no_fragments X fragment_size
+    #         structure_feature_fragments = []
     #         window_size = 9
-    #         ref_model = [atom for atom in structure[0].get_atoms() if atom.get_name() == "CA"]  # CA of the first model
-    #
-    #         model_rmsd = []  # RMSD, no_fragment X fragment_size
-    #         alt_model = [atom for atom in structure.get_atoms() if atom.get_name() == "CA"]  # coords of the model
+    #         ref_model = [atom for atom in structure[h].get_atoms() if atom.get_name() == "CA"]  # CA of the first model
+    #         ref_features = self.features[h]
+    #         model_features = []
+    #         alt_model = [atom for atom in structure[j].get_atoms() if atom.get_name() == "CA"]  # coords of the model
+    #         alt_features = self.features[j]
     #
     #         # Iterate fragments
     #         for start in range(len(ref_model) - window_size):
@@ -114,31 +116,32 @@ class Clustering:
     #             super_imposer.set_atoms(ref_fragment, alt_fragment)
     #
     #             # Rotate-translate coordinates
-    #             alt_fragment_coord = np.array([atom.get_coord() for atom in alt_fragment])
-    #             alt_fragment_coord = np.dot(super_imposer.rotran[0].T, alt_fragment_coord.T).T
-    #             alt_fragment_coord = alt_fragment_coord + super_imposer.rotran[1]
+    #             # alt_fragment_coord = np.array([atom.get_coord() for atom in alt_fragment])
+    #             # alt_fragment_coord = np.dot(super_imposer.rotran[0].T, alt_fragment_coord.T).T
+    #             # alt_fragment_coord = alt_fragment_coord + super_imposer.rotran[1]
     #
     #             #features of structure
-    #             ref_fragment_coord = np.array([atom.get_coord() for atom in ref_fragment])
-    #             dist = ref_fragment_coord - alt_fragment_coord
-    #             rmsd_res = np.sqrt(np.sum(dist * dist, axis=1))  # RMSD for each residue of the fragment
-    #             model_rmsd.append(rmsd_res)
-    #         structure_rmsd_fragments.append(model_rmsd)
+    #             #ref_fragment_coord = np.array([atom.get_coord() for atom in ref_fragment])
+    #             # dist = np.diff(ref_features,alt_features)
+    #             # feat_res = np.sqrt(np.sum(dist * dist, axis=1))  # RMSD for each residue of the fragment
+    #             # model_features.append(feat_res)
+    #         dist = np.diff(ref_features,alt_features)
+    #         feat_res = np.sqrt(np.sum(dist * dist, axis=1))
+    #         structure_feature_fragments.append(feat_res)
     #
-    #         # Calculate average RMSD per position
-    #         structure_rmsd_fragments = np.array(structure_rmsd_fragments)  # no_models X no_fragments X fragment_size
-    #         # Calculate the RMSD average for each fragments along all models
-    #         structure_rmsd_fragments = np.average(structure_rmsd_fragments, axis=0)  # no_fragments X fragment_size
+    #
+    #         structure_feature_fragments = np.array(structure_feature_fragments)  # no_models X no_fragments X fragment_size
+    #
+    #         structure_feature_fragments = np.average(structure_feature_fragments, axis=0)  # no_fragments X fragment_size
     #         # Pad with right zeros to reach the sequence length (no_fragments + fragment_size)
-    #         structure_rmsd_fragments = np.pad(structure_rmsd_fragments, ((0, 0), (0, structure_rmsd_fragments.shape[0])))
-    #         #print(structure_rmsd_fragments.shape, len(ref_model))
+    #         structure_feature_fragments = np.pad(structure_feature_fragments, ((0, 0), (0, structure_feature_fragments.shape[0])))
     #
     #         # Roll the fragments one by one (add heading zeros)
-    #         for i, row in enumerate(structure_rmsd_fragments):
-    #             structure_rmsd_fragments[i] = np.roll(row, i)
+    #         for i, row in enumerate(structure_feature_fragments):
+    #             structure_feature_fragments[i] = np.roll(row, i)
     #
     #         # Calculate average along columns of overlapping fragments (average RMSD per residue)
-    #         structure_rmsd_average = np.average(structure_rmsd_fragments, axis=0)
+    #         structure_feature_average = np.average(structure_feature_fragments, axis=0)
     #
     #
     #         #PYMOL SCRIPT
@@ -147,10 +150,11 @@ class Clustering:
     #         cmd.remove("resn hoh")  # Remove water molecules
     #         cmd.hide("lines", "all")  # Hide lines
     #         cmd.show("cartoon", j)  # Show cartoon
-    #         norm = colors.Normalize(vmin=min(structure_rmsd_average), vmax=max(structure_rmsd_average))
+    #         norm = colors.Normalize(vmin=min(structure_feature_average), vmax=max(structure_feature_average))
     #         for i, residue in enumerate(Selection.unfold_entities(structure[0], "R")):
-    #             rgb = cm.bwr(norm(structure_rmsd_average[i]))
+    #             rgb = cm.bwr(norm(structure_feature_average[i]))
     #             # print(i, residue.id, structure_rmsd_average[i], rgb)
     #             cmd.set_color("col_{}".format(i), list(rgb)[:3])
     #             cmd.color("col_{}".format(i), "resi {}".format(residue.id[1]))
     #         cmd.png("data/pymol_image", width=2000, height=2000, ray=1)
+    #         h=j
