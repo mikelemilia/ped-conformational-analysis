@@ -1,11 +1,52 @@
 import numpy as np
 import pandas
 from Bio.PDB import Superimposer, PDBParser
-from Model_features import extract_vectors_feature, Model_Features
+from ModelFeatures import extract_vectors_model_feature, ModelFeatures
 from utils import *
 
 
-class PED_features():
+def extract_vectors_ped_feature(residues, conformations, key, features=None, peds=slice(None), indexes=False):
+    begin = end = -1
+    residues = int(residues)
+    conformations = int(conformations)
+
+    if key == 'PED_ID':
+        begin = 0
+        end = 1
+
+    if key == 'RD':
+        begin = 1
+        end = conformations + 1
+
+    if key == 'EN':
+        begin = conformations + 1
+        end = (conformations + residues + 1)
+
+    if key == 'MED_ASA':
+        begin = (conformations + residues + 1)
+        end = (conformations + 2 * residues + 1)
+
+    if key == 'MED_RMSD':
+        begin = (conformations + 2 * residues + 1)
+        end = (conformations + 3 * residues + 1)
+
+    if key == 'MED_DIST':
+        begin = (conformations + 3 * residues + 1)
+        end = int(conformations + 3 * residues + 1 + residues * (residues - 1) / 2)
+
+    if key == 'STD_DIST':
+        begin = int(conformations + 3 * residues + 1 + residues * (residues - 1) / 2)
+        end = None
+
+    if begin == -1:
+        return None
+
+    if indexes is True or features is None:
+        return begin, end
+    return features[peds, begin:end]
+
+
+class PedFeatures():
 
     def __init__(self, folder, ped_name):
         # Extract all the files PEDxxxxxexxx_features.csv
@@ -24,7 +65,7 @@ class PED_features():
         self.models_features = []
         for i in range(len(self.ped_ids)):
             path = model_folder + ped_names[i] + '.csv'
-            models = Model_Features('data', self.ped_name)
+            models = ModelFeatures('data', self.ped_name)
             self.models_features.append(models.extract(path))
 
         # Prepare the variables for the subsequent analysis
@@ -75,7 +116,7 @@ class PED_features():
         return self.ped_features
 
     def compute_entropy(self, k):
-        ss = extract_vectors_feature(self.models_features[k], 'SS')
+        ss = extract_vectors_model_feature(self.models_features[k], 'SS')
         entropies = []
         for i in range(ss.shape[1]):
             unique, counts = np.unique(ss[:, i], return_counts=True)
@@ -86,7 +127,7 @@ class PED_features():
         return entropies
 
     def compute_median_asa(self, k):
-        asa = extract_vectors_feature(self.models_features[k], 'ASA')
+        asa = extract_vectors_model_feature(self.models_features[k], 'ASA')
         return np.median(asa, axis=0)
 
     def compute_median_rmsd(self, k):
@@ -142,11 +183,11 @@ class PED_features():
         return np.average(structure_rmsd_fragments, axis=0)
 
     def compute_median_dist(self, k):
-        dist = extract_vectors_feature(self.models_features[k], 'DIST')
+        dist = extract_vectors_model_feature(self.models_features[k], 'DIST')
         return np.median(dist, axis=0)
 
     def compute_std_dist(self, k):
-        dist = extract_vectors_feature(self.models_features[k], 'DIST')
+        dist = extract_vectors_model_feature(self.models_features[k], 'DIST')
         return np.std(dist, axis=0, dtype='float64')
 
     def save(self, output):

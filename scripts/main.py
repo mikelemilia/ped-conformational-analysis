@@ -1,40 +1,53 @@
 import math
 import sys
-from Model_features import Model_Features
-from Clustering import *
+from ModelFeatures import ModelFeatures
+from ModelComparisons import *
 from utils import *
-from PED_features import *
+from PedFeatures import *
+from PedComparisons import *
 
 if __name__ == "__main__":
 
-    folder, ped_name = parser()
+    folder, ped_names = parser()
 
     if not os.path.isdir(folder):
         print('The path specified does not exist')
         sys.exit()
     else:
 
-        pdb_id_list = extract_filenames(folder, ped_name, "pdb")
+        n_residues = []
+        n_conformations = []
 
-        for pdb_id in pdb_id_list:
+        for ped_name in ped_names:
 
-            print("Analyzing {}...".format(pdb_id))
+            pdb_id_list = extract_filenames(folder, ped_name, "pdb")
 
-            model_features = Model_Features(folder, pdb_id)
-            feat = model_features.choice_maker()
+            for pdb_id in pdb_id_list:
 
-            # print('\nClustering...')
-            test = Clustering(pdb_id, feat)
-            #
-            # test.compute_clustering()
-            # graph = test.generate_graph()
-            # test.generate_pymol_img(graph)
+                print("Analyzing {}...".format(pdb_id))
 
-            print('\n------------------\n')
+                model_features = ModelFeatures(folder, pdb_id)
+                feat = model_features.choice_maker()
 
-        print('Task2...')
+                n_residues.append(model_features.get_number_residues())
+                n_conformations.append(model_features.get_number_conformations())
 
-        ped_features = PED_features(folder, ped_name)
-        ped_features.choice_maker()
+                # print('\nClustering...')
+                # test = ModelComparisons(pdb_id, feat)
+                #
+                # test.compute_clustering()
+                # graph = test.generate_graph()
+                # test.generate_pymol_img(graph)
 
-        # ATTENZIONE: alla fine di ped_feat, ultima riga, ci sono dei Nan!!
+                print('\n------------------\n')
+
+            print('Task2...')
+
+            ped_features = PedFeatures(folder, ped_name)
+            ped_feat = ped_features.choice_maker()
+
+            # ATTENZIONE: alla fine di ped_feat, ultima riga, ci sono dei Nan!!
+
+            print('\nComparison between PEDs')
+            comparison = PedComparison(ped_feat, max(n_conformations), max(n_residues))
+            comparison.global_dendrogram()

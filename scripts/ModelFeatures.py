@@ -9,27 +9,35 @@ from Bio.PDB import PDBParser, DSSP, PPBuilder
 from matplotlib import pyplot as plt, patches
 
 
-def extract_vectors_feature(features, key, models=slice(None)):
-    residues = int(features[0, 1])
-    if key == 'N':
-        return residues
+def extract_vectors_model_feature(residues, key, models=slice(None), features=None, indexes=False):
+    begin = end = -1
+    residues = int(residues)
 
     if key == 'RG':
-        return features[models, 2]
+        begin = 2
+        end = 3
 
     if key == 'ASA':
-        return features[models, 3:(residues + 3)]
+        begin = 3
+        end = residues + 3
 
     if key == 'SS':
-        return features[models, (residues + 3):(2 * residues + 3)]  # removed first and last
+        begin = residues+3
+        end = 2 * residues + 3
 
     if key == 'DIST':
-        return features[models, (2 * residues + 3):]
+        begin = 2 * residues + 3
+        end = None
 
-    return None
+    if begin == -1:
+        return None
+
+    if indexes is True or features is None:
+        return begin, end
+    return features[models, begin:end]
 
 
-class Model_Features:
+class ModelFeatures:
 
     def __init__(self, folder, identifier):
         # Path to the PDB
@@ -50,6 +58,7 @@ class Model_Features:
 
         self.features = []
         self.residues = None
+        self.conformations = []
         # Folder to the feature file
         self.folder = folder + '/model_features/'
         os.makedirs(self.folder, exist_ok=True)
@@ -64,6 +73,8 @@ class Model_Features:
             print('\nComputing features...')
             feat = self.compute()
             self.save(self.folder + self.file)
+        self.conformations = len(self.features)
+
         return feat
 
     def compute(self):
@@ -116,7 +127,7 @@ class Model_Features:
                         if e == '-':
                             features_model.append(0)
 
-            print(self.id, len(features['ASA']),  len(features['SS']),  len(features['DIST']))
+            print(self.id, len(features['ASA']), len(features['SS']), len(features['DIST']))
 
             self.features.append(features_model)
 
@@ -250,3 +261,9 @@ class Model_Features:
 
         plt.tight_layout()  # Remove figure padding
         plt.show()
+
+    def get_number_residues(self):
+        return self.residues
+
+    def get_number_conformations(self):
+        return self.conformations

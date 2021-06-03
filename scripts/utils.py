@@ -10,7 +10,8 @@ def parser():
 
     # Add the arguments
     my_parser.add_argument('path', metavar='path', type=str, help='the path to input folder')
-    my_parser.add_argument('ped_name', metavar='ped_name', type=str, help='ID of the PED to be used (e.g. PEDxxxxx)')
+    my_parser.add_argument('ped_name', metavar='ped_name', nargs='+', type=str,
+                           help='ID of the PED to be used (e.g. PEDxxxxx)')
 
     # Execute the parse_args() method
     args = my_parser.parse_args()
@@ -18,9 +19,10 @@ def parser():
     folder = args.path
     ped_name = args.ped_name
 
-    if not re.match('^PED[0-9]{5}$', ped_name):
-        print("Wrong PED name")
-        exit(1)
+    for ped in ped_name:
+        if not re.match('^PED[0-9]{5}$', ped):
+            print("Wrong PED name")
+            exit(1)
 
     return folder, ped_name
 
