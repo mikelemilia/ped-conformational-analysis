@@ -1,4 +1,5 @@
 import math
+from scipy.spatial.distance import *
 import numpy as np
 from scipy.cluster.hierarchy import dendrogram, linkage
 import matplotlib.pyplot as plt
@@ -17,6 +18,28 @@ class PedComparison:
             for j in range(self.features.shape[1]):
                 if math.isnan(self.features[i, j]):
                     self.features[i, j] = 0
+
+    def extract_indeces_ped(self, conf):
+        res = len(self.residues)
+       # print(res)
+
+        indexes = [1, int(conf+1), int(conf + res + 1), int(conf + 2 * res + 1), int(conf + 3 * res + 1), int(conf + 3 * res + 1 + res * (res - 1) / 2)]
+        #RD, EN, MED_ASA, MED_RMSD, STD_DIST
+
+        return indexes
+
+    def global_metric(self, x, y):
+
+        indexes = self.extract_indeces_ped(x[0])
+
+        en = x[indexes[1]] - y[indexes[1]]
+        med_asa = euclidean(x[indexes[2]:indexes[3]], y[indexes[2]:indexes[3]])
+        med_rmsd = euclidean(x[indexes[3]:indexes[4]], y[indexes[3]:indexes[4]])
+        std_dist = 1 - correlation(x[indexes[4]:], y[indexes[4]:])
+
+        m = en + med_asa + med_rmsd + std_dist
+
+        return m
 
     def distance_matrix_med_rmsd_peds(self):
 
@@ -37,6 +60,6 @@ class PedComparison:
     def global_dendrogram(self):
 
         indexes = extract_vectors_ped_feature(self.residues, self.conformations, 'EN', indexes=True)
-        linkage_matrix = linkage(self.features[:, indexes[0]:], 'single')  # qui cambiare la funzione di metric
+        linkage_matrix = linkage(self.features[:, indexes[0]:], 'single', metric=self.global_metric)
         dendrogram(linkage_matrix)
         plt.show()
