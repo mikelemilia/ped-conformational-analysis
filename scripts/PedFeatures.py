@@ -5,45 +5,63 @@ from ModelFeatures import extract_vectors_model_feature, ModelFeatures
 from utils import *
 
 
-def extract_vectors_ped_feature(residues, conformations, key, features=None, peds=slice(None), indexes=False):
+def extract_vectors_ped_feature(residues, conformations, key, features=None, peds=None, indexes=False, index_begins=False):
     begin = end = -1
     residues = int(residues)
     conformations = int(conformations)
+    all_begins = []
 
-    if key == 'PED_ID':
+    if key == 'PED_ID' or index_begins:
         begin = 0
         end = 1
+        all_begins.append(begin)
 
-    if key == 'RD':
+    if key == 'RD' or index_begins:
         begin = 1
         end = conformations + 1
+        all_begins.append(begin)
 
-    if key == 'EN':
+    if key == 'EN' or index_begins:
         begin = conformations + 1
         end = conformations + residues + 1
+        all_begins.append(begin)
 
-    if key == 'MED_ASA':
+    if key == 'MED_ASA' or index_begins:
         begin = conformations + residues + 1
         end = conformations + 2 * residues + 1
+        all_begins.append(begin)
 
-    if key == 'MED_RMSD':
+    if key == 'MED_RMSD' or index_begins:
         begin = conformations + 2 * residues + 1
         end = conformations + 3 * residues + 1
+        all_begins.append(begin)
 
-    if key == 'MED_DIST':
+    if key == 'MED_DIST' or index_begins:
         begin = conformations + 3 * residues + 1
         end = int(conformations + 3 * residues + 1 + residues * (residues - 1) / 2)
+        all_begins.append(begin)
 
     if key == 'STD_DIST':
         begin = int(conformations + 3 * residues + 1 + residues * (residues - 1) / 2)
         end = None
+        all_begins.append(begin)
 
     if begin == -1:
         return None
 
+    if index_begins:
+        return all_begins
+
     if indexes is True or features is None:
         return begin, end
-    return features[peds, begin:end]
+
+    if peds is None:
+        return features[:, begin:end]
+    else:
+        if isinstance(peds, int):
+            return np.array(features[peds][begin:end])
+        else:
+            return features[peds, begin:end]
 
 
 class PedFeatures:

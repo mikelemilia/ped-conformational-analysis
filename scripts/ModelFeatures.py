@@ -7,29 +7,37 @@ from Bio.PDB import PDBParser, DSSP, PPBuilder
 from matplotlib import pyplot as plt, patches
 
 
-def extract_vectors_model_feature(residues, key, models=None, features=None, indexes=False):
+def extract_vectors_model_feature(residues, key, models=None, features=None, indexes=False, index_begins=False):
 
     begin = end = -1
     residues = int(residues)
+    all_begins = []
 
-    if key == 'RG':
+    if key == 'RG' or index_begins:
         begin = 2
         end = 3
+        all_begins.append(begin)
 
-    if key == 'ASA':
+    if key == 'ASA' or index_begins:
         begin = 3
         end = residues + 3
+        all_begins.append(begin)
 
-    if key == 'SS':
+    if key == 'SS' or index_begins:
         begin = residues + 3
         end = 2 * residues + 3
+        all_begins.append(begin)
 
-    if key == 'DIST':
+    if key == 'DIST' or index_begins:
         begin = 2 * residues + 3
         end = None
+        all_begins.append(begin)
 
     if begin == -1:
         return None
+
+    if index_begins:
+        return all_begins
 
     if indexes is True or features is None:
         return begin, end

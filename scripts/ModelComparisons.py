@@ -25,7 +25,7 @@ class ModelComparisons:
 
         indexes = self.extract_indeces(x[0])
 
-        rg = x[indexes[0]] - y[indexes[0]]
+        rg = x[indexes[0]] - y[indexes[0]] # TODO: SISTEMARE
         asa = euclidean(x[indexes[1]:indexes[2]], y[indexes[1]:indexes[2]])
         ss = hamming(x[indexes[2]:indexes[3]], y[indexes[2]:indexes[3]])
         dist = 1 - correlation(x[indexes[3]:], y[indexes[3]:])
