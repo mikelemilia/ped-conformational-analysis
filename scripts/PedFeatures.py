@@ -247,6 +247,3 @@ class PedFeatures:
     @property
     def num_conformations(self):
         return self._num_conformations
-
-    def local_metric(self, i):
-        pass

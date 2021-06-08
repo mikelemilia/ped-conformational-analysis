@@ -88,6 +88,8 @@ class ModelFeatures:
         self._centroids = []
         self._labels = []
 
+        self._max_radius = None
+
     def choice_maker(self):
         """
         This function allows you to check if the file containing the features of
@@ -99,13 +101,16 @@ class ModelFeatures:
 
         if os.path.exists(self._folder + self._file):
             print('\nLoading features...')
-            self._features = self.extract(self._folder + self._file)
+            self.extract(self._folder + self._file)
         else:
             print('\nComputing features...')
             self.compute()
             self.save(self._folder + self._file)
 
         self._conformations = len(self._features)
+
+        radius = np.array(extract_vectors_model_feature(self._residues, key='RG', features=self._features))
+        self._max_radius = float(max(radius))
 
         return self._features
 
@@ -284,26 +289,26 @@ class ModelFeatures:
 
         indexes = extract_vectors_model_feature(residues=self._residues, index_slices=True)
 
-        rg = x[indexes[0]] - y[indexes[0]]
+        rg = np.abs(x[indexes[0]] - y[indexes[0]]) #/ self._max_radius
         asa = euclidean(x[indexes[1]], y[indexes[1]])
         ss = hamming(x[indexes[2]], y[indexes[2]])
         dist = 1 - correlation(x[indexes[3]], y[indexes[3]])
 
-        m = rg + asa + ss + dist
+        metric = rg + asa + ss + dist
 
-        # print('Metric score: {}'.format(dist))
+        # print('Metric: {}'.format(metric))
 
-        return m
+        return metric
 
     def compute_clustering(self, k_set=range(3, 9)):
 
         silhouettes = []
 
         for k in k_set:
-            kMed = cluster.KMedoids(n_clusters=k, metric=self.metrics, init='k-medoids++', max_iter=5000)
-            labels = kMed.fit_predict(self._features)
+            kMed = cluster.KMedoids(n_clusters=k, metric=self.metrics, init='k-medoids++', max_iter=1000)
+            pred_labels = kMed.fit_predict(self._features)
 
-            s = silhouette_score(self._features, labels, metric=self.metrics)
+            s = silhouette_score(self._features, pred_labels, metric=self.metrics)
             silhouettes.append(s)
 
             # u_labels = np.unique(labels)
@@ -318,7 +323,7 @@ class ModelFeatures:
         print('Number of representative conformations: {}'.format(k_opt))
         print('Correspondent silhouette value: {}'.format(s_max))
 
-        kMed = cluster.KMedoids(n_clusters=k_opt, metric=self.metrics, init='k-medoids++', max_iter=5000)
+        kMed = cluster.KMedoids(n_clusters=k_opt, metric=self.metrics, init='k-medoids++', max_iter=1000)
         self._labels = kMed.fit_predict(self._features)
         self._centroids = kMed.medoid_indices_
         print('Indexes of the representative conformations: {}'.format(self._centroids))

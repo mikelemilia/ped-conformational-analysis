@@ -1,7 +1,6 @@
 import math
 
 import matplotlib.pyplot as plt
-import numpy as np
 import seaborn
 from scipy.cluster.hierarchy import dendrogram, linkage
 from scipy.spatial.distance import *
@@ -34,7 +33,7 @@ class PedComparison:
 
         indexes = self.extract_indeces_ped(x[0])
 
-        en = np.sum(x[indexes[1]:indexes[2]] - y[indexes[1]:indexes[2]])  # TODO: ERA SBAGLIATO
+        en = np.sum(x[indexes[1]:indexes[2]] - y[indexes[1]:indexes[2]])
         med_asa = euclidean(x[indexes[2]:indexes[3]], y[indexes[2]:indexes[3]])
         med_rmsd = euclidean(x[indexes[3]:indexes[4]], y[indexes[3]:indexes[4]])
         std_dist = 1 - correlation(x[indexes[4]:], y[indexes[4]:])
@@ -78,69 +77,77 @@ class PedComparison:
         plt.show()
 
     def local_metric(self):
-        indexes = extract_vectors_ped_feature(self.residues, self.conformations, index_slices=True)
 
-        val_entropy = []
-        val_med_asa = []
-        val_med_rmsd = []
-        val_med_dist = []
-        val_std_dist = []
+        # Retrieve features each PED
+
+        entropy = extract_vectors_ped_feature(self.residues, self.conformations, key='EN', features=self.features)
+        med_asa = extract_vectors_ped_feature(self.residues, self.conformations, key='MED_ASA', features=self.features)
+        med_rmsd = extract_vectors_ped_feature(self.residues, self.conformations, key='MED_RMSD', features=self.features)
+        med_dist = []
+        std_dist = []
+
+        # Convert dist from flatten to matrix
+        for k in range(self.features.shape[0]):
+            temp_med_dist = extract_vectors_ped_feature(self.residues, self.conformations, key='MED_DIST', features=self.features, peds=k)
+            temp_std_dist = extract_vectors_ped_feature(self.residues, self.conformations, key='STD_DIST', features=self.features, peds=k)
+
+            med_dist_k = np.zeros((self.residues, self.residues))
+            idx = np.triu_indices(self.residues, k=1)
+            med_dist_k[idx] = temp_med_dist
+
+            std_dist_k = np.zeros((self.residues, self.residues))
+            idx = np.triu_indices(self.residues, k=1)
+            std_dist_k[idx] = temp_std_dist
+
+            med_dist.append(med_dist_k)
+            std_dist.append(std_dist_k)
+
+        total_entropy = []
+        total_med_asa = []
+        total_med_rmsd = []
+        total_med_dist = []
+        total_std_dist = []
 
         # Scanning each element of the sequence
         for i in range(self.residues):
-
-            entropy_i = []
-            med_asa_i = []
-            med_rmsd_i = []
-            med_dist_i = []
-            std_dist_i = []
-
-            # Scanning each PED
-            for k in range(self.features.shape[0]):
-                entropy_i.append(self.features[k][indexes[2]][i])
-                med_asa_i.append(self.features[k][indexes[3]][i])
-                med_rmsd_i.append(self.features[k][indexes[4]][i])
-                med_dist_i.append(self.features[k][indexes[5]][i])
-                std_dist_i.append(self.features[k][indexes[6]][i])
-
-            val_entropy.append(np.std(entropy_i))
-            val_med_asa.append(np.std(med_asa_i))
-            val_med_rmsd.append(np.std(med_rmsd_i))
-            val_med_dist.append(np.mean(med_dist_i))
-            val_std_dist.append(np.mean(std_dist_i))
+            total_entropy.append(np.std(entropy[:, i]))
+            total_med_asa.append(np.std(med_asa[:, i]))
+            total_med_rmsd.append(np.std(med_rmsd[:, i]))
+            # total_med_dist.append(np.mean(med_dist_i))
+            # total_std_dist.append(np.mean(std_dist_i))
 
         # Plot results same plot
         fig, axes = plt.subplots(2, 1, figsize=(24, 12))
         axes[0].set_title("Plots")
         axes[0].axhline()
-        axes[0].plot(np.arange(self.residues), val_entropy, color='blue', ls='--')
-        axes[0].plot(np.arange(self.residues), val_med_asa, color='red', ls='--')
-        axes[0].plot(np.arange(self.residues), val_med_rmsd, color='green', ls='--')
+        axes[0].plot(np.arange(self.residues), total_entropy, color='blue', ls='--')
+        axes[0].plot(np.arange(self.residues), total_med_asa, color='red', ls='--')
+        axes[0].plot(np.arange(self.residues), total_med_rmsd, color='green', ls='--')
 
         plt.show()
 
-        # Plot results
-        fig, axes = plt.subplots(6, 1, figsize=(24, 60))
-        axes[0].set_title("ENTROPY")
-        axes[0].axhline()
-        axes[0].plot(np.arange(self.residues), val_entropy, ls='--')
-
-        axes[1].set_title("ASA")
-        axes[1].axhline()
-        axes[1].plot(np.arange(self.residues), val_med_asa, ls='--')
-
-        axes[2].set_title("RMDS")
-        axes[2].axhline()
-        axes[2].plot(np.arange(self.residues), val_med_rmsd, ls='--')
-
-        axes[4].set_title("DIST")
-        axes[4].axhline()
-        axes[4].plot(np.arange(self.residues), val_med_dist, ls='--')
-
-        axes[5].set_title("STD_DIST")
-        axes[5].axhline()
-        axes[5].plot(np.arange(self.residues), val_std_dist, ls='--')
-
-        # plt.savefig('output/midterm-2/result_{}_{}.png'.format(pdb_id, chain_id), bbox_inches='tight')
-        plt.show()
-        fig.clear()
+        # # Plot results
+        # fig, axes = plt.subplots(6, 1, figsize=(24, 60))
+        # axes[0].set_title("ENTROPY")
+        # axes[0].axhline()
+        # axes[0].plot(np.arange(self.residues), val_entropy, ls='--')
+        #
+        # axes[1].set_title("ASA")
+        # axes[1].axhline()
+        # axes[1].plot(np.arange(self.residues), val_med_asa, ls='--')
+        #
+        # axes[2].set_title("RMDS")
+        # axes[2].axhline()
+        # axes[2].plot(np.arange(self.residues), val_med_rmsd, ls='--')
+        #
+        # axes[4].set_title("DIST")
+        # axes[4].axhline()
+        # axes[4].plot(np.arange(self.residues), val_med_dist, ls='--')
+        #
+        # axes[5].set_title("STD_DIST")
+        # axes[5].axhline()
+        # axes[5].plot(np.arange(self.residues), val_std_dist, ls='--')
+        #
+        # # plt.savefig('output/midterm-2/result_{}_{}.png'.format(pdb_id, chain_id), bbox_inches='tight')
+        # plt.show()
+        # fig.clear()
