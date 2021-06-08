@@ -32,7 +32,7 @@ class PedComparison:
 
         indexes = self.extract_indeces_ped(x[0])
 
-        en = x[indexes[1]] - y[indexes[1]]
+        en = np.sum(x[indexes[1]:indexes[2]] - y[indexes[1]:indexes[2]])  # TODO: ERA SBAGLIATO
         med_asa = euclidean(x[indexes[2]:indexes[3]], y[indexes[2]:indexes[3]])
         med_rmsd = euclidean(x[indexes[3]:indexes[4]], y[indexes[3]:indexes[4]])
         std_dist = 1 - correlation(x[indexes[4]:], y[indexes[4]:])
@@ -62,4 +62,15 @@ class PedComparison:
         indexes = extract_vectors_ped_feature(self.residues, self.conformations, 'EN', indexes=True)
         linkage_matrix = linkage(self.features[:, indexes[0]:], 'single', metric=self.global_metric)
         dendrogram(linkage_matrix)
+        plt.show()
+
+    def global_heatmap(self):
+
+        dist = np.zeros((len(self.features), len(self.features)))
+        for i in range(len(self.features)):
+            for j in range(len(self.features)):
+                dist[i, j] = self.global_metric(self.features[i], self.features[j])
+                dist[j, i] = self.global_metric(self.features[i], self.features[j])
+
+        seaborn.heatmap(dist)
         plt.show()

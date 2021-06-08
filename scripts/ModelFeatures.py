@@ -72,16 +72,18 @@ class ModelFeatures:
         self.file = identifier + '_features.csv'
 
     def choice_maker(self):
+
         if os.path.exists(self.folder + self.file):
             print('\nLoading features...')
-            feat = self.extract(self.folder + self.file)
+            self.features = self.extract(self.folder + self.file)
         else:
             print('\nComputing features...')
-            feat = self.compute()
+            self.compute()
             self.save(self.folder + self.file)
+
         self.conformations = len(self.features)
 
-        return feat
+        return self.features
 
     def compute(self):
 

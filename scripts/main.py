@@ -29,9 +29,6 @@ if __name__ == "__main__":
                 model_features = ModelFeatures(folder, pdb_id)
                 feat = model_features.choice_maker()
 
-                n_residues.append(model_features.get_number_residues())
-                n_conformations.append(model_features.get_number_conformations())
-
                 # print('\nClustering...')
                 # test = ModelComparisons(pdb_id, feat)
                 #
@@ -46,9 +43,13 @@ if __name__ == "__main__":
             ped_features = PedFeatures(folder, ped_name)
             ped_feat = ped_features.choice_maker()
 
+            n_residues = ped_features.get_number_residues()
+            n_conformations = ped_features.get_number_conformations()
+
             # ATTENZIONE: alla fine di ped_feat, ultima riga, ci sono dei Nan!!
 
             print('\nComparison between PEDs')
-            comparison = PedComparison(ped_feat, max(n_conformations), max(n_residues))
+            comparison = PedComparison(ped_feat, n_conformations, n_residues)
             comparison.global_dendrogram()
             comparison.distance_matrix_med_rmsd_peds()
+            # comparison.global_heatmap()

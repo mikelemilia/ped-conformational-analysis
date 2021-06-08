@@ -20,18 +20,18 @@ def extract_vectors_ped_feature(residues, conformations, key, features=None, ped
 
     if key == 'EN':
         begin = conformations + 1
-        end = (conformations + residues + 1)
+        end = conformations + residues + 1
 
     if key == 'MED_ASA':
-        begin = (conformations + residues + 1)
-        end = (conformations + 2 * residues + 1)
+        begin = conformations + residues + 1
+        end = conformations + 2 * residues + 1
 
     if key == 'MED_RMSD':
-        begin = (conformations + 2 * residues + 1)
-        end = (conformations + 3 * residues + 1)
+        begin = conformations + 2 * residues + 1
+        end = conformations + 3 * residues + 1
 
     if key == 'MED_DIST':
-        begin = (conformations + 3 * residues + 1)
+        begin = conformations + 3 * residues + 1
         end = int(conformations + 3 * residues + 1 + residues * (residues - 1) / 2)
 
     if key == 'STD_DIST':
@@ -46,7 +46,7 @@ def extract_vectors_ped_feature(residues, conformations, key, features=None, ped
     return features[peds, begin:end]
 
 
-class PedFeatures():
+class PedFeatures:
 
     def __init__(self, folder, ped_name):
         # Extract all the files PEDxxxxxexxx_features.csv
@@ -63,13 +63,16 @@ class PedFeatures():
 
         # Build all the paths to the features files and extract them
         self.models_features = []
+        confs = []
         for i in range(len(self.ped_ids)):
             path = model_folder + ped_names[i] + '.csv'
             models = ModelFeatures('data', self.ped_name)
             self.models_features.append(models.extract(path))
+            confs.append(self.models_features[i].shape[0])
 
         # Prepare the variables for the subsequent analysis
         self.num_residues = int(self.models_features[0][0, 1])
+        self.num_conformations = max(confs)
         self.ped_features = []
 
         # Folders
@@ -82,17 +85,16 @@ class PedFeatures():
 
         if os.path.exists(self.folder + self.file):
             print('\nLoading features comparison...')
-            ped_feat = self.extract(self.folder + self.file)
+            self.ped_features = self.extract(self.folder + self.file)
         else:
             print('\nComparing features...')
-            ped_feat = self.compare()
+            self.compare()
             self.save(self.folder + self.file)
 
-        return ped_feat
+        return self.ped_features
 
     def compare(self):
 
-        print(range(len(self.models_features)))
         for k in range(len(self.models_features)):
 
             ped_dict = {
@@ -104,6 +106,9 @@ class PedFeatures():
                 'MED_DIST': self.compute_median_dist(k),
                 'STD_DIST': self.compute_std_dist(k)
             }
+
+            if len(ped_dict['RD']) < self.num_conformations:
+                ped_dict['RD'] = np.concatenate((ped_dict['RD'], np.zeros(self.num_conformations-len(ped_dict['RD']))))
 
             x = []
             for key in ped_dict.keys():
@@ -117,6 +122,7 @@ class PedFeatures():
         return self.ped_features
 
     def compute_entropy(self, k):
+
         ss = extract_vectors_model_feature(residues=self.num_residues, key='SS', features=self.models_features[k])
         entropies = []
         for i in range(ss.shape[1]):
@@ -128,10 +134,12 @@ class PedFeatures():
         return entropies
 
     def compute_median_asa(self, k):
+
         asa = extract_vectors_model_feature(residues=self.num_residues, key='ASA', features=self.models_features[k])
         return np.median(asa, axis=0)
 
     def compute_median_rmsd(self, k):
+
         super_imposer = Superimposer()
         structure_rmsd_fragments = []  # RMSD, no_models X no_fragments X fragment_size
         window_size = 9
@@ -184,10 +192,12 @@ class PedFeatures():
         return np.average(structure_rmsd_fragments, axis=0)
 
     def compute_median_dist(self, k):
+
         dist = extract_vectors_model_feature(residues=self.num_residues, key='DIST', features=self.models_features[k])
         return np.median(dist, axis=0)
 
     def compute_std_dist(self, k):
+
         dist = extract_vectors_model_feature(residues=self.num_residues, key='DIST', features=self.models_features[k])
         return np.std(dist, axis=0, dtype='float64')
 
@@ -210,3 +220,9 @@ class PedFeatures():
             self.ped_features[row, :] = np.array(df.iloc[row])
 
         return self.ped_features
+
+    def get_number_residues(self):
+        return self.num_residues
+
+    def get_number_conformations(self):
+        return self.num_conformations
