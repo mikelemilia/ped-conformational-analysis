@@ -1,7 +1,5 @@
-import csv
 import math
 import os
-import sys
 
 import numpy as np
 import pandas
@@ -9,7 +7,8 @@ from Bio.PDB import PDBParser, DSSP, PPBuilder
 from matplotlib import pyplot as plt, patches
 
 
-def extract_vectors_model_feature(residues, key, models=slice(None), features=None, indexes=False):
+def extract_vectors_model_feature(residues, key, models=None, features=None, indexes=False):
+
     begin = end = -1
     residues = int(residues)
 
@@ -22,7 +21,7 @@ def extract_vectors_model_feature(residues, key, models=slice(None), features=No
         end = residues + 3
 
     if key == 'SS':
-        begin = residues+3
+        begin = residues + 3
         end = 2 * residues + 3
 
     if key == 'DIST':
@@ -34,7 +33,14 @@ def extract_vectors_model_feature(residues, key, models=slice(None), features=No
 
     if indexes is True or features is None:
         return begin, end
-    return features[models, begin:end]
+
+    if models is None:
+        return features[:, begin:end]
+    else:
+        if isinstance(models, int):
+            return np.array(features[models][begin:end])
+        else:
+            return features[models, begin:end]
 
 
 class ModelFeatures:
@@ -127,7 +133,7 @@ class ModelFeatures:
                         if e == '-':
                             features_model.append(0)
 
-            print(self.id, len(features['ASA']), len(features['SS']), len(features['DIST']))
+            # print(self.id, len(features['ASA']), len(features['SS']), len(features['DIST']))
 
             self.features.append(features_model)
 
@@ -174,7 +180,7 @@ class ModelFeatures:
                         rama[chain.id][1].append(math.nan)
                         rama[chain.id][2].append(math.nan)
 
-            if len(rama[chain.id][0]) < (self.residues):
+            if len(rama[chain.id][0]) < self.residues:
                 for i in range(self.residues - len(rama[chain.id][0])):
                     rama.setdefault(chain.id, [[], [], []])
                     rama[chain.id][0].append(None)

@@ -10,7 +10,7 @@ from PedFeatures import *
 class PedComparison:
 
     def __init__(self, features, conformations, residues):
-        self.features = features
+        self.features = np.array(features)
         self.conformations = conformations
         self.residues = residues
 
@@ -20,7 +20,7 @@ class PedComparison:
                     self.features[i, j] = 0
 
     def extract_indeces_ped(self, conf):
-        res = len(self.residues)
+        res = self.residues
        # print(res)
 
         indexes = [1, int(conf+1), int(conf + res + 1), int(conf + 2 * res + 1), int(conf + 3 * res + 1), int(conf + 3 * res + 1 + res * (res - 1) / 2)]

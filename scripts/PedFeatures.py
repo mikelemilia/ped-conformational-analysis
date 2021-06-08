@@ -92,6 +92,7 @@ class PedFeatures():
 
     def compare(self):
 
+        print(range(len(self.models_features)))
         for k in range(len(self.models_features)):
 
             ped_dict = {
@@ -116,7 +117,7 @@ class PedFeatures():
         return self.ped_features
 
     def compute_entropy(self, k):
-        ss = extract_vectors_model_feature(self.models_features[k], 'SS')
+        ss = extract_vectors_model_feature(residues=self.num_residues, key='SS', features=self.models_features[k])
         entropies = []
         for i in range(ss.shape[1]):
             unique, counts = np.unique(ss[:, i], return_counts=True)
@@ -127,7 +128,7 @@ class PedFeatures():
         return entropies
 
     def compute_median_asa(self, k):
-        asa = extract_vectors_model_feature(self.models_features[k], 'ASA')
+        asa = extract_vectors_model_feature(residues=self.num_residues, key='ASA', features=self.models_features[k])
         return np.median(asa, axis=0)
 
     def compute_median_rmsd(self, k):
@@ -183,11 +184,11 @@ class PedFeatures():
         return np.average(structure_rmsd_fragments, axis=0)
 
     def compute_median_dist(self, k):
-        dist = extract_vectors_model_feature(self.models_features[k], 'DIST')
+        dist = extract_vectors_model_feature(residues=self.num_residues, key='DIST', features=self.models_features[k])
         return np.median(dist, axis=0)
 
     def compute_std_dist(self, k):
-        dist = extract_vectors_model_feature(self.models_features[k], 'DIST')
+        dist = extract_vectors_model_feature(residues=self.num_residues, key='DIST', features=self.models_features[k])
         return np.std(dist, axis=0, dtype='float64')
 
     def save(self, output):
