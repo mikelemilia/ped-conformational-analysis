@@ -22,6 +22,8 @@ if __name__ == "__main__":
 
             pdb_id_list = extract_filenames(folder, ped_name, "pdb")
 
+            print('Task1...')
+
             for pdb_id in pdb_id_list:
 
                 print("Analyzing {}...".format(pdb_id))
@@ -29,12 +31,11 @@ if __name__ == "__main__":
                 model_features = ModelFeatures(folder, pdb_id)
                 feat = model_features.choice_maker()
 
-                # print('\nClustering...')
-                # test = ModelComparisons(pdb_id, feat)
-                #
-                # test.compute_clustering()
-                # graph = test.generate_graph()
-                # test.generate_pymol_img(graph)
+                print("Clustering {}...".format(pdb_id))
+
+                model_features.compute_clustering()
+                graph = model_features.generate_graph()
+                # model_features.generate_pymol_img(graph)
 
                 print('\n------------------\n')
 
@@ -43,8 +44,8 @@ if __name__ == "__main__":
             ped_features = PedFeatures(folder, ped_name)
             ped_feat = ped_features.choice_maker()
 
-            n_residues = ped_features.get_number_residues()
-            n_conformations = ped_features.get_number_conformations()
+            n_residues = ped_features.num_residues
+            n_conformations = ped_features.num_conformations
 
             # ATTENZIONE: alla fine di ped_feat, ultima riga, ci sono dei Nan!!
 
@@ -52,4 +53,5 @@ if __name__ == "__main__":
             comparison = PedComparison(ped_feat, n_conformations, n_residues)
             comparison.global_dendrogram()
             comparison.distance_matrix_med_rmsd_peds()
-            # comparison.global_heatmap()
+            comparison.local_metric()
+            comparison.global_heatmap()

@@ -5,52 +5,53 @@ from ModelFeatures import extract_vectors_model_feature, ModelFeatures
 from utils import *
 
 
-def extract_vectors_ped_feature(residues, conformations, key, features=None, peds=None, indexes=False, index_begins=False):
+def extract_vectors_ped_feature(residues, conformations, key=None, features=None, peds=None, indexes=False, index_slices=False):
     begin = end = -1
     residues = int(residues)
     conformations = int(conformations)
-    all_begins = []
 
-    if key == 'PED_ID' or index_begins:
+    slices = []
+
+    if key == 'PED_ID' or index_slices:
         begin = 0
         end = 1
-        all_begins.append(begin)
+        slices.append(slice(begin, end))
 
-    if key == 'RD' or index_begins:
+    if key == 'RD' or index_slices:
         begin = 1
         end = conformations + 1
-        all_begins.append(begin)
+        slices.append(slice(begin, end))
 
-    if key == 'EN' or index_begins:
+    if key == 'EN' or index_slices:
         begin = conformations + 1
         end = conformations + residues + 1
-        all_begins.append(begin)
+        slices.append(slice(begin, end))
 
-    if key == 'MED_ASA' or index_begins:
+    if key == 'MED_ASA' or index_slices:
         begin = conformations + residues + 1
         end = conformations + 2 * residues + 1
-        all_begins.append(begin)
+        slices.append(slice(begin, end))
 
-    if key == 'MED_RMSD' or index_begins:
+    if key == 'MED_RMSD' or index_slices:
         begin = conformations + 2 * residues + 1
         end = conformations + 3 * residues + 1
-        all_begins.append(begin)
+        slices.append(slice(begin, end))
 
-    if key == 'MED_DIST' or index_begins:
+    if key == 'MED_DIST' or index_slices:
         begin = conformations + 3 * residues + 1
         end = int(conformations + 3 * residues + 1 + residues * (residues - 1) / 2)
-        all_begins.append(begin)
+        slices.append(slice(begin, end))
 
-    if key == 'STD_DIST':
+    if key == 'STD_DIST' or index_slices:
         begin = int(conformations + 3 * residues + 1 + residues * (residues - 1) / 2)
         end = None
-        all_begins.append(begin)
+        slices.append(slice(begin, end))
 
     if begin == -1:
         return None
 
-    if index_begins:
-        return all_begins
+    if index_slices:
+        return slices
 
     if indexes is True or features is None:
         return begin, end
@@ -72,52 +73,52 @@ class PedFeatures:
         ped_names = extract_filenames(model_folder, ped_name, 'csv')
 
         # Extract PEDxxxxxexxx from filenames
-        self.ped_ids = []
+        self._ped_ids = []
         for name in ped_names:
-            self.ped_ids.append(name.split('_')[0])
+            self._ped_ids.append(name.split('_')[0])
 
         # PEDxxxxx name
-        self.ped_name = ped_name
+        self._ped_name = ped_name
 
         # Build all the paths to the features files and extract them
-        self.models_features = []
+        self._models_features = []
         confs = []
-        for i in range(len(self.ped_ids)):
+        for i in range(len(self._ped_ids)):
             path = model_folder + ped_names[i] + '.csv'
-            models = ModelFeatures('data', self.ped_name)
-            self.models_features.append(models.extract(path))
-            confs.append(self.models_features[i].shape[0])
+            models = ModelFeatures('data', self._ped_name)
+            self._models_features.append(models.extract(path))
+            confs.append(self._models_features[i].shape[0])
 
         # Prepare the variables for the subsequent analysis
-        self.num_residues = int(self.models_features[0][0, 1])
-        self.num_conformations = max(confs)
-        self.ped_features = []
+        self._num_residues = int(self._models_features[0][0, 1])
+        self._num_conformations = max(confs)
+        self._ped_features = []
 
         # Folders
-        self.data_folder = folder
-        self.folder = folder + '/ped_features/'
-        os.makedirs(self.folder, exist_ok=True)
-        self.file = ped_name + '_features.csv'
+        self._data_folder = folder
+        self._folder = folder + '/ped_features/'
+        os.makedirs(self._folder, exist_ok=True)
+        self._file = ped_name + '_features.csv'
 
     def choice_maker(self):
 
-        if os.path.exists(self.folder + self.file):
+        if os.path.exists(self._folder + self._file):
             print('\nLoading features comparison...')
-            self.ped_features = self.extract(self.folder + self.file)
+            self._ped_features = self.extract(self._folder + self._file)
         else:
             print('\nComparing features...')
             self.compare()
-            self.save(self.folder + self.file)
+            self.save(self._folder + self._file)
 
-        return self.ped_features
+        return self._ped_features
 
     def compare(self):
 
-        for k in range(len(self.models_features)):
+        for k in range(len(self._models_features)):
 
             ped_dict = {
-                'PED_ID': self.ped_ids[k],
-                'RD': self.models_features[k][:, 2],
+                'PED_ID': self._ped_ids[k],
+                'RD': self._models_features[k][:, 2],
                 'EN': self.compute_entropy(k),
                 'MED_ASA': self.compute_median_asa(k),
                 'MED_RMSD': self.compute_median_rmsd(k),
@@ -125,8 +126,8 @@ class PedFeatures:
                 'STD_DIST': self.compute_std_dist(k)
             }
 
-            if len(ped_dict['RD']) < self.num_conformations:
-                ped_dict['RD'] = np.concatenate((ped_dict['RD'], np.zeros(self.num_conformations-len(ped_dict['RD']))))
+            if len(ped_dict['RD']) < self._num_conformations:
+                ped_dict['RD'] = np.concatenate((ped_dict['RD'], np.zeros(self._num_conformations-len(ped_dict['RD']))))
 
             x = []
             for key in ped_dict.keys():
@@ -135,13 +136,13 @@ class PedFeatures:
                 else:
                     for e in ped_dict[key]:
                         x.append(e)
-            self.ped_features.append(x)
+            self._ped_features.append(x)
 
-        return self.ped_features
+        return self._ped_features
 
     def compute_entropy(self, k):
 
-        ss = extract_vectors_model_feature(residues=self.num_residues, key='SS', features=self.models_features[k])
+        ss = extract_vectors_model_feature(residues=self._num_residues, key='SS', features=self._models_features[k])
         entropies = []
         for i in range(ss.shape[1]):
             unique, counts = np.unique(ss[:, i], return_counts=True)
@@ -153,7 +154,7 @@ class PedFeatures:
 
     def compute_median_asa(self, k):
 
-        asa = extract_vectors_model_feature(residues=self.num_residues, key='ASA', features=self.models_features[k])
+        asa = extract_vectors_model_feature(residues=self._num_residues, key='ASA', features=self._models_features[k])
         return np.median(asa, axis=0)
 
     def compute_median_rmsd(self, k):
@@ -162,8 +163,8 @@ class PedFeatures:
         structure_rmsd_fragments = []  # RMSD, no_models X no_fragments X fragment_size
         window_size = 9
 
-        ped_id = self.ped_ids[k]
-        structure = PDBParser(QUIET=True).get_structure(ped_id, "{}/{}.pdb".format(self.data_folder, ped_id))
+        ped_id = self._ped_ids[k]
+        structure = PDBParser(QUIET=True).get_structure(ped_id, "{}/{}.pdb".format(self._data_folder, ped_id))
         ref_model = [atom for atom in structure[0].get_atoms() if atom.get_name() == "CA"]  # TODO: capire!!!
 
         for i, model in enumerate(structure):
@@ -211,36 +212,41 @@ class PedFeatures:
 
     def compute_median_dist(self, k):
 
-        dist = extract_vectors_model_feature(residues=self.num_residues, key='DIST', features=self.models_features[k])
+        dist = extract_vectors_model_feature(residues=self._num_residues, key='DIST', features=self._models_features[k])
         return np.median(dist, axis=0)
 
     def compute_std_dist(self, k):
 
-        dist = extract_vectors_model_feature(residues=self.num_residues, key='DIST', features=self.models_features[k])
+        dist = extract_vectors_model_feature(residues=self._num_residues, key='DIST', features=self._models_features[k])
         return np.std(dist, axis=0, dtype='float64')
 
     def save(self, output):
 
         with open(output, 'w') as f:
-            for ped in self.ped_features:
+            for ped in self._ped_features:
                 f.write("%d" % ped[0])  # index of the model
                 for i in range(1, len(ped)):
                     f.write(",%f" % ped[i])
                 f.write("\n")
-        print("{}.csv saved".format(self.ped_name))
+        print("{}.csv saved".format(self._ped_name))
 
     def extract(self, path):
 
         df = pandas.read_csv(path, index_col=None, header=None)
 
-        self.ped_features = np.full((df.shape[0], df.shape[1]), None)
+        self._ped_features = np.full((df.shape[0], df.shape[1]), None)
         for row in range(0, df.shape[0]):
-            self.ped_features[row, :] = np.array(df.iloc[row])
+            self._ped_features[row, :] = np.array(df.iloc[row])
 
-        return self.ped_features
+        return self._ped_features
 
-    def get_number_residues(self):
-        return self.num_residues
+    @property
+    def num_residues(self):
+        return self._num_residues
 
-    def get_number_conformations(self):
-        return self.num_conformations
+    @property
+    def num_conformations(self):
+        return self._num_conformations
+
+    def local_metric(self, i):
+        pass
