@@ -55,8 +55,8 @@ class PedComparison:
 
     def global_dendrogram(self):
 
-        indexes = extract_vectors_ped_feature(self.residues, self.conformations, 'EN', indexes=True)
-        linkage_matrix = linkage(self.features[:, indexes[0]:], 'complete', metric=self.global_metric)
+        # indexes = extract_vectors_ped_feature(self.residues, self.conformations, 'EN', indexes=True)
+        linkage_matrix = linkage(self.features, 'complete', metric=self.global_metric)
         dendrogram(linkage_matrix)
         plt.show()
 
@@ -65,10 +65,11 @@ class PedComparison:
         indexes = extract_vectors_ped_feature(self.residues, self.conformations, 'EN', indexes=True)
 
         dist = np.zeros((len(self.features[:, indexes[0]:]), len(self.features[:, indexes[0]:])))
+
         for i in range(dist.shape[0]):
             for j in range(dist.shape[1]):
-                dist[i, j] = self.global_metric(self.features[i, indexes[0]:], self.features[j, indexes[0]:])
-                dist[j, i] = self.global_metric(self.features[j, indexes[0]:], self.features[i, indexes[0]:])
+                dist[i, j] = self.global_metric(self.features[i], self.features[j])
+                dist[j, i] = self.global_metric(self.features[i], self.features[j])
         seaborn.heatmap(dist)
         plt.show()
 

@@ -24,20 +24,20 @@ if __name__ == "__main__":
 
             print('Task1...')
 
-            for pdb_id in pdb_id_list:
-
-                print("Analyzing {}...".format(pdb_id))
-
-                model_features = ModelFeatures(folder, pdb_id)
-                feat = model_features.choice_maker()
-
-                print("Clustering {}...".format(pdb_id))
-
-                model_features.compute_clustering()
-                graph = model_features.generate_graph()
-                # model_features.generate_pymol_img(graph)
-
-                print('\n------------------\n')
+            # for pdb_id in pdb_id_list:
+            #
+            #     print("Analyzing {}...".format(pdb_id))
+            #
+            #     model_features = ModelFeatures(folder, pdb_id)
+            #     feat = model_features.choice_maker()
+            #
+            #     print("Clustering {}...".format(pdb_id))
+            #
+            #     model_features.compute_clustering()
+            #     graph = model_features.generate_graph()
+            #     # model_features.generate_pymol_img(graph)
+            #
+            #     print('\n------------------\n')
 
             print('Task2...')
 
