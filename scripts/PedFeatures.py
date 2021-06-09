@@ -200,8 +200,7 @@ class PedFeatures:
         # Calculate average RMSD per position
         structure_rmsd_fragments = np.array(structure_rmsd_fragments)
         structure_rmsd_fragments = np.average(structure_rmsd_fragments, axis=0)
-        structure_rmsd_fragments = np.pad(structure_rmsd_fragments,
-                                          ((0, 0), (0, structure_rmsd_fragments.shape[0])))
+        structure_rmsd_fragments = np.pad(structure_rmsd_fragments, ((0, 0), (0, structure_rmsd_fragments.shape[0])))
 
         # Roll the fragments one by one (add heading zeros)
         for i, row in enumerate(structure_rmsd_fragments):

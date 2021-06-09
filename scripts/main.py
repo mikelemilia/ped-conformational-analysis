@@ -52,6 +52,6 @@ if __name__ == "__main__":
             print('\nComparison between PEDs')
             comparison = PedComparison(ped_feat, n_conformations, n_residues)
             comparison.global_dendrogram()
-            comparison.distance_matrix_med_rmsd_peds()
-            comparison.local_metric()
             comparison.global_heatmap()
+            # comparison.distance_matrix_med_rmsd_peds()
+            comparison.local_metric()

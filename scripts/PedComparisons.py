@@ -1,6 +1,8 @@
 import math
 
 import matplotlib.pyplot as plt
+import numpy as np
+import scipy.stats
 import seaborn
 from scipy.cluster.hierarchy import dendrogram, linkage
 from scipy.spatial.distance import *
@@ -20,25 +22,18 @@ class PedComparison:
                 if math.isnan(self.features[i, j]):
                     self.features[i, j] = 0
 
-    def extract_indeces_ped(self, conf):
-        res = self.residues
-       # print(res)
-
-        indexes = [1, int(conf+1), int(conf + res + 1), int(conf + 2 * res + 1), int(conf + 3 * res + 1), int(conf + 3 * res + 1 + res * (res - 1) / 2)]
-        #RD, EN, MED_ASA, MED_RMSD, STD_DIST
-
-        return indexes
-
     def global_metric(self, x, y):
 
-        indexes = self.extract_indeces_ped(x[0])
+        indexes = extract_vectors_ped_feature(residues=self.residues, conformations=self.conformations,
+                                              index_slices=True)
 
-        en = np.sum(x[indexes[1]:indexes[2]] - y[indexes[1]:indexes[2]])
-        med_asa = euclidean(x[indexes[2]:indexes[3]], y[indexes[2]:indexes[3]])
-        med_rmsd = euclidean(x[indexes[3]:indexes[4]], y[indexes[3]:indexes[4]])
-        std_dist = 1 - correlation(x[indexes[4]:], y[indexes[4]:])
+        rd = np.abs(np.mean(x[indexes[1]]) - np.mean(y[indexes[1]]))
+        en = np.abs(np.sum(x[indexes[2]] - y[indexes[2]]))
+        med_asa = euclidean(x[indexes[3]], y[indexes[3]])
+        med_rmsd = euclidean(x[indexes[4]], y[indexes[4]])
+        med_dist = 1 - correlation(x[indexes[5]], y[indexes[5]])
 
-        m = en + med_asa + med_rmsd + std_dist
+        m = rd + en + med_asa + med_rmsd + med_dist
 
         return m
 
@@ -61,18 +56,19 @@ class PedComparison:
     def global_dendrogram(self):
 
         indexes = extract_vectors_ped_feature(self.residues, self.conformations, 'EN', indexes=True)
-        linkage_matrix = linkage(self.features[:, indexes[0]:], 'single', metric=self.global_metric)
+        linkage_matrix = linkage(self.features[:, indexes[0]:], 'complete', metric=self.global_metric)
         dendrogram(linkage_matrix)
         plt.show()
 
     def global_heatmap(self):
 
-        dist = np.zeros((len(self.features), len(self.features)))
-        for i in range(len(self.features)):
-            for j in range(len(self.features)):
-                dist[i, j] = self.global_metric(self.features[i], self.features[j])
-                dist[j, i] = self.global_metric(self.features[i], self.features[j])
+        indexes = extract_vectors_ped_feature(self.residues, self.conformations, 'EN', indexes=True)
 
+        dist = np.zeros((len(self.features[:, indexes[0]:]), len(self.features[:, indexes[0]:])))
+        for i in range(dist.shape[0]):
+            for j in range(dist.shape[1]):
+                dist[i, j] = self.global_metric(self.features[i, indexes[0]:], self.features[j, indexes[0]:])
+                dist[j, i] = self.global_metric(self.features[j, indexes[0]:], self.features[i, indexes[0]:])
         seaborn.heatmap(dist)
         plt.show()
 
@@ -95,13 +91,24 @@ class PedComparison:
             idx = np.triu_indices(self.residues, k=1)
             med_dist_k[idx] = temp_med_dist
 
+            # Let the magic happen... be symmetric
+            med_dist_k = med_dist_k + med_dist_k.T
+
             std_dist_k = np.zeros((self.residues, self.residues))
             idx = np.triu_indices(self.residues, k=1)
             std_dist_k[idx] = temp_std_dist
 
+            # Let the magic happen... be symmetric
+            std_dist_k = std_dist_k + std_dist_k.T
+
             med_dist.append(med_dist_k)
             std_dist.append(std_dist_k)
 
+        # Conversion list to array
+        med_dist = np.array(med_dist)
+        std_dist = np.array(std_dist)
+
+        # Total values for each residue
         total_entropy = []
         total_med_asa = []
         total_med_rmsd = []
@@ -111,42 +118,52 @@ class PedComparison:
         # Scanning each element of the sequence
         for i in range(self.residues):
             total_entropy.append(np.std(entropy[:, i]))
-            total_med_asa.append(np.std(med_asa[:, i]))
+            total_med_asa.append(np.std(med_asa[:, i]))  # TODO check how to normalize ASA
             total_med_rmsd.append(np.std(med_rmsd[:, i]))
-            # total_med_dist.append(np.mean(med_dist_i))
-            # total_std_dist.append(np.mean(std_dist_i))
+
+            # Compute std deviations for residue i
+            total_std_dist.append(scipy.stats.trim_mean(np.std(std_dist[:, :, i], axis=0), proportiontocut=0.2))
+
+        p = np.stack((total_entropy, total_med_asa, total_med_rmsd, total_std_dist), axis=1)
+        val = np.mean(p, axis=1)
+        print(p.shape)
+        print(val.shape)
 
         # Plot results same plot
-        fig, axes = plt.subplots(2, 1, figsize=(24, 12))
-        axes[0].set_title("Plots")
-        axes[0].axhline()
-        axes[0].plot(np.arange(self.residues), total_entropy, color='blue', ls='--')
-        axes[0].plot(np.arange(self.residues), total_med_asa, color='red', ls='--')
-        axes[0].plot(np.arange(self.residues), total_med_rmsd, color='green', ls='--')
+        fig, axes = plt.subplots(1, 1, figsize=(24, 12))
+        # axes[0].set_title("Plots")
+        # axes[0].axhline()
+        # plt.plot(np.arange(self.residues), total_entropy, color='blue', ls='--')
+        # plt.plot(np.arange(self.residues), total_med_asa, color='red', ls='--')
+        # plt.plot(np.arange(self.residues), total_med_rmsd, color='green', ls='--')
+        # # plt.plot(np.arange(self.residues), total_med_dist, color='orange', ls='--')
+        # plt.plot(np.arange(self.residues), total_std_dist, color='pink', ls='--')
+
+        plt.plot(np.arange(self.residues), val, color='red', ls='--')
 
         plt.show()
 
-        # # Plot results
+        # Plot results
         # fig, axes = plt.subplots(6, 1, figsize=(24, 60))
         # axes[0].set_title("ENTROPY")
         # axes[0].axhline()
-        # axes[0].plot(np.arange(self.residues), val_entropy, ls='--')
+        # axes[0].plot(np.arange(self.residues), total_entropy, ls='--')
         #
         # axes[1].set_title("ASA")
         # axes[1].axhline()
-        # axes[1].plot(np.arange(self.residues), val_med_asa, ls='--')
+        # axes[1].plot(np.arange(self.residues), total_med_asa, ls='--')
         #
         # axes[2].set_title("RMDS")
         # axes[2].axhline()
-        # axes[2].plot(np.arange(self.residues), val_med_rmsd, ls='--')
+        # axes[2].plot(np.arange(self.residues), total_med_rmsd, ls='--')
         #
         # axes[4].set_title("DIST")
         # axes[4].axhline()
-        # axes[4].plot(np.arange(self.residues), val_med_dist, ls='--')
+        # axes[4].plot(np.arange(self.residues), total_med_dist, ls='--')
         #
         # axes[5].set_title("STD_DIST")
         # axes[5].axhline()
-        # axes[5].plot(np.arange(self.residues), val_std_dist, ls='--')
+        # axes[5].plot(np.arange(self.residues), total_std_dist, ls='--')
         #
         # # plt.savefig('output/midterm-2/result_{}_{}.png'.format(pdb_id, chain_id), bbox_inches='tight')
         # plt.show()
