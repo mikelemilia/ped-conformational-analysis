@@ -5,6 +5,8 @@
 [Pezzutti Giulia](https://github.com/giuliapezzutti) -
 [Vettor Federica](https://github.com/FeVe98)
 
+University of Padua, Italy
+
 ## Project specification
 
 ### Introduction
