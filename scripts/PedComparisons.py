@@ -1,5 +1,4 @@
 import math
-
 import matplotlib.pyplot as plt
 import numpy as np
 import scipy.stats
@@ -31,7 +30,7 @@ class PedComparison:
         en = np.abs(np.sum(x[indexes[2]] - y[indexes[2]]))
         med_asa = euclidean(x[indexes[3]], y[indexes[3]])
         med_rmsd = euclidean(x[indexes[4]], y[indexes[4]])
-        med_dist = 1 - correlation(x[indexes[5]], y[indexes[5]])
+        med_dist = 1 - correlation(np.array(x[indexes[5]], dtype='float32'), np.array(y[indexes[5]], dtype='float32'))
 
         m = rd + en + med_asa + med_rmsd + med_dist
 
@@ -55,21 +54,19 @@ class PedComparison:
 
     def global_dendrogram(self):
 
-        # indexes = extract_vectors_ped_feature(self.residues, self.conformations, 'EN', indexes=True)
         linkage_matrix = linkage(self.features, 'complete', metric=self.global_metric)
         dendrogram(linkage_matrix)
         plt.show()
 
     def global_heatmap(self):
 
-        indexes = extract_vectors_ped_feature(self.residues, self.conformations, 'EN', indexes=True)
-
-        dist = np.zeros((len(self.features[:, indexes[0]:]), len(self.features[:, indexes[0]:])))
+        dist = np.zeros((len(self.features), len(self.features)))
 
         for i in range(dist.shape[0]):
             for j in range(dist.shape[1]):
                 dist[i, j] = self.global_metric(self.features[i], self.features[j])
                 dist[j, i] = self.global_metric(self.features[i], self.features[j])
+
         seaborn.heatmap(dist)
         plt.show()
 

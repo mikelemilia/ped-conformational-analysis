@@ -47,11 +47,9 @@ if __name__ == "__main__":
             n_residues = ped_features.num_residues
             n_conformations = ped_features.num_conformations
 
-            # ATTENZIONE: alla fine di ped_feat, ultima riga, ci sono dei Nan!!
-
             print('\nComparison between PEDs')
             comparison = PedComparison(ped_feat, n_conformations, n_residues)
             comparison.global_dendrogram()
             comparison.global_heatmap()
-            # comparison.distance_matrix_med_rmsd_peds()
+            comparison.distance_matrix_med_rmsd_peds()
             comparison.local_metric()
