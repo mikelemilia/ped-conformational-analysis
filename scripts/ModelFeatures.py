@@ -1,14 +1,14 @@
 import math
-import os
-
 import networkx as nx
 import numpy as np
+import os
 import pandas
+
 from Bio.PDB import PDBParser, DSSP, PPBuilder
 from matplotlib import pyplot as plt, patches
 from scipy.spatial.distance import *
-from sklearn.metrics import silhouette_score
 from sklearn_extra import cluster
+from sklearn.metrics import silhouette_score
 
 
 def extract_vectors_model_feature(residues, key=None, models=None, features=None, indexes=False, index_slices=False):
@@ -100,10 +100,10 @@ class ModelFeatures:
         """
 
         if os.path.exists(self._folder + self._file):
-            print('\nLoading features...')
+            print('\n\t- Loading features...')
             self.extract(self._folder + self._file)
         else:
-            print('\nComputing features...')
+            print('\n\t- Computing features...')
             self.compute()
             self.save(self._folder + self._file)
 
@@ -111,8 +111,6 @@ class ModelFeatures:
 
         radius = np.array(extract_vectors_model_feature(self._residues, key='RG', features=self._features))
         self._max_radius = float(max(radius))
-
-        return self._features
 
     def compute(self):
         """
@@ -301,6 +299,8 @@ class ModelFeatures:
         return metric
 
     def compute_clustering(self, k_set=range(3, 9)):
+
+        print("\t- Clustering...")
 
         silhouettes = []
 
