@@ -285,7 +285,7 @@ class ModelFeatures:
                 for i in range(1, len(model)):
                     f.write(",%f" % model[i])
                 f.write("\n")
-        print("\t- {} saved".format(self._file))
+        print("\t- Successfully saved in {}".format(output))
 
     # Clustering
 

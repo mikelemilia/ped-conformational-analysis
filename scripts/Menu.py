@@ -30,8 +30,7 @@ class Menu:
 
                     exit_menu = False
 
-                    print("You provide a wrong PED name, it should match the format PEDxxxxx\n", file=sys.stderr)
-                    sys.stderr.flush()
+                    print('WARNING : You provide a wrong PED name, it should match the format PEDxxxxx\n')
 
                 else:
 
@@ -41,8 +40,7 @@ class Menu:
 
                         exit_menu = False
 
-                        print('PED name not found. You should retry with another PED\n', file=sys.stderr)
-                        sys.stderr.flush()
+                        print('WARNING : PED name not found. You should retry with another PED\n')
 
                     else:
 
@@ -68,8 +66,7 @@ class Menu:
 
                     exit_menu = False
 
-                    print("You provide a wrong PED name, it should match the format PEDxxxxx\n", file=sys.stderr)
-                    sys.stderr.flush()
+                    print('WARNING : You provide a wrong PED name, it should match the format PEDxxxxx\n')
 
                 else:
 
@@ -101,8 +98,7 @@ class Menu:
 
         if x == -1:
 
-            print('Model features not found. You must run Task 1 in advance for this specific PED\n', file=sys.stderr)
-            sys.stderr.flush()
+            print('WARNING : Model features not found. You must run Task 1 in advance for this specific PED\n')
 
         else:
 
@@ -118,7 +114,7 @@ class Menu:
         while user_input != 3:
             user_input = int(input("\nSelect what do you want to do: "))
             self.execute(user_input)
-        print('Program stopped.')
+        print('\nProgram stopped.')
 
     def execute(self, user_input):
         controller_name = 'do_{}'.format(user_input)

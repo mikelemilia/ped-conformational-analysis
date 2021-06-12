@@ -8,7 +8,7 @@ def parser():
     my_parser = argparse.ArgumentParser(description='PED tool')
 
     # Add the arguments
-    my_parser.add_argument('path', metavar='path', type=str, help='the path to input folder')
+    my_parser.add_argument('-p', '--path', metavar='path', type=str, help='the path to input folder', default='data')
 
     # Execute the parse_args() method
     args = my_parser.parse_args()
