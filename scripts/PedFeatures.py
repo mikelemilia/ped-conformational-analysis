@@ -4,6 +4,7 @@ import numpy as np
 import pandas
 import scipy.stats
 import seaborn
+import os
 
 from Bio.PDB import Superimposer, PDBParser
 from ModelFeatures import extract_vectors_model_feature, ModelFeatures
@@ -53,6 +54,10 @@ def extract_vectors_ped_feature(residues, conformations, key=None, features=None
         begin = int(conformations + 3 * residues + 1 + residues * (residues - 1) / 2)
         end = None
         slices.append(slice(begin, end))
+
+    begin = int(begin)
+    if end is not None:
+        end = int(end)
 
     if begin == -1:
         return None
@@ -246,7 +251,7 @@ class PedFeatures:
                 for i in range(1, len(ped)):
                     f.write(",%f" % ped[i])
                 f.write("\n")
-        print("{}.csv saved".format(self._ped_name))
+        print("\t- {} saved".format(self._file))
 
     def extract(self, path):
 
@@ -260,9 +265,15 @@ class PedFeatures:
 
     def global_metric(self, x, y):
 
-        indexes = extract_vectors_ped_feature(residues=self._num_residues, conformations=self._num_conformations, index_slices=True)
+        indexes = extract_vectors_ped_feature(residues=self._num_residues, conformations=self._num_conformations,
+                                              index_slices=True)
 
-        rd = np.abs(np.mean(x[indexes[1]]) - np.mean(y[indexes[1]]))
+        x_rg = x[indexes[1]]
+        x_rg_nozero = x_rg[x_rg != 0]
+        y_rg = y[indexes[1]]
+        y_rg_nozero = y_rg[y_rg != 0]
+        rd = np.abs(np.mean(x_rg_nozero) - np.mean(y_rg_nozero))
+
         en = np.abs(np.sum(x[indexes[2]] - y[indexes[2]]))
         med_asa = euclidean(x[indexes[3]], y[indexes[3]])
         med_rmsd = euclidean(x[indexes[4]], y[indexes[4]])
@@ -296,6 +307,8 @@ class PedFeatures:
 
         linkage_matrix = linkage(np.array(self._ped_features), 'complete', metric=self.global_metric)  # TODO capire se è realmente necessario il cast, in teoria no
         dendrogram(linkage_matrix)
+        plt.title('Global Dendrogram for {}'.format(self._ped_name))
+        plt.savefig('output/plot/{}_dendrogram.png'.format(self._ped_name))
         plt.show()
 
     def global_heatmap(self):
@@ -310,6 +323,8 @@ class PedFeatures:
                 dist[j, i] = self.global_metric(self._ped_features[i], self._ped_features[j])
 
         seaborn.heatmap(dist)
+        plt.title('Global Heatmap for {}'.format(self._ped_name))
+        plt.savefig('output/plot/{}_heatmap.png'.format(self._ped_name))
         plt.show()
 
     def local_metric(self):
@@ -318,9 +333,12 @@ class PedFeatures:
 
         # Retrieve features each PED
 
-        entropy = extract_vectors_ped_feature(self._num_residues, self._num_conformations, key='EN', features=self._ped_features)
-        med_asa = extract_vectors_ped_feature(self._num_residues, self._num_conformations, key='MED_ASA', features=self._ped_features)
-        med_rmsd = extract_vectors_ped_feature(self._num_residues, self._num_conformations, key='MED_RMSD', features=self._ped_features)
+        entropy = extract_vectors_ped_feature(self._num_residues, self._num_conformations, key='EN',
+                                              features=self._ped_features)
+        med_asa = extract_vectors_ped_feature(self._num_residues, self._num_conformations, key='MED_ASA',
+                                              features=self._ped_features)
+        med_rmsd = extract_vectors_ped_feature(self._num_residues, self._num_conformations, key='MED_RMSD',
+                                               features=self._ped_features)
         med_dist = []
         std_dist = []
 
@@ -380,5 +398,6 @@ class PedFeatures:
         # plt.plot(np.arange(self.residues), total_std_dist, color='pink', ls='--')
 
         plt.plot(np.arange(self._num_residues), val, color='red', ls='--')
-
+        plt.title('Local Metric for {}'.format(self._ped_name))
+        plt.savefig('output/plot/{}_local.png'.format(self._ped_name))
         plt.show()

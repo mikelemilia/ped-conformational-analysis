@@ -14,6 +14,7 @@ from sklearn.metrics import silhouette_score
 def extract_vectors_model_feature(residues, key=None, models=None, features=None, indexes=False, index_slices=False):
     begin = end = -1
     residues = int(residues)
+    features = np.array(features)
 
     slices = []
 
@@ -36,6 +37,10 @@ def extract_vectors_model_feature(residues, key=None, models=None, features=None
         begin = 2 * residues + 3
         end = None
         slices.append(slice(begin, end))
+
+    begin = int(begin)
+    if end is not None:
+        end = int(end)
 
     if begin == -1:
         return None
@@ -60,7 +65,7 @@ class ModelFeatures:
     def __init__(self, folder, identifier):
 
         # Path to the PDB
-        self._path = os.path.join(folder, identifier + '.pdb')
+        self._path = os.path.join(folder, identifier + '.pdb')  # TODO: .ent too?
         # PDB id
         self._id = identifier
 
@@ -137,6 +142,10 @@ class ModelFeatures:
             for ss in dssp:
                 features['ASA'].append(ss[3])
 
+            if len(features['ASA']) < self._residues:
+                features['ASA'] = np.concatenate(
+                    (features['ASA'], np.zeros(self._residues - len(features['ASA']))))
+
             features['SS'] = self.compute_secondary_structure(model)
 
             dist = np.asmatrix(self.compute_distance_matrix(list(model.get_residues())))
@@ -166,8 +175,6 @@ class ModelFeatures:
                         if e == '-':
                             features_model.append(0)
 
-            # print(self._id, len(features['ASA']), len(features['SS']), len(features['DIST']))
-
             self._features.append(features_model)
 
     def compute_gyration_radius(self, chain):
@@ -192,7 +199,6 @@ class ModelFeatures:
         dist = coord - barycenter
         dist = dist * dist
         dist = np.sqrt(np.sum(dist, axis=1))
-        # print(dist)
 
         return round(math.sqrt(np.sum(dist * dist) / len(coord)), 3)
 
@@ -279,7 +285,7 @@ class ModelFeatures:
                 for i in range(1, len(model)):
                     f.write(",%f" % model[i])
                 f.write("\n")
-        print("{}_features.csv saved".format(self._id))
+        print("\t- {} saved".format(self._file))
 
     # Clustering
 
@@ -287,14 +293,12 @@ class ModelFeatures:
 
         indexes = extract_vectors_model_feature(residues=self._residues, index_slices=True)
 
-        rg = np.abs(x[indexes[0]] - y[indexes[0]]) #/ self._max_radius
+        rg = np.abs(x[indexes[0]] - y[indexes[0]])  # / self._max_radius
         asa = euclidean(x[indexes[1]], y[indexes[1]])
         ss = hamming(x[indexes[2]], y[indexes[2]])
         dist = 1 - correlation(x[indexes[3]], y[indexes[3]])
 
         metric = rg + asa + ss + dist
-
-        # print('Metric: {}'.format(metric))
 
         return metric
 
@@ -387,7 +391,6 @@ class ModelFeatures:
     #         dist = np.diff(ref_features,alt_features)
     #         feat_res = np.sqrt(np.sum(dist * dist, axis=1))
     #         structure_feature_fragments.append(feat_res)
-    #
     #
     #         structure_feature_fragments = np.array(structure_feature_fragments)  # no_models X no_fragments X fragment_size
     #
