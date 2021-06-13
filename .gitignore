@@ -44,6 +44,8 @@ venv.bak/
 .idea/
 
 output/
-data/model_features
-data/ped_features
+output/plot
+data/
+data/model_features/
+data/ped_features/
 tests/

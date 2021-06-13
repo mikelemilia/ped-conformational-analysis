@@ -1,8 +1,16 @@
+import math
+import matplotlib.pyplot as plt
 import numpy as np
 import pandas
+import scipy.stats
+import seaborn
+import os
+
 from Bio.PDB import Superimposer, PDBParser
 from ModelFeatures import extract_vectors_model_feature, ModelFeatures
-from utils import *
+from scipy.cluster.hierarchy import dendrogram, linkage
+from scipy.spatial.distance import *
+from utils import extract_filenames
 
 
 def extract_vectors_ped_feature(residues, conformations, key=None, features=None, peds=None, indexes=False, index_slices=False):
@@ -47,6 +55,10 @@ def extract_vectors_ped_feature(residues, conformations, key=None, features=None
         end = None
         slices.append(slice(begin, end))
 
+    begin = int(begin)
+    if end is not None:
+        end = int(end)
+
     if begin == -1:
         return None
 
@@ -70,47 +82,59 @@ class PedFeatures:
     def __init__(self, folder, ped_name):
         # Extract all the files PEDxxxxxexxx_features.csv
         model_folder = folder + '/model_features/'
-        ped_names = extract_filenames(model_folder, ped_name, 'csv')
+        ped_names = extract_filenames(model_folder, ped_name, ['csv'])
 
         # Extract PEDxxxxxexxx from filenames
         self._ped_ids = []
         for name in ped_names:
             self._ped_ids.append(name.split('_')[0])
 
-        # PEDxxxxx name
-        self._ped_name = ped_name
+        if len(self._ped_ids) != 0:
 
-        # Build all the paths to the features files and extract them
-        self._models_features = []
-        confs = []
-        for i in range(len(self._ped_ids)):
-            path = model_folder + ped_names[i] + '.csv'
-            models = ModelFeatures('data', self._ped_name)
-            self._models_features.append(models.extract(path))
-            confs.append(self._models_features[i].shape[0])
+            # PEDxxxxx name
+            self._ped_name = ped_name
 
-        # Prepare the variables for the subsequent analysis
-        self._num_residues = int(self._models_features[0][0, 1])
-        self._num_conformations = max(confs)
-        self._ped_features = []
+            # Build all the paths to the features files and extract them
+            self._models_features = []
 
-        # Folders
-        self._data_folder = folder
-        self._folder = folder + '/ped_features/'
-        os.makedirs(self._folder, exist_ok=True)
-        self._file = ped_name + '_features.csv'
+            conformations = []
+            for i in range(len(self._ped_ids)):
+                path = model_folder + ped_names[i] + '.csv'
+                models = ModelFeatures('data', self._ped_name)
+                self._models_features.append(models.extract(path))
+                conformations.append(self._models_features[i].shape[0])
+
+            # Prepare the variables for the subsequent analysis
+            self._num_residues = int(self._models_features[0][0, 1])
+            self._num_conformations = max(conformations)
+            self._ped_features = []
+
+            # Folders
+            self._data_folder = folder
+            self._folder = folder + '/ped_features/'
+            os.makedirs(self._folder, exist_ok=True)
+            self._file = ped_name + '_features.csv'
 
     def choice_maker(self):
 
+        if len(self._ped_ids) == 0:
+            return -1
+
         if os.path.exists(self._folder + self._file):
-            print('\nLoading features comparison...')
-            self._ped_features = self.extract(self._folder + self._file)
+            print('\n\t- Loading features for comparison...')
+            self.extract(self._folder + self._file)
         else:
-            print('\nComparing features...')
+            print('\n\t- Computing features for comparison...')
             self.compare()
             self.save(self._folder + self._file)
 
-        return self._ped_features
+        self._ped_features = np.array(self._ped_features)
+        for i in range(self._ped_features.shape[0]):
+            for j in range(self._ped_features.shape[1]):
+                if math.isnan(self._ped_features[i, j]):
+                    self._ped_features[i, j] = 0
+
+        return 0
 
     def compare(self):
 
@@ -227,7 +251,7 @@ class PedFeatures:
                 for i in range(1, len(ped)):
                     f.write(",%f" % ped[i])
                 f.write("\n")
-        print("{}.csv saved".format(self._ped_name))
+        print("\t- {} saved".format(self._file))
 
     def extract(self, path):
 
@@ -239,10 +263,141 @@ class PedFeatures:
 
         return self._ped_features
 
-    @property
-    def num_residues(self):
-        return self._num_residues
+    def global_metric(self, x, y):
 
-    @property
-    def num_conformations(self):
-        return self._num_conformations
+        indexes = extract_vectors_ped_feature(residues=self._num_residues, conformations=self._num_conformations,
+                                              index_slices=True)
+
+        x_rg = x[indexes[1]]
+        x_rg_nozero = x_rg[x_rg != 0]
+        y_rg = y[indexes[1]]
+        y_rg_nozero = y_rg[y_rg != 0]
+        rd = np.abs(np.mean(x_rg_nozero) - np.mean(y_rg_nozero))
+
+        en = np.abs(np.sum(x[indexes[2]] - y[indexes[2]]))
+        med_asa = euclidean(x[indexes[3]], y[indexes[3]])
+        med_rmsd = euclidean(x[indexes[4]], y[indexes[4]])
+        med_dist = 1 - correlation(np.array(x[indexes[5]], dtype='float32'), np.array(y[indexes[5]], dtype='float32'))
+
+        m = rd + en + med_asa + med_rmsd + med_dist
+
+        return m
+
+    def distance_matrix_med_rmsd_peds(self):
+
+        print('\t- Plotting heatmap (with only RMSD)...')
+
+        medians = extract_vectors_ped_feature(self._num_residues, self._num_conformations, 'MED_RMSD', features=self._ped_features)
+        dists = np.zeros((medians.shape[0], medians.shape[0]))
+
+        for i in range(medians.shape[0]):
+            for j in range(i + 1, medians.shape[0]):
+                num_pairs = (self._num_residues * (self._num_residues - 1)) / 2
+                dists[i, j] = np.sqrt(1 / num_pairs * np.sum((medians[i] - medians[j]) ** 2, axis=0))
+                dists[j, i] = np.sqrt(1 / num_pairs * np.sum((medians[i] - medians[j]) ** 2, axis=0))
+
+        seaborn.heatmap(dists)
+        plt.show()
+
+        return dists
+
+    def global_dendrogram(self):
+
+        print('\t- Plotting global dendrogram...')
+
+        linkage_matrix = linkage(np.array(self._ped_features), 'complete', metric=self.global_metric)  # TODO capire se è realmente necessario il cast, in teoria no
+        dendrogram(linkage_matrix)
+        plt.title('Global Dendrogram for {}'.format(self._ped_name))
+        plt.savefig('output/plot/{}_dendrogram.png'.format(self._ped_name))
+        plt.show()
+
+    def global_heatmap(self):
+
+        print('\t- Plotting global heatmap...')
+
+        dist = np.zeros((len(self._ped_features), len(self._ped_features)))
+
+        for i in range(dist.shape[0]):
+            for j in range(dist.shape[1]):
+                dist[i, j] = self.global_metric(self._ped_features[i], self._ped_features[j])
+                dist[j, i] = self.global_metric(self._ped_features[i], self._ped_features[j])
+
+        seaborn.heatmap(dist)
+        plt.title('Global Heatmap for {}'.format(self._ped_name))
+        plt.savefig('output/plot/{}_heatmap.png'.format(self._ped_name))
+        plt.show()
+
+    def local_metric(self):
+
+        print('\t- Plotting local metric...')
+
+        # Retrieve features each PED
+
+        entropy = extract_vectors_ped_feature(self._num_residues, self._num_conformations, key='EN',
+                                              features=self._ped_features)
+        med_asa = extract_vectors_ped_feature(self._num_residues, self._num_conformations, key='MED_ASA',
+                                              features=self._ped_features)
+        med_rmsd = extract_vectors_ped_feature(self._num_residues, self._num_conformations, key='MED_RMSD',
+                                               features=self._ped_features)
+        med_dist = []
+        std_dist = []
+
+        # Convert dist from flatten to matrix
+        for k in range(np.array(self._ped_features).shape[0]): # TODO capire se è realmente necessario il cast, in teoria no
+            temp_med_dist = extract_vectors_ped_feature(self._num_residues, self._num_conformations, key='MED_DIST', features=self._ped_features, peds=k)
+            temp_std_dist = extract_vectors_ped_feature(self._num_residues, self._num_conformations, key='STD_DIST', features=self._ped_features, peds=k)
+
+            med_dist_k = np.zeros((self._num_residues, self._num_residues))
+            idx = np.triu_indices(self._num_residues, k=1)
+            med_dist_k[idx] = temp_med_dist
+
+            # Let the magic happen... be symmetric
+            med_dist_k = med_dist_k + med_dist_k.T
+
+            std_dist_k = np.zeros((self._num_residues, self._num_residues))
+            idx = np.triu_indices(self._num_residues, k=1)
+            std_dist_k[idx] = temp_std_dist
+
+            # Let the magic happen... be symmetric
+            std_dist_k = std_dist_k + std_dist_k.T
+
+            med_dist.append(med_dist_k)
+            std_dist.append(std_dist_k)
+
+        # Conversion list to array
+        med_dist = np.array(med_dist)
+        std_dist = np.array(std_dist)
+
+        # Total values for each residue
+        total_entropy = []
+        total_med_asa = []
+        total_med_rmsd = []
+        total_med_dist = []
+        total_std_dist = []
+
+        # Scanning each element of the sequence
+        for i in range(self._num_residues):
+            total_entropy.append(np.std(entropy[:, i]))
+            total_med_asa.append(np.std(med_asa[:, i]))  # TODO check how to normalize ASA
+            total_med_rmsd.append(np.std(med_rmsd[:, i]))
+
+            # Compute std deviations for residue i
+            total_std_dist.append(scipy.stats.trim_mean(np.std(std_dist[:, :, i], axis=0), proportiontocut=0.2))
+
+        p = np.stack((total_entropy, total_med_asa, total_med_rmsd, total_std_dist), axis=1)
+        val = np.mean(p, axis=1)
+
+        # Plot results same plot
+        fig, axes = plt.subplots(1, 1, figsize=(24, 12))
+        # axes[0].set_title("Plots")
+        # axes[0].axhline()
+        # plt.plot(np.arange(self.residues), total_entropy, color='blue', ls='--')
+        # plt.plot(np.arange(self.residues), total_med_asa, color='red', ls='--')
+        # plt.plot(np.arange(self.residues), total_med_rmsd, color='green', ls='--')
+        # # plt.plot(np.arange(self.residues), total_med_dist, color='orange', ls='--')
+        # plt.plot(np.arange(self.residues), total_std_dist, color='pink', ls='--')
+
+        plt.plot(np.arange(self._num_residues), val, color='red', ls='--')
+        plt.title('Local Metric for {}'.format(self._ped_name))
+        plt.savefig('output/plot/{}_local.png'.format(self._ped_name))
+        plt.show()

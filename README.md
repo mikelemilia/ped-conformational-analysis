@@ -1,6 +1,15 @@
 # Conformational analysis of protein structural ensembles
 
-## Introduction
+## Authors
+[Milia Mikele](https://github.com/mikelemilia) - 
+[Pezzutti Giulia](https://github.com/giuliapezzutti) -
+[Vettor Federica](https://github.com/FeVe98)
+
+University of Padua, Italy
+
+## Project specification
+
+### Introduction
 Intrinsically disordered proteins (IDPs) lack a fixed 3D structure and instead exhibit extreme
 conformational dynamics in the free state. Similar to the unfolded state, IDPs and intrinsically
 disordered regions (IDRs) must be described as ensembles of heterogeneous, rapidly interconverting
@@ -15,7 +24,7 @@ representation of the real physical state of the IDP/IDR, nor is only a reasonab
 observations. To help address these issues, solved IDP/IDR ensembles are collected and made
 available in the dedicated Protein Ensemble Database (PED, [1][https://proteinensemble.org/]).
 
-## Comparison of alternative ensembles
+### Comparison of alternative ensembles
 Structural comparisons rely on quantitative similarity measures. The most common measure is the root
 mean square deviation (RMSD) of the atomic positions between two structures, which is minimized
 upon rigid-body superimposition of these structures. But, the RMSD is often not very informative
