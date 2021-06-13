@@ -1,3 +1,5 @@
+import os
+from ModelFeatures import ModelFeatures
 import numpy as np
 from Bio.PDB import PDBList, Superimposer, Selection
 from Bio.PDB.PDBParser import PDBParser
@@ -6,18 +8,14 @@ from pymol import cmd
 from matplotlib import cm, colors
 
 
-pdb_id = '00020e001'
-pdb_file = "data/ped{}.pdb".format(pdb_id)
-out_file = "data/pymol_{}".format(pdb_id)
+out_file = "pymol_{}".format(ModelFeatures._id)
 window_size = 9
 
-
+structure = PDBParser(QUIET=True).get_structure(ModelFeatures._id, ModelFeatures._path)
 # Fetch a PDB file to the current dir
 pdbl = PDBList()
-pdbl.retrieve_pdb_file(pdb_id, pdir='data/', file_format='pdb') # Will save to pdbXXXX.ent
+pdbl.retrieve_pdb_file(ModelFeatures._path, pdir='{}', file_format='pdb') # Will save to pdbXXXX.ent
 
-# Load the structure
-structure = PDBParser(QUIET=True).get_structure(pdb_id, pdb_file)
 
 # Superimpose all models to the first model, fragment-by-fragment (sliding window)
 super_imposer = Superimposer()
@@ -79,12 +77,12 @@ print(structure_rmsd_average.shape)
 
 pymol.finish_launching()  # Open Pymol
 
-cmd.load(pdb_file, pdb_id)  # Download the PDB
-# cmd.load("data/pdb{}.ent".format(pdb_id), pdb_id)  # Load from file
+#cmd.load(pdb_file, pdb_id)  # Download the PDB
+cmd.load("{}".format(ModelFeatures._path), ModelFeatures._path)  # Load from file
 
 cmd.remove("resn hoh")  # Remove water molecules
 cmd.hide("lines", "all")  # Hide lines
-cmd.show("cartoon", pdb_id)  # Show cartoon
+
 
 norm = colors.Normalize(vmin=min(structure_rmsd_average), vmax=max(structure_rmsd_average))
 for i, residue in enumerate(Selection.unfold_entities(structure[0], "R")):
