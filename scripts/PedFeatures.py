@@ -165,6 +165,12 @@ class PedFeatures:
         return self._ped_features
 
     def compute_entropy(self, k):
+        """
+        This function computes the entropy of a specific ped using the secondary structures of
+        its models
+        :param k: ped id 
+        :return: vector of entropies
+        """
 
         ss = extract_vectors_model_feature(residues=self._num_residues, key='SS', features=self._models_features[k])
         entropies = []
@@ -177,11 +183,22 @@ class PedFeatures:
         return entropies
 
     def compute_median_asa(self, k):
+        """
+        This function computes the median asa of a specific ped using the asa of
+        its models
+        :param k: ped id
+        :return: vector of median asa
+        """
 
         asa = extract_vectors_model_feature(residues=self._num_residues, key='ASA', features=self._models_features[k])
         return np.median(asa, axis=0)
 
     def compute_median_rmsd(self, k):
+        """
+        This function computes the median of rmsd of a specific ped
+        :param k: ped id
+        :return: vector of median rmsd
+        """
 
         super_imposer = Superimposer()
         structure_rmsd_fragments = []  # RMSD, no_models X no_fragments X fragment_size
@@ -234,16 +251,33 @@ class PedFeatures:
         return np.average(structure_rmsd_fragments, axis=0)
 
     def compute_median_dist(self, k):
+        """
+        This function computes the median distances of a specific ped using the distance matrices of
+        its models
+        :param k: ped id
+        :return: vector of median distances
+        """
 
         dist = extract_vectors_model_feature(residues=self._num_residues, key='DIST', features=self._models_features[k])
         return np.median(dist, axis=0)
 
     def compute_std_dist(self, k):
+        """
+        This function computes the standard deviation of distances in a specific ped using the distance matrices of
+        its models
+        :param k: ped id
+        :return: vector of the standard deviations of distaces
+        """
 
         dist = extract_vectors_model_feature(residues=self._num_residues, key='DIST', features=self._models_features[k])
         return np.std(dist, axis=0, dtype='float64')
 
     def save(self, output):
+        """
+        This function saves the peds features as a file
+        :param output: name of output file
+        :return: True or False, If the output file of all the models features is saved correctly
+        """
 
         with open(output, 'w') as f:
             for ped in self._ped_features:

@@ -80,6 +80,11 @@ class Menu:
         print('Exiting...')
 
     def first_task(self, pdb_id_list):
+        """
+        To do the first task of the project
+        :param pdb_id_list: list of the pdb id of one ped
+        :return: null
+        """
 
         for pdb_id in pdb_id_list:
             print("\nAnalyzing {}...".format(pdb_id))
@@ -92,7 +97,11 @@ class Menu:
             # model_features.generate_pymol_img(graph)
 
     def second_task(self, ped_name):
-
+        """
+        To do the first task of the project
+        :param ped_name: name of ped to analyse
+        :return: null
+        """
         ped_features = PedFeatures(self._folder, ped_name)
         x = ped_features.choice_maker()
 

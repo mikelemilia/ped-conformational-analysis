@@ -12,6 +12,17 @@ from sklearn.metrics import silhouette_score
 
 
 def extract_vectors_model_feature(residues, key=None, models=None, features=None, indexes=False, index_slices=False):
+    """
+    This function allows you to extract information of the model features from the data structure.
+    :param residues: number of residues in the model
+    :param key: the key of the feature or None
+    :param models: the id of model or None
+    :param features: None
+    :param indexes: only ruturn begin, end of same feature if it's True, default: False
+    :param index_slices: return all the intervals of the features if it's True, default: False
+    :return: begin/end, slices or features
+    """
+
     begin = end = -1
     residues = int(residues)
     features = np.array(features)
@@ -203,6 +214,11 @@ class ModelFeatures:
         return round(math.sqrt(np.sum(dist * dist) / len(coord)), 3)
 
     def compute_secondary_structure(self, model):
+        """
+        This function defines all the secondary structures of the model passed in input
+        :param model: one model
+        :return: the matrix of secondary structures
+        """
 
         # Calculate PSI and PHI
         ppb = PPBuilder()  # PolyPeptideBuilder
@@ -250,6 +266,12 @@ class ModelFeatures:
         return ss
 
     def compute_distance_matrix(self, residues):
+        """
+        This function computes the distance matrix. It computes the pairwise distances
+        between residues
+        :param residues: residues of chains
+        :return: the distance matrix
+        """
 
         # Calculate the distance matrix
         distances = []
@@ -266,6 +288,11 @@ class ModelFeatures:
         return distances
 
     def extract(self, output):
+        """
+        This function allows you to extract features from the output file
+        :param output: the name of output file
+        :return: feature
+        """
 
         df = pandas.read_csv(output, index_col=None, header=None)
 
@@ -278,6 +305,11 @@ class ModelFeatures:
         return self._features
 
     def save(self, output):
+        """
+        This function saves the models features as a file
+        :param output: name of output file
+        :return: True or False, If the output file of all the models features is saved correctly
+        """
 
         with open(output, 'w') as f:
             for model in self._features:
@@ -290,6 +322,13 @@ class ModelFeatures:
     # Clustering
 
     def metrics(self, x, y):
+        """
+        This function use a specific metric and all the features to compute the distance
+        between two input points
+        :param x: features of one model
+        :param y: features of one model
+        :return: distance between x and y
+        """
 
         indexes = extract_vectors_model_feature(residues=self._residues, index_slices=True)
 
@@ -303,6 +342,12 @@ class ModelFeatures:
         return metric
 
     def compute_clustering(self, k_set=range(3, 9)):
+        """
+        This function clustering all the models in a ped using KMedoids and a customed metric function.
+        It also finds the best number of clusters (representative conformatons) by the silhouette score.
+        :param k_set: interval of the number of clusters
+        :return: the centroids id of each cluster
+        """
 
         print("\t- Clustering...")
 
@@ -333,6 +378,11 @@ class ModelFeatures:
         print('Indexes of the representative conformations: {}'.format(self._centroids))
 
     def generate_graph(self):
+        """
+        This function generates the weighted graph of the representative conformatios extracted in
+        the clustering process
+        :return: the graph
+        """
 
         # Graph
         g = nx.Graph()
@@ -351,78 +401,14 @@ class ModelFeatures:
         plt.show()
         return g
 
-    # def generate_pymol_img(self, g):
-    #     pymol.finish_launching()  # Open Pymol
-    #     # Load the structure conformations
-    #     h = g.nodes().value()
-    #     print(h)
-    #     for j in g.nodes().value():
-    #         structure = PDBParser(QUIET=True).get_structure(self._id)
-    #         # Superimpose all models to the first model, fragment-by-fragment (sliding window)
-    #         super_imposer = Superimposer()
-    #
-    #         structure_feature_fragments = []
-    #         window_size = 9
-    #         ref_model = [atom for atom in structure[h].get_atoms() if atom.get_name() == "CA"]  # CA of the first model
-    #         ref_features = self._features[h]
-    #         model_features = []
-    #         alt_model = [atom for atom in structure[j].get_atoms() if atom.get_name() == "CA"]  # coords of the model
-    #         alt_features = self._features[j]
-    #
-    #         # Iterate fragments
-    #         for start in range(len(ref_model) - window_size):
-    #             end = start + window_size
-    #             ref_fragment = ref_model[start:end]
-    #             alt_fragment = alt_model[start:end]
-    #
-    #             # Calculate rotation/translation matrices
-    #             super_imposer.set_atoms(ref_fragment, alt_fragment)
-    #
-    #             # Rotate-translate coordinates
-    #             # alt_fragment_coord = np.array([atom.get_coord() for atom in alt_fragment])
-    #             # alt_fragment_coord = np.dot(super_imposer.rotran[0].T, alt_fragment_coord.T).T
-    #             # alt_fragment_coord = alt_fragment_coord + super_imposer.rotran[1]
-    #
-    #             #features of structure
-    #             #ref_fragment_coord = np.array([atom.get_coord() for atom in ref_fragment])
-    #             # dist = np.diff(ref_features,alt_features)
-    #             # feat_res = np.sqrt(np.sum(dist * dist, axis=1))  # RMSD for each residue of the fragment
-    #             # model_features.append(feat_res)
-    #         dist = np.diff(ref_features,alt_features)
-    #         feat_res = np.sqrt(np.sum(dist * dist, axis=1))
-    #         structure_feature_fragments.append(feat_res)
-    #
-    #         structure_feature_fragments = np.array(structure_feature_fragments)  # no_models X no_fragments X fragment_size
-    #
-    #         structure_feature_fragments = np.average(structure_feature_fragments, axis=0)  # no_fragments X fragment_size
-    #         # Pad with right zeros to reach the sequence length (no_fragments + fragment_size)
-    #         structure_feature_fragments = np.pad(structure_feature_fragments, ((0, 0), (0, structure_feature_fragments.shape[0])))
-    #
-    #         # Roll the fragments one by one (add heading zeros)
-    #         for i, row in enumerate(structure_feature_fragments):
-    #             structure_feature_fragments[i] = np.roll(row, i)
-    #
-    #         # Calculate average along columns of overlapping fragments (average RMSD per residue)
-    #         structure_feature_average = np.average(structure_feature_fragments, axis=0)
-    #
-    #
-    #         #PYMOL SCRIPT
-    #
-    #         cmd.load("data/pdb{}.pdb".format(j), j)  # Load from file
-    #         cmd.remove("resn hoh")  # Remove water molecules
-    #         cmd.hide("lines", "all")  # Hide lines
-    #         cmd.show("cartoon", j)  # Show cartoon
-    #         norm = colors.Normalize(vmin=min(structure_feature_average), vmax=max(structure_feature_average))
-    #         for i, residue in enumerate(Selection.unfold_entities(structure[0], "R")):
-    #             rgb = cm.bwr(norm(structure_feature_average[i]))
-    #             # print(i, residue.id, structure_rmsd_average[i], rgb)
-    #             cmd.set_color("col_{}".format(i), list(rgb)[:3])
-    #             cmd.color("col_{}".format(i), "resi {}".format(residue.id[1]))
-    #         cmd.png("data/pymol_image", width=2000, height=2000, ray=1)
-    #         h=j
 
     def plot_secondary_structure(self, rama):
-
+        """
+         This function allows you to visualize the secondary structure regions of each residue
+         using the Ramachandran Plot
+        :param rama: the Ramachandran matrix file
+        :return: the plot of SS regions
+        """
         # Plot Ramachandran SS regions
         f, axes = plt.subplots(1, len(rama), figsize=(12, 12))
         axes = np.array(axes).reshape(

@@ -4,6 +4,11 @@ import os
 
 
 def parser():
+    """
+    This function allows you a parser for the input path file
+    :return: folder
+    """
+
     # Create the parser
     my_parser = argparse.ArgumentParser(description='PED tool')
 
@@ -19,7 +24,13 @@ def parser():
 
 
 def extract_filenames(folder, name="", extensions=None):
+    """
 
+    :param folder:
+    :param name:
+    :param extensions:
+    :return:
+    """
     if extensions is None:
         extensions = ['pdb', 'ent']
 
