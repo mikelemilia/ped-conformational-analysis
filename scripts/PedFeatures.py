@@ -14,6 +14,17 @@ from utils import extract_filenames
 
 
 def extract_vectors_ped_feature(residues, conformations, key=None, features=None, peds=None, indexes=False, index_slices=False):
+    """
+    This function allows you to extract information of the model features from the data structure.
+    :param residues: number of residues in the model
+    :param key: the key of the feature or None
+    :param models: the id of model or None
+    :param features: None
+    :param indexes: only ruturn begin, end of same feature if it's True, default: False
+    :param index_slices: return all the intervals of the features if it's True, default: False
+    :return: begin/end, slices or features
+    """
+
     begin = end = -1
     residues = int(residues)
     conformations = int(conformations)
@@ -137,6 +148,11 @@ class PedFeatures:
         return 0
 
     def compare(self):
+        """
+        This function allows you to insert ped features into a data structures.
+        It's used to compare two different ped.
+        :return: ped features
+        """
 
         for k in range(len(self._models_features)):
 
@@ -288,6 +304,11 @@ class PedFeatures:
         print("\t- {} saved".format(self._file))
 
     def extract(self, path):
+        """
+        This function allows you to extract ped features
+        :param path: the name of ped file
+        :return: ped features
+        """
 
         df = pandas.read_csv(path, index_col=None, header=None)
 
@@ -298,6 +319,15 @@ class PedFeatures:
         return self._ped_features
 
     def global_metric(self, x, y):
+        """
+        This function use a specific metric and all the ped features to compute the distance
+        between two input points
+        Entropy (std), median asa (euclidean distance), median rmsd (euclidean distance),
+        median distance (correlation)
+        :param x: features of one ped
+        :param y: features of one ped
+        :return: distance between x and y
+        """
 
         indexes = extract_vectors_ped_feature(residues=self._num_residues, conformations=self._num_conformations,
                                               index_slices=True)
@@ -318,6 +348,10 @@ class PedFeatures:
         return m
 
     def distance_matrix_med_rmsd_peds(self):
+        """
+        This function visualizes the distance matrix heatmap using only RMSD between pair of peds
+        :return: Plot heatmap with respect RMSD
+        """
 
         print('\t- Plotting heatmap (with only RMSD)...')
 
@@ -336,6 +370,10 @@ class PedFeatures:
         return dists
 
     def global_dendrogram(self):
+        """
+        This function visualizes the weighted distance between pair of peds with respect global metric
+        :return: Dendrogram of peds, save it into img file
+        """
 
         print('\t- Plotting global dendrogram...')
 
@@ -346,6 +384,11 @@ class PedFeatures:
         plt.show()
 
     def global_heatmap(self):
+        """
+        This function allows you to visualize the pairwise difference of peds
+        using a customized global metric.
+        :return: Plot heatmap, save it into a img file
+        """
 
         print('\t- Plotting global heatmap...')
 
@@ -362,6 +405,10 @@ class PedFeatures:
         plt.show()
 
     def local_metric(self):
+        """
+        This function compares features of one ped using a customized local metric
+        :return: Plots of the ped features
+        """
 
         print('\t- Plotting local metric...')
 
