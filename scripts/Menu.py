@@ -1,9 +1,11 @@
 import re
 import sys
 
+import pymol
+
 from ModelFeatures import ModelFeatures
 from PedFeatures import PedFeatures
-from utils import extract_filenames
+from utils import *
 
 
 class Menu:

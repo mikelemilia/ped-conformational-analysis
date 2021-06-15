@@ -3,9 +3,12 @@ import networkx as nx
 import numpy as np
 import os
 import pandas
+import pymol
 
-from Bio.PDB import PDBParser, DSSP, PPBuilder
-from matplotlib import pyplot as plt, patches
+from Bio.PDB import PDBParser, DSSP, PPBuilder, Superimposer, PDBIO, Selection
+from matplotlib import pyplot as plt, patches, colors, cm
+from pymol import cgo, cmd, util
+from pymol2 import PyMOL
 from scipy.spatial.distance import *
 from sklearn_extra import cluster
 from sklearn.metrics import silhouette_score
@@ -401,7 +404,6 @@ class ModelFeatures:
         plt.show()
         return g
 
-
     def plot_secondary_structure(self, rama):
         """
          This function allows you to visualize the secondary structure regions of each residue
@@ -431,6 +433,45 @@ class ModelFeatures:
 
         plt.tight_layout()  # Remove figure padding
         plt.show()
+
+    def generate_pymol_image(self, g):
+
+        # pymol.finish_launching()  # Open Pymol
+        p = PyMOL()
+        p.start()
+
+        structure = PDBParser(QUIET=True).get_structure(self._id, self._path)
+
+        # Load the structure conformations
+        h = g.nodes().value().pop()  # Node reference
+        ref_features = self._features[h]
+        structure_feature_average = []
+
+        for j in g.nodes().value():
+
+            alt_features = self._features[j]
+            x = self.metrics(ref_features, alt_features)  # TODO: peso dell'arco del grafo
+
+            io = PDBIO()
+            io.set_structure(structure[j])
+            io.save("{}/pymol/{}.pdb".format(self._folder, self._id))
+            structure_feature_average.append(x)
+
+        structure_feature_average = np.array(structure_feature_average)
+
+        # PYMOL SCRIPT
+
+        cmd.load("{}/pymol/{}.pdb".format(self._folder, self._id), self._id)  # Load from file
+        cmd.remove("resn hoh")  # Remove water molecules
+        cmd.hide("lines", "all")  # Hide lines
+        cmd.show("cartoon", j)  # Show cartoon
+        norm = colors.Normalize(vmin=min(structure_feature_average), vmax=max(structure_feature_average))
+        for i, residue in enumerate(Selection.unfold_entities(structure[0], "R")):
+            rgb = cm.bwr(norm(structure_feature_average[i]))
+            # print(i, residue.id, structure_rmsd_average[i], rgb)
+            cmd.set_color("col_{}".format(i), list(rgb)[:3])
+            cmd.color("col_{}".format(i), "resi {}".format(residue.id[1]))
+        cmd.png("data/pymol_image", width=2000, height=2000, ray=1)
 
     @property
     def residues(self):
