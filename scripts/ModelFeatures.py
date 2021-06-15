@@ -327,7 +327,8 @@ class ModelFeatures:
     def metrics(self, x, y):
         """
         This function use a specific metric and all the features to compute the distance
-        between two input points
+        between two input points.
+        Radius of gyration (difference), asa (euclidean distance), ss (hamming), distance (correlation)
         :param x: features of one model
         :param y: features of one model
         :return: distance between x and y
