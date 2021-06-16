@@ -42,7 +42,7 @@ identify a measure (global score) to quantify global differencesbetween ensemble
 thanks to dendrograms and heatmap - and another measure (local score) to identify low/high variance positions
 along the sequence - evaluated with a residues-scores plot.
 
-## How to run
+## Project Structure
 
 All the script and classes implemented for this project can be found in 'scripts' folder. 
 'Output' folder will contains all the output and plots generated during the execution.  
@@ -53,6 +53,8 @@ Task 2 is implemented in PedFeatures class. An example of its usage can be found
 inside Menu class. 
 Menu class, instead, implements the different choices that can be taken from the inital menù. 
 
+## How to run
+
 *python main.py -p \<folder path>*
 
 To execute it from command line, the path to folder already containg PED files of interest (.pdb or .ent formats are accepted) 
@@ -60,7 +62,7 @@ can be passed as input as reported above. If it is not specified, 'data' folder 
 Notice that inside the folder containing the data, for each task, a new folder will be created: 'model_features' will contain
 files generated with the first task while 'ped_features' the ones of the second task. 
 
-Once the user selects the task to be performed from the menù, he is asked to insert the PED ID of interest. Notice that it should
-be of the form PEDxxxxxx, where x corresponds to a digit. Not valid ID will be rejected. To undo the selection of the task, it is 
-enough to digit 'Q'. 
+When the program starts, the user need to select the task to be performed from the menù (it is sufficient to report the task 
+number). To subsequently undo the selection of the task, it is enough to digit 'Q'. He is then asked
+to insert the PED ID of interest: it should be of the form PEDxxxxxx, where x corresponds to a digit and not valid ID will be rejected. 
 
