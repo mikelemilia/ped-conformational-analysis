@@ -53,13 +53,14 @@ Task 2 is implemented in PedFeatures class. An example of its usage can be found
 inside Menu class. 
 Menu class, instead, implements the different choices that can be taken from the inital menù. 
 
-To execute the program from command line, the folder already containg the PED files of interest (.pdb or .ent formats are accepted) 
-can be passed as input as follows. If the folder path is not specified, data folder of this project is considered as input folder. 
-Notice that inside the folder containing the data, for each task, a new folder will be created: 'model features' will contain
-files generated with the first task while 'ped features' files of the second one. 
+*python main.py -p \<folder path>*
 
-python main.py -p \<folder path>
+To execute it from command line, the path to folder already containg PED files of interest (.pdb or .ent formats are accepted) 
+can be passed as input as reported above. If it is not specified, 'data' folder of this project is considered as input folder. 
+Notice that inside the folder containing the data, for each task, a new folder will be created: 'model_features' will contain
+files generated with the first task while 'ped_features' the ones of the second task. 
 
-Once the user selects the task to be performed, he is asked to insert the PED ID of interest. Notice that it should
-be of the form PEDxxxxxx, where x corresponds to a digit. Not valid ID will be rejected. 
+Once the user selects the task to be performed from the menù, he is asked to insert the PED ID of interest. Notice that it should
+be of the form PEDxxxxxx, where x corresponds to a digit. Not valid ID will be rejected. To undo the selection of the task, it is 
+enough to digit 'Q'. 
 
