@@ -501,6 +501,8 @@ class ModelFeatures:
             cmd.color("col_{}".format(i), "resi {}".format(residue.id[1]))
         cmd.png("output/plot/{}_pymol.png".format(self._id), width=4000, height=2000, ray=1)
 
+        # p.stop()
+
     @property
     def residues(self):
         return self._residues
