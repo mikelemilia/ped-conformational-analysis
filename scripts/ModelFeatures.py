@@ -436,7 +436,7 @@ class ModelFeatures:
         plt.show()
 
     def pymol_metric(self, asa, ss, dist):
-        # problema!!!
+
         asa_dist = np.std(asa)
 
         sum_ss = 0
@@ -463,7 +463,12 @@ class ModelFeatures:
 
         # Build the matrix with the features of the representative conformations
         representative_features = []
+        first = True
         for model in g.nodes():
+            if first:
+                io = PDBIO()
+                io.set_structure(structure[model])
+                io.save("data/pymol/{}.pdb".format(self._id))
             representative_features.append(self._features[model])
         representative_features = np.matrix(representative_features)
 
@@ -482,48 +487,19 @@ class ModelFeatures:
         # For each residue, apply the metric and save it
         residue_variability = []
         for residue in range(self._residues):
-            residue_variability.append(self.pymol_metric(asa[:,residue], ss[:,residue], dist[:,residue]))
+            residue_variability.append(self.pymol_metric(asa[:, residue], ss[:, residue], dist[:, residue]))
 
-        residue_variability = np.array(residue_variability)
-
-        cmd.load("{}/pymol/{}.pdb".format(self._folder, self._id), self._id)  # Load from file
+        cmd.delete("all")
+        cmd.load("data/pymol/{}.pdb".format(self._id), self._id)  # Load from file
         cmd.remove("resn hoh")  # Remove water molecules
         cmd.hide("lines", "all")  # Hide lines
-        cmd.show("cartoon", self._id)  # Show cartoon
+        cmd.show("cartoon", "all")  # Show cartoon
         norm = colors.Normalize(vmin=min(residue_variability), vmax=max(residue_variability))
         for i, residue in enumerate(Selection.unfold_entities(structure[0], "R")):
             rgb = cm.bwr(norm(residue_variability[i]))
-            # print(i, residue.id, structure_rmsd_average[i], rgb)
             cmd.set_color("col_{}".format(i), list(rgb)[:3])
             cmd.color("col_{}".format(i), "resi {}".format(residue.id[1]))
-        cmd.png("output/plot/{}_pymol.png".format(self._id), width=2000, height=2000, ray=1)
-
-        structure_feature_average = []
-        # h = g.nodes().value().pop()  # Node reference
-        # ref_features = self._features[h]
-        # window_size = 9
-        #
-        # for j in g.nodes().value():
-        #
-        #     alt_features = self._features[j]
-        #
-        #     for residue in range(self._residues):
-        #
-        #         self.pymol_metric(ref_features, alt_features, residue)
-        #         # calcolare distanza con una metrica e aggiungerla ad un vettore
-        #
-        #     x = self.metrics(ref_features, alt_features)  # TODO: peso dell'arco del grafo
-        #
-        #     io = PDBIO()
-        #     io.set_structure(structure[j])
-        #     io.save("{}/pymol/{}.pdb".format(self._folder, self._id))
-        #     structure_feature_average.append(x)
-        #
-        # structure_feature_average = np.array(structure_feature_average)
-
-        # # PYMOL SCRIPT
-        #
-
+        cmd.png("output/plot/{}_pymol.png".format(self._id), width=4000, height=2000, ray=1)
 
     @property
     def residues(self):
