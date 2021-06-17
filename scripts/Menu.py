@@ -1,8 +1,6 @@
 import re
 import sys
 
-import pymol
-
 from ModelFeatures import ModelFeatures
 from PedFeatures import PedFeatures
 from utils import *
@@ -97,7 +95,7 @@ class Menu:
             model_features.compute_clustering()
             graph = model_features.generate_graph()
             model_features.generate_pymol_image(graph)
-            exit(1)
+            # exit(1)
 
     def second_task(self, ped_name):
         """

@@ -20,7 +20,7 @@ def extract_vectors_model_feature(residues, key=None, models=None, features=None
     :param residues: number of residues in the model
     :param key: the key of the feature or None
     :param models: the id of model or None
-    :param features: None
+    :param features: matrix of features
     :param indexes: only ruturn begin, end of same feature if it's True, default: False
     :param index_slices: return all the intervals of the features if it's True, default: False
     :return: begin/end, slices or features
@@ -437,22 +437,33 @@ class ModelFeatures:
 
     def pymol_metric(self, asa, ss, dist):
         # problema!!!
-        asa_dist = np.sum(asa)/len(asa)
-        ss = hamming(ss)
-        dist = 1 - correlation(dist)
+        asa_dist = np.std(asa)
+
+        sum_ss = 0
+        for i in range(len(ss)):
+            for j in range(i, len(ss)):
+                sum_ss += 0 if ss[i] == ss[j] else 1
+
+        sum_dist = 0.0
+        for k in range(dist.shape[0]):
+            for h in range(k, dist.shape[0]):
+                sum_dist += 1 - correlation(dist[k], dist[h])
+
+        return asa_dist + sum_ss + sum_dist
+
 
     def generate_pymol_image(self, g):
 
         # pymol.finish_launching()  # Open Pymol
-        p = PyMOL()
-        p.start()
+        # p = PyMOL()
+        # p.start()
 
         # Load the structure conformations
         structure = PDBParser(QUIET=True).get_structure(self._id, self._path)
 
         # Build the matrix with the features of the representative conformations
         representative_features = []
-        for model in g.nodes().value():
+        for model in g.nodes():
             representative_features.append(self._features[model])
         representative_features = np.matrix(representative_features)
 
@@ -461,15 +472,31 @@ class ModelFeatures:
         ss = extract_vectors_model_feature(self._residues, key='SS', features=representative_features)
         temp_dist = extract_vectors_model_feature(self._residues, key='DIST', features=representative_features)
 
-        dist = np.zeros((self._residues, self._residues))
-        idx = np.triu_indices(self._residues, k=1)
-        dist[idx] = temp_dist
-        dist = dist + dist.T
+        # Reshape distance matrix (linear to square)
+        dist = np.zeros((len(representative_features), self._residues, self._residues))
+        for k in range(len(representative_features)):
+            idx = np.triu_indices(self._residues, k=1)
+            dist[k][idx] = temp_dist[k]
+            dist[k] = dist[k] + dist[k].T
 
         # For each residue, apply the metric and save it
         residue_variability = []
         for residue in range(self._residues):
-            residue_variability.append(self.pymol_metric(asa[residue], ss[residue], dist[residue]))
+            residue_variability.append(self.pymol_metric(asa[:,residue], ss[:,residue], dist[:,residue]))
+
+        residue_variability = np.array(residue_variability)
+
+        cmd.load("{}/pymol/{}.pdb".format(self._folder, self._id), self._id)  # Load from file
+        cmd.remove("resn hoh")  # Remove water molecules
+        cmd.hide("lines", "all")  # Hide lines
+        cmd.show("cartoon", self._id)  # Show cartoon
+        norm = colors.Normalize(vmin=min(residue_variability), vmax=max(residue_variability))
+        for i, residue in enumerate(Selection.unfold_entities(structure[0], "R")):
+            rgb = cm.bwr(norm(residue_variability[i]))
+            # print(i, residue.id, structure_rmsd_average[i], rgb)
+            cmd.set_color("col_{}".format(i), list(rgb)[:3])
+            cmd.color("col_{}".format(i), "resi {}".format(residue.id[1]))
+        cmd.png("output/plot/{}_pymol.png".format(self._id), width=2000, height=2000, ray=1)
 
         structure_feature_average = []
         # h = g.nodes().value().pop()  # Node reference
@@ -496,17 +523,7 @@ class ModelFeatures:
 
         # # PYMOL SCRIPT
         #
-        # cmd.load("{}/pymol/{}.pdb".format(self._folder, self._id), self._id)  # Load from file
-        # cmd.remove("resn hoh")  # Remove water molecules
-        # cmd.hide("lines", "all")  # Hide lines
-        # cmd.show("cartoon", j)  # Show cartoon
-        # norm = colors.Normalize(vmin=min(structure_feature_average), vmax=max(structure_feature_average))
-        # for i, residue in enumerate(Selection.unfold_entities(structure[0], "R")):
-        #     rgb = cm.bwr(norm(structure_feature_average[i]))
-        #     # print(i, residue.id, structure_rmsd_average[i], rgb)
-        #     cmd.set_color("col_{}".format(i), list(rgb)[:3])
-        #     cmd.color("col_{}".format(i), "resi {}".format(residue.id[1]))
-        # cmd.png("data/pymol_image", width=2000, height=2000, ray=1)
+
 
     @property
     def residues(self):
