@@ -94,9 +94,10 @@ class Menu:
             model_features = ModelFeatures(self._folder, pdb_id)
             model_features.choice_maker()
 
-            # model_features.compute_clustering()
-            # graph = model_features.generate_graph()
-            # model_features.generate_pymol_img(graph)
+            model_features.compute_clustering()
+            graph = model_features.generate_graph()
+            model_features.generate_pymol_image(graph)
+            exit(1)
 
     def second_task(self, ped_name):
         """
