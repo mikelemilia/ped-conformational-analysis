@@ -1,4 +1,4 @@
-- biopython
-- networkx
-- pymol
-- sklearn_extra
+biopython
+networkx
+pymol
+scikit-learn-extra
