@@ -122,8 +122,13 @@ class PedFeatures:
 
             # Folders
             self._data_folder = folder
-            self._folder = folder + '/ped_features/'
+            # self._folder = folder + '/ped-features/'  # create ped-features inside the input folder
+            self._folder = 'data/ped-features/'         # create ped-features always inside data folder
             os.makedirs(self._folder, exist_ok=True)
+
+            self._output_folder = 'output/ped-features'       # create ped-features always inside output folder
+            os.makedirs(self._output_folder, exist_ok=True)
+
             self._file = ped_name + '_features.csv'
 
     def choice_maker(self):
@@ -380,7 +385,7 @@ class PedFeatures:
         linkage_matrix = linkage(np.array(self._ped_features), 'complete', metric=self.global_metric)  # TODO capire se è realmente necessario il cast, in teoria no
         dendrogram(linkage_matrix)
         plt.title('Global Dendrogram for {}'.format(self._ped_name))
-        plt.savefig('output/plot/{}_dendrogram.png'.format(self._ped_name))
+        plt.savefig('{}/{}_dendrogram.png'.format(self._output_folder, self._ped_name))
         plt.show()
 
     def global_heatmap(self):
@@ -401,7 +406,7 @@ class PedFeatures:
 
         seaborn.heatmap(dist)
         plt.title('Global Heatmap for {}'.format(self._ped_name))
-        plt.savefig('output/plot/{}_heatmap.png'.format(self._ped_name))
+        plt.savefig('{}/{}_heatmap.png'.format(self._output_folder, self._ped_name))
         plt.show()
 
     def local_metric(self):
@@ -480,5 +485,5 @@ class PedFeatures:
 
         plt.plot(np.arange(self._num_residues), val, color='red', ls='--')
         plt.title('Local Metric for {}'.format(self._ped_name))
-        plt.savefig('output/plot/{}_local.png'.format(self._ped_name))
+        plt.savefig('{}/{}_local.png'.format(self._output_folder, self._ped_name))
         plt.show()

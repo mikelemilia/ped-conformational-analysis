@@ -98,8 +98,13 @@ class ModelFeatures:
         self._residues = None
         self._conformations = []
         # Folder to the feature file
-        self._folder = folder + '/model_features/'
+        # self._folder = folder + '/model-features/'  # create model-features inside the input folder
+        self._folder = 'data/model-features/'         # create model-features always inside data folder
         os.makedirs(self._folder, exist_ok=True)
+
+        self._output_folder = 'output/model-features'  # create model-features always inside output folder
+        os.makedirs(self._output_folder, exist_ok=True)
+
         # Feature file name
         self._file = identifier + '_features.csv'
 
@@ -400,7 +405,7 @@ class ModelFeatures:
 
         options = {'node_color': 'orange', 'node_size': 700, 'width': 2}
         nx.draw_spectral(g, with_labels=True, **options)
-        path = "output/{}_graph.png".format(self._id)
+        path = "{}/{}_graph.png".format(self._output_folder, self._id)
         plt.savefig(path)
         plt.show()
         return g
@@ -499,7 +504,7 @@ class ModelFeatures:
             rgb = cm.bwr(norm(residue_variability[i]))
             cmd.set_color("col_{}".format(i), list(rgb)[:3])
             cmd.color("col_{}".format(i), "resi {}".format(residue.id[1]))
-        cmd.png("output/plot/{}_pymol.png".format(self._id), width=4000, height=2000, ray=1)
+        cmd.png("{}/{}_pymol.png".format(self._output_folder, self._id), width=4000, height=2000, ray=1)
 
         # p.stop()
 

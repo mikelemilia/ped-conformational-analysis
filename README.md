@@ -65,7 +65,8 @@ Features analyzed for ensembles (multiple conformations)
 │   ├── ped-features/             # second task features data
 │   └── ...                       # .pdb / .ent files
 ├── output/               
-│   └── plot/    
+│   ├── model-features/           # first task output
+│   └── ped-features/             # second task output
 ├── src/                  
 │   └── main.py           
 │   └── ...
@@ -73,7 +74,7 @@ Features analyzed for ensembles (multiple conformations)
 └── requirements.txt              # required packages
 ```
 
-All the script and classes implemented for this project can be found in 'scripts' folder.
+All the script and classes implemented for this project can be found in 'src' folder.
 'Output' folder will contains all the output and plots generated during the execution.
 
 Menu class implements the different choices that can be taken from the inital menù.
