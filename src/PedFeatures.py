@@ -92,7 +92,8 @@ class PedFeatures:
 
     def __init__(self, folder, ped_name):
         # Extract all the files PEDxxxxxexxx_features.csv
-        model_folder = folder + '/model_features/'
+        # model_folder = folder + '/model_features/'
+        model_folder = 'data/model-features/'
         ped_names = extract_filenames(model_folder, ped_name, ['csv'])
 
         # Extract PEDxxxxxexxx from filenames

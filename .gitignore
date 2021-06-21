@@ -46,6 +46,6 @@ venv.bak/
 output/
 output/plot
 data
-data/model_features/
-data/ped_features/
+data/model-features/
+data/ped-features/
 tests/
