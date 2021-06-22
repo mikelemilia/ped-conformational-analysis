@@ -2,15 +2,33 @@
 
 The goal of the first task is to implement a software to identify conformational relationships within a single ensemble. In this project we use the sructural ensamble PED00020 (measles virus nucleoprotein).
 The input of this task is a file containing the PDB structure of one single PED ensemble.
+%commentare il fatto che alcuni ensemble hanno zeros aggiunti 
 
 \subsection{Single conformation features}
 Relationships within an ensemble will be identified considering the structural features of single conformations.
-First, the software extracts the single conformation features:
-%elenco puntato con descrizione features 
+
+First, the software extracts the single conformation features and it puts them into a unique dictionary for each model:
+\begin{itemize}
+\item Radius of gyration of the structure: it is computed using the coordinates of each atom. It computes the barycenter and the distance of each atom from it.
+\item Relative accessible surface area (ASA) for each residue: it should be noted that for within a conformation the ASA is the same.
+\item Secondary structure for each residue: it computes the angles Phi and Psi and then get SS from them and compare with DSSP. It visualizes the SS regions using the Ramachandran plot
+\item Residue distance matrix: it computes the pairwise distances between residues.
+\end{itemize}
 
 
 \subsection{Representative conformations}
+In order to extract the representative conformations for each conformation, the software clusters all the models within a single ped using KMedoids methods and a customed metric function. 
+We use KMedoids because can be used with arbitrary dissimilarity measures and minimizes a sum of pairwise dissimilarities. 
+Furthermore, we use a specific metric function built using the calculated features and different types of distances to measure their distances. The function takes in input two residues and compute their distance that is a sum of the partial features distances.
+The partal metrics are: absolute difference (radius of gyration), euclidian distance (ASA), Hamming (SS) and the inversion of correlation (distance matrix). 
 
+Then the software compute the distance among the representative conformations by the same metric function and plot a weighted graph.
+The length of the edges is proportional to the distance between the two conformations in the nodes. The label in each node is the ID of the conformations.
+
+
+.....significato biologico.... 
 
 
 \subsection{Pymol image}
+???
+.....significato biologico.... 

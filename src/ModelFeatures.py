@@ -353,7 +353,7 @@ class ModelFeatures:
     def compute_clustering(self, k_set=range(3, 9)):
         """
         This function clustering all the models in a ped using KMedoids and a customed metric function.
-        It also finds the best number of clusters (representative conformatons) by the silhouette score.
+        It also finds the best number of clusters (representative conformations) by the silhouette score.
         :param k_set: interval of the number of clusters
         :return: the centroids id of each cluster
         """
