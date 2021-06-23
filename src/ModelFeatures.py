@@ -369,12 +369,6 @@ class ModelFeatures:
             s = silhouette_score(self._features, pred_labels, metric=self.metrics)
             silhouettes.append(s)
 
-            # u_labels = np.unique(labels)
-            # for i in u_labels:
-            #     plt.scatter(points[labels == i, 0], points[labels == i, 1], label=i)
-            # plt.legend()
-            # plt.show()
-
         s_max = max(silhouettes)
         k_opt = k_set[silhouettes.index(s_max)]
 
@@ -393,7 +387,6 @@ class ModelFeatures:
         :return: the graph
         """
 
-        # Graph
         g = nx.Graph()
         for medoid in self._centroids:
             g.add_node(medoid)
@@ -410,36 +403,6 @@ class ModelFeatures:
         plt.show()
         return g
 
-    def plot_secondary_structure(self, rama):
-        """
-         This function allows you to visualize the secondary structure regions of each residue
-         using the Ramachandran Plot
-        :param rama: the Ramachandran matrix file
-        :return: the plot of SS regions
-        """
-        # Plot Ramachandran SS regions
-        f, axes = plt.subplots(1, len(rama), figsize=(12, 12))
-        axes = np.array(axes).reshape(
-            -1)  # Hack to give consistency for single/multiple suplots (-1 force reshape to infer dimensions)
-        for ax, chain_id in zip(axes, rama):
-
-            # Plot SS regions
-            for x, y, width, height, _, color in self._ranges:
-                ax.add_patch(patches.Rectangle(
-                    (x, y),  # (x,y)
-                    width,  # width
-                    height,  # height
-                    color=color, zorder=0))  # transparency
-
-            # Plot points
-            ax.scatter(rama[chain_id][1], rama[chain_id][2], s=6, color='black', zorder=1)
-
-            ax.set_xlabel('phi')
-            ax.set_ylabel('psi')
-
-        plt.tight_layout()  # Remove figure padding
-        plt.show()
-
     def pymol_metric(self, asa, ss, dist):
 
         asa_dist = np.std(asa)
@@ -455,7 +418,6 @@ class ModelFeatures:
                 sum_dist += 1 - correlation(dist[k], dist[h])
 
         return asa_dist + sum_ss + sum_dist
-
 
     def generate_pymol_image(self, g):
 
@@ -507,11 +469,3 @@ class ModelFeatures:
         cmd.png("{}/{}_pymol.png".format(self._output_folder, self._id), width=4000, height=2000, ray=1)
 
         # p.stop()
-
-    @property
-    def residues(self):
-        return self._residues
-
-    @property
-    def conformations(self):
-        return self._conformations

@@ -1,5 +1,10 @@
 # Conformational analysis of protein structural ensembles
 
+Dire di menù e choice maker e descrivere funzione di estrazione indici. 
+Come sono state estratte ogni feature (RICHIEDERE DSSP). Abbiamo fatto clustering con K-medoids e una metrica ad hoc - 
+generazione grafo con networkx e pymol image con la variabilità dei residui calcolata con un'altra metrica fatta da noi. 
+Choice maker e feature extractor: implementazione di dendrogram, heatmap e variabilità locale con metriche ad hoc. 
+
 ## Authors
 
 [Milia Mikele](https://github.com/mikelemilia) -
