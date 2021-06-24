@@ -341,10 +341,21 @@ class ModelFeatures:
 
         indexes = extract_vectors_model_feature(residues=self._residues, index_slices=True)
 
-        rg = np.abs(x[indexes[0]] - y[indexes[0]])  # / self._max_radius
+        rg = np.abs(x[indexes[0]] - y[indexes[0]]) # /self._max_radius
         asa = euclidean(x[indexes[1]], y[indexes[1]])
-        ss = hamming(x[indexes[2]], y[indexes[2]])
-        dist = 1 - correlation(x[indexes[3]], y[indexes[3]])
+
+        dist_matrix = [[0, 1, 1, 1, 1],
+                       [1, 0, 1, 1, 1],
+                       [1, 1, 0, 1, 1],
+                       [1, 1, 1, 0, 0.5],
+                       [1, 1, 1, 0.5, 0]]
+        ss = 0
+        for i in range(len(x[indexes[2]])):
+            ss += dist_matrix[int(x[indexes[2]][i])][int(y[indexes[2]][i])]*2
+
+        ss = ss / len(x[indexes[2]])
+        # ss = hamming(x[indexes[2]], y[indexes[2]])
+        dist = cosine(x[indexes[3]], y[indexes[3]])
 
         metric = rg + asa + ss + dist
 
