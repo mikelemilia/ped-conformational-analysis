@@ -344,12 +344,15 @@ class PedFeatures:
         y_rg_nozero = y_rg[y_rg != 0]
         rd = np.abs(np.mean(x_rg_nozero) - np.mean(y_rg_nozero))
 
-        en = np.abs(np.sum(x[indexes[2]] - y[indexes[2]]))
+        #en = np.abs(np.sum(x[indexes[2]] - y[indexes[2]]))
+        en = chebyshev(x[indexes[2]],y[indexes[2]])
         med_asa = euclidean(x[indexes[3]], y[indexes[3]])
-        med_rmsd = euclidean(x[indexes[4]], y[indexes[4]])
+        #med_rmsd = euclidean(x[indexes[4]], y[indexes[4]])
+        med_rmsd = sqeuclidean(x[indexes[4]], y[indexes[4]])
         med_dist = 1 - correlation(np.array(x[indexes[5]], dtype='float32'), np.array(y[indexes[5]], dtype='float32'))
 
         m = rd + en + med_asa + med_rmsd + med_dist
+        print(m)
 
         return m
 
