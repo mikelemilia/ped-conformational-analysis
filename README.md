@@ -1,19 +1,25 @@
 # Conformational analysis of protein structural ensembles
 
-Dire di menù e choice maker e descrivere funzione di estrazione indici. 
-Come sono state estratte ogni feature (RICHIEDERE DSSP). Abbiamo fatto clustering con K-medoids e una metrica ad hoc - 
-generazione grafo con networkx e pymol image con la variabilità dei residui calcolata con un'altra metrica fatta da noi. 
-Choice maker e feature extractor: implementazione di dendrogram, heatmap e variabilità locale con metriche ad hoc. 
-
 ## Authors
 
 [Milia Mikele](https://github.com/mikelemilia) -
 [Pezzutti Giulia](https://github.com/giuliapezzutti) -
 [Vettor Federica](https://github.com/FeVe98)
 
-Structural Bioinformatics project
+Structural Bioinformatics Project
 
 Department of Mathematics - University of Padua, Italy
+
+## Table of contents
+
+- [Project specification](#project-specification)
+    + [Task 1](#task-1)
+    + [Task 2](#task-2)
+- [Project structure](#project-structure)
+- [Project description](#project-description)
+- [Getting started](#getting-started)
+    + [Run with custom dataset](#run-with-custom-dataset)
+    + [How it works](#how-it-works)
 
 ## Project specification
 
@@ -63,7 +69,7 @@ Features analyzed for ensembles (multiple conformations)
 
 ## Project Structure
 
-```shell
+```
 .
 ├── data/                 
 │   ├── model-features/           # first task features data
@@ -73,13 +79,41 @@ Features analyzed for ensembles (multiple conformations)
 │   ├── model-features/           # first task output
 │   └── ped-features/             # second task output
 ├── src/                  
-│   └── main.py           
-│   └── ...
+│   └── main.py                   
+│   └── *.py                         
 ├── README.md                     # project overview
+├── Makefile                      # makefile
 └── requirements.txt              # required packages
 ```
 
-All the script and classes implemented for this project can be found in 'src' folder.
+The project is structured in three main folders: `data`, `output` and `src`.
+
+Specifically, `data` contains all the input files related to the PED that we intend to analyze in .pdb (or .ent) format.
+In addition, there are two sub-folders, `model-features` and `ped-features` which are used to better organize the
+partial results (files of extracted features) produced by both project task.
+
+The `output` for coherence is organized in the same way, in fact inside it there are two sub-folders  `model-features`
+and `ped-features`, in which are respectively saved the graphical results produced by produced by first and second task
+of the project.
+
+As for the `src` folder, instead, it contains all the implemented code. A detailed analysis of the code structure is
+covered in the following section, accessible from [here](#project-description).
+
+In addition to the main folders, the files `Makefile` and `requirements.txt` are made available, both of which can be
+useful to install the minimum requirements to allow proper execution.## Project description
+
+## Project description
+
+[comment]: <> (Dire di menù e choice maker e descrivere funzione di estrazione indici. Come sono state estratte ogni feature &#40;)
+
+[comment]: <> (RICHIEDERE DSSP&#41;. Abbiamo fatto clustering con K-medoids e una metrica ad hoc - generazione grafo con networkx e pymol)
+
+[comment]: <> (image con la variabilità dei residui calcolata con un'altra metrica fatta da noi. Choice maker e feature extractor:)
+
+[comment]: <> (implementazione di dendrogram, heatmap e variabilità locale con metriche ad hoc.)
+
+[comment]: <> (---)
+
 'Output' folder will contains all the output and plots generated during the execution.
 
 Menu class implements the different choices that can be taken from the inital menù.
@@ -104,16 +138,19 @@ In order to get access to the code and replicate our results, follow these steps
 git clone https://github.com/mikelemilia/ped-conformational-analysis.git project-name
 
 cd project-name                   # move inside project folder
+
+make init                         # install project requirements (only if needed)
+
 cd src                            # move inside src folder
-python main.py                    # execute w/ default parameters
+python main.py                    # execute w/ default command line parameters
 ```
 
 ### Run with custom dataset
 
 In order to test our code with different PED, you must provide a custom path (pointing to their location) as parameter
-or simply insert the PED .pdb or .ent file inside the `data` folder. 
+or simply insert the PED .pdb (or .ent) file inside the `data` folder.
 
-To provide a custom path, you can use `-p` flag, as in the following example: 
+To provide a custom path, you can use `-p` flag, as in the following example:
 
 ```shell
 python main.py -p <custom-path>   # execute w/ custom path
