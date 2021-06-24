@@ -380,8 +380,8 @@ class PedFeatures:
 
     def global_dendrogram(self):
         """
-        This function visualizes the weighted distance between pair of peds with respect global metric
-        :return: Dendrogram of peds, save it into img file
+        This function visualizes the weighted distance between pair of ensembles with respect global metric
+        :return: Dendrogram of ensembles, save it into img file
         """
 
         print('\t- Plotting global dendrogram...')
@@ -394,7 +394,7 @@ class PedFeatures:
 
     def global_heatmap(self):
         """
-        This function allows you to visualize the pairwise difference of peds
+        This function allows you to visualize the pairwise difference of ensembles
         using a customized global metric.
         :return: Plot heatmap, save it into a img file
         """
@@ -415,7 +415,7 @@ class PedFeatures:
 
     def local_metric(self):
         """
-        This function compares features of one ped using a customized local metric
+        This function compares features of one ensemble using a customized local metric
         :return: Plots of the ped features
         """
 

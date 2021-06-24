@@ -404,6 +404,13 @@ class ModelFeatures:
         return g
 
     def pymol_metric(self, asa, ss, dist):
+        """
+        This function computes the distance between matching residues. It is used to generate the pymol image.
+        :param asa: relative accessible surface area of conformation
+        :param ss: secondary structure of conformation
+        :param dist: distance matrix of conformation
+        :return: distance between conformations
+        """
 
         asa_dist = np.std(asa)
 
@@ -420,6 +427,12 @@ class ModelFeatures:
         return asa_dist + sum_ss + sum_dist
 
     def generate_pymol_image(self, g):
+        """
+        This function generates the pymol image of one ensemble. It scales the structure color with respect
+        the distance among representative conformations using own pymol metric.
+        :param g: graph of representative conformations of one ensemble
+        :return: pymol image
+        """
 
         # pymol.finish_launching()  # Open Pymol
         # p = PyMOL()
