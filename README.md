@@ -67,7 +67,7 @@ Features analyzed for ensembles (multiple conformations)
 5. Median distance of each pair of equivalent positions across ensemble conformations.
 6. Standard deviation of the distance of each pair of equivalent positions across ensemble conformations.
 
-## Project Structure
+## Project structure
 
 ```
 .

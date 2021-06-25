@@ -122,8 +122,11 @@ class Menu:
         user_input = 0
         self.generate_menu()
         while user_input != 3:
-            user_input = int(input("\nSelect what do you want to do: "))
-            self.execute(user_input)
+            user_input = input("\nSelect what do you want to do: ")
+            if user_input in ['1', '2', '3']:
+                self.execute(int(user_input))
+            else:
+                print('Insert a valid choice')
         print('\nProgram stopped.')
 
     def execute(self, user_input):

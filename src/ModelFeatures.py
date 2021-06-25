@@ -350,11 +350,10 @@ class ModelFeatures:
                        [1, 1, 1, 0, 0.5],
                        [1, 1, 1, 0.5, 0]]
         ss = 0
-        for i in range(len(x[indexes[2]])):
-            ss += dist_matrix[int(x[indexes[2]][i])][int(y[indexes[2]][i])]*2
+        for i in range(self._residues):
+            ss += dist_matrix[int(x[indexes[2]][i])][int(y[indexes[2]][i])]
 
-        ss = ss / len(x[indexes[2]])
-        # ss = hamming(x[indexes[2]], y[indexes[2]])
+        ss = ss / self._residues
         dist = cosine(x[indexes[3]], y[indexes[3]])
 
         metric = rg + asa + ss + dist
