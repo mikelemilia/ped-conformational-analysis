@@ -94,11 +94,11 @@ The project is structured in three main folders: `data`, `output` and `src`.
 
 Specifically, `data` contains all the input files related to the PED that we intend to analyze in .pdb (or .ent) format.
 In addition, there are two sub-folders, `model-features` and `ped-features` which are used to better organize the
-partial results (files of extracted features) produced by both project task.
+partial results (features file) produced by both project task.
 
 The `output` for coherence is organized in the same way, in fact inside it there are two sub-folders  `model-features`
-and `ped-features`, in which are respectively saved the graphical results produced by produced by first and second task
-of the project.
+and `ped-features`, in which are respectively saved the graphical results produced by first and second task of the
+project.
 
 As for the `src` folder, instead, it contains all the implemented code. A detailed analysis of the code structure is
 covered in the following sections.
@@ -109,28 +109,27 @@ useful to install the minimum requirements to allow proper execution.
 ### Features
 
 As stated in the subsections of [Project specification](#project-specification), both tasks require the extraction of a
-set of features. To make the output files more understandable, regardless of the task, we decided to map them with this
-policy: one line one feature set.
+set of features. To make the output files more understandable, regardless of the task, we decided to map them with a ono
+to one policy, namely each line is a feature set.
 
 Clearly, this decision required some additions to each feature set:
 
-- regarding the first task, it was necessary to insert both model ID and number of residues
-- regarding the second task, it was necessary to insert only PED ID
+- regarding the first task, it was necessary to insert both the model ID and the number of residues
+- regarding the second task, it was necessary to insert the PED ID
 
 #### Extraction policies
 
-In order to make the code execution smoother, we thought to implement specialized functions for feature extraction.
-Since we didn't think it was useful to recalculate every time the features produced and stored inside
-data `model-features`
-or `ped-features` folder (depending on the task) during previous code run.
+In order to make the code execution smoother, we thought to implement specialized functions for feature extraction,
+since we didn't think it was useful to re-compute every time all features produced and stored inside
+data `model-features` or `ped-features` folder during previous code run.
 
 The extraction functions `extract_vectors_model_feature(...)` and `extract_vectors_ped_feature(...)`, allow to obtain
 different parts of the features file depending on the need. Specifically, once passed the data frame containing the
 feature matrix, it is possible to obtain:
 
-- all rows, or a specific rows subset from a certain column 'till the end
-- all rows, or a specific rows subset between a certain interval
-- all the rows containing a certain feature (i.e., RG, ASA, SS, etc ...)
+- all rows, or a specific subset from a certain column 'till the end
+- all rows, or a specific subset between a certain interval
+- all rows containing a certain feature (i.e., RG, ASA, SS, etc ...)
 - all the feature intervals as slices
 
 ### Classes
