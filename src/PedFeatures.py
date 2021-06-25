@@ -13,12 +13,13 @@ from scipy.spatial.distance import *
 from utils import extract_filenames
 
 
-def extract_vectors_ped_feature(residues, conformations, key=None, features=None, peds=None, indexes=False, index_slices=False):
+def extract_vectors_ped_feature(residues, conformations, key=None, peds=None, features=None, indexes=False, index_slices=False):
     """
     This function allows you to extract information of the model features from the data structure.
     :param residues: number of residues in the model
+    :param conformations: number of conformations
     :param key: the key of the feature or None
-    :param models: the id of model or None
+    :param peds: the id of peds or None
     :param features: None
     :param indexes: only ruturn begin, end of same feature if it's True, default: False
     :param index_slices: return all the intervals of the features if it's True, default: False

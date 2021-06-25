@@ -21,7 +21,7 @@ def extract_vectors_model_feature(residues, key=None, models=None, features=None
     :param key: the key of the feature or None
     :param models: the id of model or None
     :param features: matrix of features
-    :param indexes: only ruturn begin, end of same feature if it's True, default: False
+    :param indexes: only return begin, end of same feature if it's True, default: False
     :param index_slices: return all the intervals of the features if it's True, default: False
     :return: begin/end, slices or features
     """

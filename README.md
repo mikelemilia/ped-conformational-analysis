@@ -16,10 +16,14 @@ Department of Mathematics - University of Padua, Italy
     + [Task 1](#task-1)
     + [Task 2](#task-2)
 - [Project structure](#project-structure)
-- [Project description](#project-description)
+    + [Features](#features)
+        * [Extraction policies](#extraction-policies)
+    + [Classes](#classes)
+        * [Menu](#menu)
+        * [Model features](#model-features)
+        * [PED features](#model-features)
 - [Getting started](#getting-started)
     + [Run with custom dataset](#run-with-custom-dataset)
-    + [How it works](#how-it-works)
 
 ## Project specification
 
@@ -97,32 +101,76 @@ and `ped-features`, in which are respectively saved the graphical results produc
 of the project.
 
 As for the `src` folder, instead, it contains all the implemented code. A detailed analysis of the code structure is
-covered in the following section, accessible from [here](#project-description).
+covered in the following sections.
 
 In addition to the main folders, the files `Makefile` and `requirements.txt` are made available, both of which can be
-useful to install the minimum requirements to allow proper execution.## Project description
+useful to install the minimum requirements to allow proper execution.
 
-### 
-## Project description
+### Features
 
-[comment]: <> (Dire di menù e choice maker e descrivere funzione di estrazione indici. Come sono state estratte ogni feature &#40;)
+As stated in the subsections of [Project specification](#project-specification), both tasks require the extraction of a
+set of features. To make the output files more understandable, regardless of the task, we decided to map them with this
+policy: one line one feature set.
 
-[comment]: <> (RICHIEDERE DSSP&#41;. Abbiamo fatto clustering con K-medoids e una metrica ad hoc - generazione grafo con networkx e pymol)
+Clearly, this decision required some additions to each feature set:
 
-[comment]: <> (image con la variabilità dei residui calcolata con un'altra metrica fatta da noi. Choice maker e feature extractor:)
+- regarding the first task, it was necessary to insert both model ID and number of residues
+- regarding the second task, it was necessary to insert only PED ID
 
-[comment]: <> (implementazione di dendrogram, heatmap e variabilità locale con metriche ad hoc.)
+#### Extraction policies
 
-[comment]: <> (---)
+In order to make the code execution smoother, we thought to implement specialized functions for feature extraction.
+Since we didn't think it was useful to recalculate every time the features produced and stored inside
+data `model-features`
+or `ped-features` folder (depending on the task) during previous code run.
 
-'Output' folder will contains all the output and plots generated during the execution.
+The extraction functions `extract_vectors_model_feature(...)` and `extract_vectors_ped_feature(...)`, allow to obtain
+different parts of the features file depending on the need. Specifically, once passed the data frame containing the
+feature matrix, it is possible to obtain:
 
-Menu class implements the different choices that can be taken from the inital menù.
+- all rows, or a specific rows subset from a certain column 'till the end
+- all rows, or a specific rows subset between a certain interval
+- all the rows containing a certain feature (i.e., RG, ASA, SS, etc ...)
+- all the feature intervals as slices
+
+### Classes
+
+To make it easier to read, the code has been divided into classes since the structure of the project, from a logical
+point of view, suggested a modular organization. Specifically, three distinct classes have been implemented: `Menu`,
+`ModelFeatures` and `PEDFeatures`. In subsequent sections, each class will be analyzed in detail.
+
+#### Menu class
+
+This class takes care of generating a useful menu for the user with the allowed options, which are:
+
+1. Analyze features of models inside a PED
+2. Compare inter and intra features of a PED
+3. Exit
+
+In order to select an option it is sufficient to report its number. To undo any wrong selection, it is enough to
+digit `Q` (QUIT) or `B` (BACK) or `U` (UNDO).
+
+Choosing to execute the first task, you are asked for the PED of interest for which you wish to generate the features,
+which must be provided in the `PEDxxxxx` format (where `x` is a digit). As soon as the PED is correctly supplied, an
+instance of the `ModelFeatures` class which will take care of the correct operation of the first task in all its aspects
+is initialized.
+
+Choosing to execute the second task, you are asked again for the PED of interest for which you wish to generate the
+features, which must be provided in the same format as before. As soon as the PED is correctly supplied, an instance of
+the `PEDFeatures` class which will take care of the correct operation of the second task in all its aspects is
+initialized.
+
+#### Model features class
 
 Task 1 is implemented in ModelFeatures class. An example of its usage can be found in 'first_task' function inside Menu
 class. Initially, if the features files are not already present in the correct folder, they are computed and saved,
 otherwise they are loaded. Subsequently, functions to perform clustering and the correspondent graph and Pymol image are
 implemented.
+
+**- Task 1 : Abbiamo fatto clustering con K-medoids e una metrica ad hoc - generazione grafo con networkx e pymol image
+con la variabilità dei residui calcolata con un'altra metrica fatta da noi.**
+
+#### Ped features class
 
 Task 2 is implemented in PedFeatures class. An example of its usage can be found in 'second_task' function inside Menu
 class. Even in this case, if the features file is already saved in the folder, it is loaded, otherwise the entire
@@ -130,27 +178,18 @@ computation is performed and saved. The functions to build heatmaps and dendrogr
 metric) and the one to build the plot of local variability
 (according to the local metric) are then implemented.
 
-### How it works
-
-The path to folder containing PED files of interest (.pdb or .ent formats are accepted)
-can be passed as input as reported above. If it is not specified, 'data' folder of this project is considered as input
-folder. Notice that inside the folder containing the data, for each task, a new folder will be created: 'model_features'
-will contain files generated with the first task while 'ped_features' the ones of the second task.
-
-When the program starts, the user need to select the task to be performed from the menù (it is sufficient to report the
-task number: 1 for task 1, 2 for task 2 and 3 to exit). To subsequently undo the selection of the task, it is enough to
-digit 'Q'. The user is then asked to insert the PED ID of interest: it should be of the form PEDxxxxxx, where x
-corresponds to a digit. Not valid ID or ID of PEDs not present in the folder will be rejected!
+**- Task 2: Choice maker e feature extractor: implementazione di dendrogram, heatmap e variabilità locale con metriche
+ad hoc.**
 
 ## Getting started
 
-Before all, make sure to have [DSSP](https://ssbio.readthedocs.io/en/latest/instructions/dssp.html) installed on your machine:
+Before all, make sure to have [DSSP](https://ssbio.readthedocs.io/en/latest/instructions/dssp.html) installed on your
+machine:
 
 ```shell
-# Install DSSP
 sudo apt-get install dssp
 
-# Symlink its name (dssp) from mkdssp, since installs itself as mkdssp
+# symlink its name (dssp) from mkdssp, since installs itself as mkdssp
 sudo ln -s /usr/bin/mkdssp /usr/bin/dssp
 ```
 
@@ -170,8 +209,9 @@ python main.py                    # execute w/ default command line parameters
 
 ### Run with custom dataset
 
-In order to test our code with different PED, you must provide a custom path (pointing to their location) as parameter
-or simply insert the PED .pdb (or .ent) file inside the `data` folder.
+If the path to folder containing PED files is not specified, `data` folder of this project is considered the default
+input folder. So, in order to test our code with different PED, you must provide a custom path (pointing to their
+location) as parameter or simply insert the PED .pdb (or .ent) file inside the `data` folder.
 
 To provide a custom path, you can use `-p` flag, as in the following example:
 

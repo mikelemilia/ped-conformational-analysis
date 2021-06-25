@@ -1,5 +1,4 @@
 import re
-import sys
 
 from ModelFeatures import ModelFeatures
 from PedFeatures import PedFeatures
@@ -62,7 +61,13 @@ class Menu:
 
             ped_name = input("Insert the name of the PED you want to analyze: ")
 
-            if ped_name == 'Q':
+            undo_operation = [
+                'Q', 'QUIT',
+                'B', 'BACK',
+                'U', 'UNDO'
+            ]
+
+            if ped_name.upper() in undo_operation:
 
                 exit_menu = True
 
@@ -87,7 +92,7 @@ class Menu:
 
     def first_task(self, pdb_id_list):
         """
-        To do the first task of the project
+        First task of the project
         :param pdb_id_list: list of the pdb id of one ped
         :return: null
         """
@@ -104,7 +109,7 @@ class Menu:
 
     def second_task(self, ped_name):
         """
-        To do the first task of the project
+        Second task of the project
         :param ped_name: name of ped to analyse
         :return: null
         """
