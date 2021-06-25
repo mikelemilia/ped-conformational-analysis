@@ -19,9 +19,9 @@ Department of Mathematics - University of Padua, Italy
     + [Features](#features)
         * [Extraction policies](#extraction-policies)
     + [Classes](#classes)
-        * [Menu](#menu)
-        * [Model features](#model-features)
-        * [PED features](#model-features)
+        * [Menu](#menu-class)
+        * [Model features](#model-features-class)
+        * [PED features](#ped-features-class)
 - [Getting started](#getting-started)
     + [Run with custom dataset](#run-with-custom-dataset)
 
