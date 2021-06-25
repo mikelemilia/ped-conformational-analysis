@@ -20,7 +20,13 @@ class Menu:
 
             ped_name = input("Insert the name of the PED you want to analyze: ")
 
-            if ped_name == 'Q':
+            undo_operation = [
+                'Q', 'QUIT',
+                'B', 'BACK',
+                'U', 'UNDO'
+            ]
+
+            if ped_name.upper() in undo_operation:
 
                 exit_menu = True
 
@@ -95,7 +101,6 @@ class Menu:
             model_features.compute_clustering()
             graph = model_features.generate_graph()
             model_features.generate_pymol_image(graph)
-            # exit(1)
 
     def second_task(self, ped_name):
         """
@@ -119,23 +124,36 @@ class Menu:
             ped_features.local_metric()
 
     def run(self):
+
         user_input = 0
+
         self.generate_menu()
+
         while user_input != 3:
             user_input = input("\nSelect what do you want to do: ")
-            if user_input in ['1', '2', '3']:
-                self.execute(int(user_input))
+
+            if user_input.isdigit():
+                user_input = int(user_input)
+                self.execute(user_input)
             else:
-                print('Insert a valid choice')
+                print('WARNING : An invalid choice has been identified. Please enter a valid one')
+
         print('\nProgram stopped.')
 
     def execute(self, user_input):
+
         controller_name = 'do_{}'.format(user_input)
+
         try:
+
             controller = getattr(self, controller_name)
+
         except AttributeError:
-            print('Method not found')
+
+            print('WARNING : Selected option not found')
+
         else:
+
             controller()
 
     def generate_menu(self):
@@ -145,5 +163,5 @@ class Menu:
             ['{}.    {}'.format(method[-1], getattr(self, method).__doc__) for method in do_methods])
         print(menu_string)
         print('== == == == == == == == == == == == == == == == == == ==')
-        print('Undo any selection with Q')
+        print('You can reverse any wrong selection with \n\t- Q (QUIT)\n\t- B (BACK)\n\t- U (UNDO)')
         print('== == == == == == == == == == == == == == == == == == ==')

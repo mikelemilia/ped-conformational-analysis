@@ -102,6 +102,7 @@ covered in the following section, accessible from [here](#project-description).
 In addition to the main folders, the files `Makefile` and `requirements.txt` are made available, both of which can be
 useful to install the minimum requirements to allow proper execution.## Project description
 
+### 
 ## Project description
 
 [comment]: <> (Dire di menù e choice maker e descrivere funzione di estrazione indici. Come sono state estratte ogni feature &#40;)
@@ -129,7 +130,29 @@ computation is performed and saved. The functions to build heatmaps and dendrogr
 metric) and the one to build the plot of local variability
 (according to the local metric) are then implemented.
 
+### How it works
+
+The path to folder containing PED files of interest (.pdb or .ent formats are accepted)
+can be passed as input as reported above. If it is not specified, 'data' folder of this project is considered as input
+folder. Notice that inside the folder containing the data, for each task, a new folder will be created: 'model_features'
+will contain files generated with the first task while 'ped_features' the ones of the second task.
+
+When the program starts, the user need to select the task to be performed from the menù (it is sufficient to report the
+task number: 1 for task 1, 2 for task 2 and 3 to exit). To subsequently undo the selection of the task, it is enough to
+digit 'Q'. The user is then asked to insert the PED ID of interest: it should be of the form PEDxxxxxx, where x
+corresponds to a digit. Not valid ID or ID of PEDs not present in the folder will be rejected!
+
 ## Getting started
+
+Before all, make sure to have [DSSP](https://ssbio.readthedocs.io/en/latest/instructions/dssp.html) installed on your machine:
+
+```shell
+# Install DSSP
+sudo apt-get install dssp
+
+# Symlink its name (dssp) from mkdssp, since installs itself as mkdssp
+sudo ln -s /usr/bin/mkdssp /usr/bin/dssp
+```
 
 In order to get access to the code and replicate our results, follow these steps:
 
@@ -153,18 +176,5 @@ or simply insert the PED .pdb (or .ent) file inside the `data` folder.
 To provide a custom path, you can use `-p` flag, as in the following example:
 
 ```shell
-python main.py -p <custom-path>   # execute w/ custom path
+python main.py -p custom-path     # execute w/ custom path
 ```
-
-### How it works
-
-The path to folder containing PED files of interest (.pdb or .ent formats are accepted)
-can be passed as input as reported above. If it is not specified, 'data' folder of this project is considered as input
-folder. Notice that inside the folder containing the data, for each task, a new folder will be created: 'model_features'
-will contain files generated with the first task while 'ped_features' the ones of the second task.
-
-When the program starts, the user need to select the task to be performed from the menù (it is sufficient to report the
-task number: 1 for task 1, 2 for task 2 and 3 to exit). To subsequently undo the selection of the task, it is enough to
-digit 'Q'. The user is then asked to insert the PED ID of interest: it should be of the form PEDxxxxxx, where x
-corresponds to a digit. Not valid ID or ID of PEDs not present in the folder will be rejected!
-
