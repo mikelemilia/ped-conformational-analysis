@@ -143,7 +143,7 @@ class PedFeatures:
             self.extract(self._folder + self._file)
         else:
             print('\n\t- Computing features for comparison...')
-            self.compare()
+            self.compute()
             self.save(self._folder + self._file)
 
         self._ped_features = np.array(self._ped_features)
@@ -154,7 +154,7 @@ class PedFeatures:
 
         return 0
 
-    def compare(self):
+    def compute(self):
         """
         This function allows you to insert ped features into a data structures.
         It's used to compare two different ped.

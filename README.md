@@ -1,6 +1,6 @@
 # Conformational analysis of protein structural ensembles
 
-## Authors
+### Authors
 
 [Milia Mikele](https://github.com/mikelemilia) -
 [Pezzutti Giulia](https://github.com/giuliapezzutti) -
@@ -59,7 +59,7 @@ Features analyzed for a single conformation:
 
 Relationships between different ensembles of the same protein will be identified considering ensemble features
 calculated from the output of the first software component. It is necessary to identify a measure (global score) to
-quantify global differencesbetween ensembles pairs - evaluated thanks to dendrograms and heatmap - and another measure (
+quantify global differences between ensembles pairs - evaluated thanks to dendrogram and heatmap - and another measure (
 local score) to identify low/high variance positions along the sequence - evaluated with a residues-scores plot.
 
 Features analyzed for ensembles (multiple conformations)
@@ -100,8 +100,8 @@ The `output` for coherence is organized in the same way, in fact inside it there
 and `ped-features`, in which are respectively saved the graphical results produced by first and second task of the
 project.
 
-As for the `src` folder, instead, it contains all the implemented code. A detailed analysis of the code structure is
-covered in the following sections.
+The `src` folder, instead, contains all the implemented code. A detailed analysis of the code structure is covered in
+the following sections.
 
 In addition to the main folders, the files `Makefile` and `requirements.txt` are made available, both of which can be
 useful to install the minimum requirements to allow proper execution.
@@ -109,7 +109,7 @@ useful to install the minimum requirements to allow proper execution.
 ### Features
 
 As stated in the subsections of [Project specification](#project-specification), both tasks require the extraction of a
-set of features. To make the output files more understandable, regardless of the task, we decided to map them with a ono
+set of features. To make the output files more understandable, regardless of the task, we decided to map them with a one
 to one policy, namely each line is a feature set.
 
 Clearly, this decision required some additions to each feature set:
@@ -119,9 +119,9 @@ Clearly, this decision required some additions to each feature set:
 
 #### Extraction policies
 
-In order to make the code execution smoother, we thought to implement specialized functions for feature extraction,
-since we didn't think it was useful to re-compute every time all features produced and stored inside
-data `model-features` or `ped-features` folder during previous code run.
+In order to make the code execution smoother, if the features files are already present inside the `data/model-features`
+or `data/ped-features` folders (calculated during a previous code run), every feature will be extracted from the stored
+files, instead of being recomputed from scratch.
 
 The extraction functions `extract_vectors_model_feature(...)` and `extract_vectors_ped_feature(...)`, allow to obtain
 different parts of the features file depending on the need. Specifically, once passed the data frame containing the
@@ -158,27 +158,49 @@ Choosing to execute the second task, you are asked again for the PED of interest
 features, which must be provided in the same format as before. As soon as the PED is correctly supplied, an instance of
 the `PEDFeatures` class which will take care of the correct operation of the second task in all its aspects is
 initialized.
+> **N.B. if the PED is correctly supplied but its features files have not been generated within the first task, you are asked to firstly run the other task .**
 
 #### Model features class
 
-Task 1 is implemented in ModelFeatures class. An example of its usage can be found in 'first_task' function inside Menu
-class. Initially, if the features files are not already present in the correct folder, they are computed and saved,
-otherwise they are loaded. Subsequently, functions to perform clustering and the correspondent graph and Pymol image are
-implemented.
+This class, named `ModelFeatures`, takes care of the whole first task workflow. In detail, once an instance is
+initialized, the workflow is the following:
 
-**- Task 1 : Abbiamo fatto clustering con K-medoids e una metrica ad hoc - generazione grafo con networkx e pymol image
-con la variabilità dei residui calcolata con un'altra metrica fatta da noi.**
+- firstly, class method `choice_maker` is called and the presence of feature files is checked, if they're found the
+  class method `extract` is subsequently called, otherwise the pair of class method `compute` and `save` take care of
+  computing each requested feature of the model and storing it inside the `data/model-features` folder in a specific
+  file called `PEDxxxxxexxx_features.csv`. Once `choice_maker` concludes its execution, we're sure that features of the
+  PED of interest are computed or at least loaded.
 
-#### Ped features class
+- then class method `compute_clustering` is called and **K-medoids** clustering is performed on the PED features. Since
+  computed features were not comparable, an ad-hoc metric taking care of each one of them was implemented, and can be
+  found inside the `metrics` class method. Thanks to the centroids (or better medoids) generated, through the class
+  method `generate_graph` a fully connected graph of the representative conformations is given in output and can be
+  found inside the `output/model-features` folder. In order to draw the graph, library `networkx` was used.
 
-Task 2 is implemented in PedFeatures class. An example of its usage can be found in 'second_task' function inside Menu
-class. Even in this case, if the features file is already saved in the folder, it is loaded, otherwise the entire
-computation is performed and saved. The functions to build heatmaps and dendrograms (according to the defined global
-metric) and the one to build the plot of local variability
-(according to the local metric) are then implemented.
+- finally, class method `generate_pymol_image` is called. This method accepts the computed graph and after computing
+  each residue variability, through `pymol_metric` method, returns a single PYMOL image in which each residue is colored
+  according to its variability.
 
-**- Task 2: Choice maker e feature extractor: implementazione di dendrogram, heatmap e variabilità locale con metriche
-ad hoc.**
+#### PED features class
+
+This class, named `PedFeatures`, takes care of the whole second task workflow. In detail, once an instance is
+initialized, the workflow is the following:
+
+- firstly, class method `choice_maker` is called in order to check whether features files should be generated or
+  loaded (as before). The only difference is the folder within each feature file is saved that is `data/ped-features`
+  and the name of the file that now is simply `PEDxxxxx_features.csv`
+
+- then class method `global_dendrogram` is called in order to plot the weighted distance between pair of ensembles with
+  respect of a global metric that can be found inside `global_metric` method
+
+- then the same metric is applied inside the class method `global_heatmap` in order to obtain the pairwise difference of
+  ensembles
+
+- then in order to compare our results with only the adoption of a plain RMSD metric, we
+  used `distance_matrix_med_rmsd_peds` class method
+
+- finally, class method `local_metric` is called in order to plot how variable a residue is with respect to all the
+  other ensambles
 
 ## Getting started
 
