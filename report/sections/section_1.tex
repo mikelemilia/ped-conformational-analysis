@@ -24,10 +24,10 @@ We use KMedoids because can be used with arbitrary dissimilarity measures and mi
 Furthermore, we use a specific metric function built using the calculated features and different types of distances to measure their distances. The function takes in input two residues and compute their distance that is a sum of the partial features distances.
 The partial metrics are: 
 \begin{itemize}
-\item Absolute difference between radius of gyration.
+\item Absolute difference between radius of gyration. It is a single value and we want to understand the variation.
 \item Euclidian distance of ASA vectors.
 \item Distance between SS vectors using a score matrix to evaluate in a weighted way the differences between secondary structures. For example' halfa helix' is more similar 'left handed helix' than 'beta strand'. 
-\item The complementary of correlation between distance matrix. 
+\item The cosine between distance matrix. 
 \end{itemize}
 
 Then the software compute the distance among the representative conformations by the same metric function and plot a weighted graph. The length of the edges is proportional to the distance between the two conformations in the nodes. The label in each node is the ID of the conformations.
@@ -70,52 +70,60 @@ Then the software compute the distance among the representative conformations by
 
 By running the script several times, a high variability can be observed in the centroids found.
 This is probably caused by the proximity of the points and the random initialization of clustering. The centroids will be different but with the same cardinality.
-%
-It can be observed that in the various ensemble, the distance between the centroids is different but the number of representative conformations is always the same.
-%
+It can be observed that in the various ensemble, the distance between the centroids is different but the number of representative conformations is always the same. This could mean that the ensembles are very similar to each other.
+
 
 
 \subsection{Pymol image}
 For each ensemble, the software generates a pymol image to visualize the structure and through the variability of the colors, the distance between the residues of its representative conformations.
 
 The color of the structure varies based on the distance between the residuals calculated using a metric built by us. This metric evaluates the variability of the features extracted for each position of the representative conformation. In the metric the radius of gyration is not used because it is constant.
-
-We decided to generate different images for each ensemble because generating a superimposition of all the representative conformations extracted within the clustering step was insignificant and too messy.
+This new metric return the sum of partial distances:
+\begin{itemize}
+\item Standard deviation of ASA which evaluates the difference between the surface areas for each residual of the representative conformations of an ensemble.
+\item The sum of the different secondary structures.
+\item The sum of all the variations in distances for each residual using the inverse of the correlation.
+\end{itemize}
 
 \begin{figure}[H]
-	\begin{minipage}[b]{0.9\textwidth}
+	\begin{minipage}[b]{0.97\textwidth}
 		\centering
 		\includegraphics[width=\textwidth]{PED00020e001_pymol.png}
 		\caption{Pymol image of model 001.}
-		\label{model001}
+		\label{model001p}
 	\end{minipage}
-	\hfill
-	\begin{minipage}[b]{0.47\textwidth}
+	\begin{minipage}[b]{0.97\textwidth}
 		\centering
 		\includegraphics[width=\textwidth]{PED00020e002_pymol.png}
 		\caption{Pymol image of model 002.}
-		\label{model002}
+		\label{model002p}
 	\end{minipage}
-	\hfill
-	\begin{minipage}[b]{0.47\textwidth}
+\end{figure}
+\begin{figure}[H]
+	\begin{minipage}[b]{0.99\textwidth}
 		\centering
 		\includegraphics[width=\textwidth]{PED00020e003_pymol.png}
 		\caption{Pymol image of model 003.}
-		\label{model003}
+		\label{model003p}
 	\end{minipage}
-	\begin{minipage}[b]{0.47\textwidth}
+	\begin{minipage}[b]{0.99\textwidth}
 		\centering
 		\includegraphics[width=\textwidth]{PED00020e004_pymol.png}
 		\caption{Pymol image of model 004.}
-		\label{model004}
+		\label{model004p}
 	\end{minipage}
-	\hfill
-	\begin{minipage}[b]{0.47\textwidth}
+	\begin{minipage}[b]{0.99\textwidth}
 		\centering
 		\includegraphics[width=\textwidth]{PED00020e005_pymol.png}
 		\caption{Pymol image of model 005.}
-		\label{model005}
+		\label{model005p}
 	\end{minipage}
 \end{figure}
 
-Looking at the images you can see that the visualized structures are very disordered and due to the entropic high cost of folding, the well-defined structures (alpha-helicx) are few and mainly in the central regions. In these regions the variability of the representative conformations is less.
+\medskip
+\medskip
+\medskip
+We decided to generate one image for each ensemble with their representative conformations extracted within the clustering step.
+If we generated a superimposition image, it was insignificant and too messy.
+
+Looking at the images you can see that the visualized structures are very disordered. Owing of the entropic high cost of folding, the well-defined structures ( e.g. alpha-helicx) are few and mainly in the central regions. In general the variability of the representative conformations is less.
