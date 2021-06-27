@@ -190,13 +190,13 @@ initialized, the workflow is the following:
   loaded (as before). The only difference is the folder within each feature file is saved that is `data/ped-features`
   and the name of the file that now is simply `PEDxxxxx_features.csv`
 
-- then class method `global_dendrogram` is called in order to plot the weighted distance between pair of ensembles with
+- class method `global_dendrogram` is called in order to plot the weighted distance between pair of ensembles with
   respect of a global metric that can be found inside `global_metric` method
 
 - then the same metric is applied inside the class method `global_heatmap` in order to obtain the pairwise difference of
   ensembles
 
-- then in order to compare our results with only the adoption of a plain RMSD metric, we
+- in order to compare our results with only the adoption of a plain RMSD metric, we
   used `distance_matrix_med_rmsd_peds` class method
 
 - finally, class method `local_metric` is called in order to plot how variable a residue is with respect to all the
