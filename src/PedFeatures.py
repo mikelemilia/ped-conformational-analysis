@@ -329,8 +329,8 @@ class PedFeatures:
         """
         This function use a specific metric and all the ped features to compute the distance
         between two input points
-        Entropy (std), median asa (euclidean distance), median rmsd (euclidean distance),
-        median distance (correlation)
+        Entropy (chedyshev distance), median asa (euclidean distance), median rmsd (euclidean distance),
+        median distance (complementary of correlation)
         :param x: features of one ped
         :param y: features of one ped
         :return: distance between x and y
