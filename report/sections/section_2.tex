@@ -8,8 +8,8 @@ Relationships between different ensambles will be identified considering the str
 At the begining, the software extracts the features for each ensamble (multiple conformations):
 \begin{itemize}
 \item Radius of gyration.
-\item Secondary structure entropy for each position acrossensemble conformations
-\item Median ASA for each position across ensemble conformations using the model ASA .
+\item Secondary structure entropy for each position across ensemble conformations using the probability of each model.
+\item Median ASA for each position across ensemble conformations using the model ASA.
 \item Median RMSD using rotate-translation matrices for each model.
 \item Median distance of each pair of equivalent positions. It consider the matrix columns of conformation distance matrices.
 \item Standard deviation of the distance of each pair of equivalent positions.
@@ -18,7 +18,15 @@ At the begining, the software extracts the features for each ensamble (multiple 
 
 \subsection{Global metric}
 The global metric evaluates the distance between ensembles pair. 
-The global metric used is.... because....
+This metric return the sum of partial distances of different features:
+\begin{itemize}
+\item The absolute value of the difference between the mean of the radius of gyration for the two ensembles.
+\item The chebyshev distance between the entropies of the two ensembles. It finds the distance as the greatest of their differences along any coordinate dimension.
+\item The euclidean distance between the median ASA of the two ensembles.
+\item The euclidean distance between the median RMSD of the two ensembles.
+\item The complementary of the correlation between the median distance of the two ensembles.
+\end{itemize}
+The value returned by this metric is a weighted distance that takes into account the different nature of the features evaluated.
 
 Using the global metric just described, the software displays the distances between two ensembles through:
 \begin{itemize}
@@ -43,12 +51,18 @@ Using the global metric just described, the software displays the distances betw
 \end{figure}
 
 In the previous graphs it is possible to visualize the distance or similarity between the five ensembles within the same PED by comparing the features with the global metric. It can be observed that ensembles 1 and 2 are the most similar (most intense color in the heatmap) and ensemble 4 is the most distant.
-We can conclude that... bio
 
 
 \subsection{Local metric}
 The local metric evaluates the variability of all the features for each position in the ensemble.
-The local metric used is.... because....
+This metric computes the mean of the total values for each residues with respect all the ensamble features:
+\begin{itemize}
+\item total Entropy
+\item Median ASA
+\item Media RMSD
+\item Total median distance
+\item Total standard deviation of distance.......... 
+\end{itemize}
 
 \begin{figure}[H]
 	\begin{minipage}[b]{0.9\textwidth}
@@ -58,5 +72,6 @@ The local metric used is.... because....
 		\label{plot}
 	\end{minipage}	
 \end{figure}
-In the previous graph it is possible to visualize....it's computed using the local metric that...
-We can conclude that... bio
+In the previous graph it is possible to visualize the variation of the different ensembles for each residue . It's computed using the local metric that...
+
+Looking at the graph above and taking into consideration the information extracted from the various comparisons in this project, we can conclude that the structure of the measles virus nucleoprotein ..... 
