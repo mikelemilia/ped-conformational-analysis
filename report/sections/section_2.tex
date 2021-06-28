@@ -1,6 +1,6 @@
 \section{Task 2}\label{sec:task2}
 
-The goal of the second task is to implement a software to quantify global differences between ensembles and to identify variance along the sequence. The input of this task is a file containing the features of one or more PED ensemble.
+The goal of the second task is to implement a software to quantify global differences between ensembles and to identify variance along the sequence. The input of this task are files containing the features of one PED ensemble.
 
 \subsection{Ensembles features}
 Relationships between different ensambles will be identified considering the structural features of single ensemble using the features file of the task 1.
@@ -35,14 +35,13 @@ Using the global metric just described, the software displays the distances betw
 \end{itemize}
 
 \begin{figure}[H]
-	\begin{minipage}[b]{0.9\textwidth}
+	\begin{minipage}[b]{0.93\textwidth}
 		\centering
 		\includegraphics[width=\textwidth]{PED00020_heatmap.png}
 		\caption{Heatmap of all the model.}
 		\label{heatmap}
 	\end{minipage}
-	\hfill
-	\begin{minipage}[b]{0.9\textwidth}
+	\begin{minipage}[b]{0.93\textwidth}
 		\centering
 		\includegraphics[width=\textwidth]{PED00020_dendrogram.png}
 		\caption{Dendrogram of all the model.}
@@ -57,21 +56,21 @@ In the previous graphs it is possible to visualize the distance or similarity be
 The local metric evaluates the variability of all the features for each position in the ensemble.
 This metric computes the mean of the total values for each residues with respect all the ensamble features:
 \begin{itemize}
-\item total Entropy
-\item Median ASA
-\item Media RMSD
-\item Total median distance
-\item Total standard deviation of distance.......... 
+\item Total Entropy is the standard deviation of the conformations entropy for each position.
+\item Total median ASA is the standard deviation of the conformations accessible surface area for each position.
+\item Total median RMSD is the standard deviation of the conformations median RMSD for each position.
+\item Total standard deviation of distance is the trimmed mean of the conformations median RMSD for each position. 
+The use of a trimmed mean helps eliminate the influence of outliers or data points on the tails on the traditional mean.
 \end{itemize}
 
 \begin{figure}[H]
-	\begin{minipage}[b]{0.9\textwidth}
+	\begin{minipage}[b]{0.97\textwidth}
 		\centering
 		\includegraphics[width=\textwidth]{PED00020_local.png}
 		\caption{Plot of local features.}
 		\label{plot}
 	\end{minipage}	
 \end{figure}
-In the previous graph it is possible to visualize the variation of the different ensembles for each residue . It's computed using the local metric that...
+In the previous graph it is possible to visualize the variation all the features of the different ensembles for each residue using the local metric. 
 
-Looking at the graph above and taking into consideration the information extracted from the various comparisons in this project, we can conclude that the structure of the measles virus nucleoprotein ..... 
+Looking at the graph above and taking into consideration the information extracted from the various comparisons in this project, we can conclude that the structure of the measles virus nucleoprotein is quite disordered in the initial part where the variability is greater. Furthermore, there is a continuous change in the variability of local distances within the structure. There are minimum points where even more defined structures can be identified through pymol images (e.g. alpha-helix).
