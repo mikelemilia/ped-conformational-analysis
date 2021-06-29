@@ -1,36 +1,69 @@
+In this report, the main project choices and the results for structural emsemble PED00020 of measles virus nucleoprotein (for its five deposited ensembles) are reported.
+
 \section{Task 1}\label{sec:task1}
 \graphicspath{ {./figures/} }
 
-In this project we use the sructural ensamble PED00020 (measles virus nucleoprotein) with five models.
-The goal of the first task is to implement a software to identify conformational relationships within a single ensemble.  The input of this task is a file containing the PDB structure of one single PED model.
+The goal of the first task is to implement a tool to identify conformational relationships within a single ensemble. The input is a set of files, each containing the PDB structure of one PED. From now on, they will be analyzed separately and relationships between the conformations within an ensemble are identified analyzing the model structural features. 
 
 
 \subsection{Single conformation features}
-Relationships within an ensemble will be identified considering the structural features of single conformations.
 
-Firstly, the software extracts the single conformation features and it puts them into a unique dictionary for each model:
+Firstly, for each conformations, the software extracts the structural features and saves them into a unique dictionary:
 \begin{itemize}
 \item Radius of gyration of the structure: it is computed using the coordinates of each atom and their barycenter.
-\item Relative accessible surface area (ASA) for each residue: it should be noted that for within a conformation the ASA is the same.
-\item Secondary structure for each residue: it computes the angles Phi and Psi and then get SS from them and compare with DSSP.
-\item Residue distance matrix: it computes the pairwise distances between residues.
+\item Relative accessible surface area (ASA) for each residue: it is computed thanks to DSSP; note that the values obtained for the conformations within an ensembles are equal. It may happen that the DSSP does not return the ASA value for each residue: for this limitation, a check on the array dimension and, if needed, a zero-padding are performed. 
+\item Secondary structure for each residue: they are determined thanks to the Ramachandran regions associated with Phi and Psi angles of the each residue. For the first and last residue, for which the value is not computable, '-' is inserted. For a simpler store and data analysis, each obtained value is converted into the correspondent integer value reported in table \ref{tab:ss}. 
+\item Distance matrix: it computes the pairwise distances between each pair of residues. For a simpler store and data analysis, each obtained value is converted into the correspondent integer value reported in table x.
 \end{itemize}
 
-We have noticed that some conformations have a different number of residues. So we preprocessed each structure and added a zeros padding at the end if necessary.
+\begin{table}
+\begin{center}
+\begin{tabular}{lr}
+% FIRST ROW
+Secondary Structure & Int \\
+\hline
+- & 0\\
+\hline
+Beta-sheet & 1\\
+\hline
+Polyproline I-II & 2\\
+\hline
+Alpha-helix & 3\\
+\hline
+Left-handed Helix & 4\\
+\end{tabular}
+\end{center}
+\caption{Conversion for Secondary Structur values}~\label{tab:ss}
+\end{table}
 
 \subsection{Representative conformations} 
-In order to extract the representative conformations for each conformation, the software clusters all the models within a single ped using KMedoids methods and a customed metric function. 
-We use KMedoids because can be used with arbitrary dissimilarity measures and minimizes a sum of pairwise dissimilarities. 
-Furthermore, we use a specific metric function built using the calculated features and different types of distances to measure their distances. The function takes in input two residues and compute their distance that is a sum of the partial features distances.
-The partial metrics are: 
+In order to extract the representative conformations, the software clusters the models within a single PED exploiting KMedoids approach and a customed metric function. The proper number of clusters is set thanks to Silhouette measure. 
+KMedoids is exploited since it allows to use an arbitrary dissimilarity measures and the centroids are chosen between the points already present in the analyzed set. 
+The metric function uses different distance metrics to measure the distances between the features calculated at the previous point. It takes in input the feature vectors for two conformations and compute their distance as sum of the following partial features distances:
 \begin{itemize}
-\item Absolute difference between radius of gyration. It is a single value and we want to understand the variation.
+\item Absolute difference between radius of gyration to understand its variation.
 \item Euclidian distance of ASA vectors.
-\item Distance between SS vectors using a score matrix to evaluate in a weighted way the differences between secondary structures. For example' halfa helix' is more similar 'left handed helix' than 'beta strand'. 
-\item The cosine between distance matrix. 
+\item Distance between SS vectors using a scoring matrix accordingly to their definition and properties. The scoring matrix is reported in table \ref{tab:score}. 
+\item The cosine distance between distance matrix. 
 \end{itemize}
 
-Then the software compute the distance among the representative conformations by the same metric function and plot a weighted graph. The length of the edges is proportional to the distance between the two conformations in the nodes. The label in each node is the ID of the conformations.
+Once the representative conformations are extracted as centroids, the software plots a weighted graph, where each node is a representative model and the edge length is proportional to the distance between each pair. 
+
+\begin{table}
+\begin{center}
+\begin{tabular}{c|ccccc}
+% FIRST ROW
+& 0 & 1 & 2 & 3 & 4 \\
+\hline
+0 & 0 & 1 & 1 & 1 & 1\\
+1 & 1 & 0 & 1 & 1 & 1\\
+2 & 1 & 1 & 0 & 1 & 1\\
+3 & 1 & 1 & 1 & 0 & 0.5\\
+4 & 1 & 1 & 1 & 0.5 & 0\\
+\end{tabular}
+\end{center}
+\caption{Scoring matrix Secondary Structur values}~\label{tab:score}
+\end{table}
 
 \begin{figure}[H]
 	\begin{minipage}[b]{0.47\textwidth}
@@ -68,21 +101,24 @@ Then the software compute the distance among the representative conformations by
 	\end{minipage}
 	\end{figure}
 
-By running the script several times, a high variability can be observed in the centroids found.
-This is probably caused by the proximity of the points and the random initialization of clustering. The centroids will be different but with the same cardinality.
-It can be observed that in the various ensemble, the distance between the centroids is different but the number of representative conformations is always the same. This could mean that the ensembles are very similar to each other.
+In figures \ref{model001}, \ref{model002}, \ref{model003}, \ref{model004} and \ref{model005} the obtained graphs are reported. By running the script several times, a high results variability can be observed.
+This is probably caused by the proximity of the points (represented in the features space) and the random initialization of clustering. The centroids are usually different but found in the same cardinality.
+It can be observed that in the various ensemble, the distance between the centroids is different but the number of representative conformations is always the same. This could mean that the ensembles are very similar to each other. %Non ho capito
 
 
 
 \subsection{Pymol image}
-For each ensemble, the software generates a pymol image to visualize the structure and through the variability of the colors, the distance between the residues of its representative conformations.
+For each ensemble, the software generates a Pymol image to visualize the 3D structure of one representative conformation and the variability of each residue in terms of features (only considering the conformations extracted thanks to clustering) through the changing of the color.
 
-The color of the structure varies based on the distance between the residuals calculated using a metric built by us. This metric evaluates the variability of the features extracted for each position of the representative conformation. In the metric the radius of gyration is not used because it is constant.
-This new metric return the sum of partial distances:
+We decided to generate one image for each ensemble with their representative conformations extracted within the clustering step.
+As a matter of fact, generating an image representating the conformations superimposition, it would give a too messy result and not reporting important information.
+
+The residue variability is calculated using a metric built by us. Note that the radius of gyration is not used since it is not residual-dependent.
+This metric returns the sum of partial distances:
 \begin{itemize}
 \item Standard deviation of ASA which evaluates the difference between the surface areas for each residual of the representative conformations of an ensemble.
-\item The sum of the different secondary structures.
-\item The sum of all the variations in distances for each residual using the inverse of the correlation.
+\item The sum of the different secondary structures. %Non chiaro
+\item The sum of all the variations in distances for each residual using the inverse of the correlation. %Non chiaro
 \end{itemize}
 
 \begin{figure}[H]
@@ -123,7 +159,5 @@ This new metric return the sum of partial distances:
 \medskip
 \medskip
 \medskip
-We decided to generate one image for each ensemble with their representative conformations extracted within the clustering step.
-If we generated a superimposition image, it was insignificant and too messy.
 
-Looking at the images you can see that the visualized structures are very disordered. Owing of the entropic high cost of folding, the well-defined structures ( e.g. alpha-helicx) are few and mainly in the central regions. In general the variability of the representative conformations is less.
+Looking at figures \ref{model001p}, \ref{model002p}, \ref{model003p}, \ref{model004p} and \ref{model005p}, it is possible to see that the visualized structures are very disordered. Owing of the entropic high cost of folding, the well-defined structures (e.g. alpha-helix) are few and mainly in the central regions. In general the variability of the representative conformations is less. %Non mi suona bene
