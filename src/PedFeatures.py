@@ -191,7 +191,7 @@ class PedFeatures:
         """
         This function computes the entropy of a specific ped using the secondary structures of
         its models
-        :param k: ped id 
+        :param k: model id
         :return: vector of entropies
         """
 
@@ -209,7 +209,7 @@ class PedFeatures:
         """
         This function computes the median asa of a specific ped using the asa of
         its models
-        :param k: ped id
+        :param k: model id
         :return: vector of median asa
         """
 
@@ -219,7 +219,7 @@ class PedFeatures:
     def compute_median_rmsd(self, k):
         """
         This function computes the median of rmsd of a specific ped
-        :param k: ped id
+        :param k: model id
         :return: vector of median rmsd
         """
 
@@ -277,7 +277,7 @@ class PedFeatures:
         """
         This function computes the median distances of a specific ped using the distance matrices of
         its models
-        :param k: ped id
+        :param k: model id
         :return: vector of median distances
         """
 

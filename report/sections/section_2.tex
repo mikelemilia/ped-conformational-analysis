@@ -7,18 +7,17 @@ Relationships between different ensambles will be identified considering the str
 
 At the begining, the software extracts the features for each ensamble (multiple conformations):
 \begin{itemize}
-\item Radius of gyration. %?
-\item Secondary structure entropy for each position across ensemble conformations exploiting its probabilistic definition between the each model.
-% Da qui in poi non mi convince
-\item Median ASA for each position across ensemble conformations using the model ASA.
-\item Median RMSD using rotate-translation matrices for each model.
-\item Median distance of each pair of equivalent positions. It consider the matrix columns of conformation distance matrices.
-\item Standard deviation of the distance of each pair of equivalent positions.
+\item Radius of gyration of each model in the ensemble. It may happen that the number of the values returned are less then the number of the ensamble's conformations, then we check on the array dimension and, if needed, a zero-padding is added.
+\item Secondary structure entropy for each position across ensemble conformations exploiting its probabilistic definition between the each model. 
+\item Median ASA for each position across ensemble's conformations. We extract the ASA vector for each position and then we compute the median of this vector. 
+\item Median RMSD using rotate-translation matrices for each conformation.
+\item Median distance of each pair of equivalent positions. We consider the columns of conformation distance matrices and we return their median values.
+\item Standard deviation of the distances for each positions across all the ensamble's conformations.
 \end{itemize}
 
 
 \subsection{Global metric}
-The global metric evaluates the distance between ensembles pairs. 
+The global metric evaluates the distance between ensembles pairs. It takes into account the different nature of the features evaluated.
 This metric return the sum of partial distances of different features:
 \begin{itemize}
 \item The absolute value of the difference between the mean radius of gyration for the two ensembles.
@@ -27,7 +26,7 @@ This metric return the sum of partial distances of different features:
 \item The euclidean distance between the median RMSD of the two ensembles.
 \item The complementary of the correlation between the median distance of the two ensembles.
 \end{itemize}
-The value returned by this metric is a weighted distance that takes into account the different nature of the features evaluated. %Non ho molto capito
+
 
 Using the global metric just described, the software displays the distances between two ensembles through:
 \begin{itemize}
@@ -42,6 +41,8 @@ Using the global metric just described, the software displays the distances betw
 		\caption{Heatmap of all the model.}
 		\label{heatmap}
 	\end{minipage}
+\end{figure}
+\begin{figure}
 	\begin{minipage}[b]{0.93\textwidth}
 		\centering
 		\includegraphics[width=\textwidth]{PED00020_dendrogram.png}

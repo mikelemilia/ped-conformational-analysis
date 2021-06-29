@@ -16,7 +16,7 @@ Firstly, for each conformations, the software extracts the structural features a
 \item Distance matrix: it computes the pairwise distances between each pair of residues. For a simpler store and data analysis, each obtained value is converted into the correspondent integer value reported in table x.
 \end{itemize}
 
-\begin{table}
+\begin{table}[H]
 \begin{center}
 \begin{tabular}{lr}
 % FIRST ROW
@@ -36,6 +36,8 @@ Left-handed Helix & 4\\
 \caption{Conversion for Secondary Structur values}~\label{tab:ss}
 \end{table}
 
+
+
 \subsection{Representative conformations} 
 In order to extract the representative conformations, the software clusters the models within a single PED exploiting KMedoids approach and a customed metric function. The proper number of clusters is set thanks to Silhouette measure. 
 KMedoids is exploited since it allows to use an arbitrary dissimilarity measures and the centroids are chosen between the points already present in the analyzed set. 
@@ -47,9 +49,7 @@ The metric function uses different distance metrics to measure the distances bet
 \item The cosine distance between distance matrix. 
 \end{itemize}
 
-Once the representative conformations are extracted as centroids, the software plots a weighted graph, where each node is a representative model and the edge length is proportional to the distance between each pair. 
-
-\begin{table}
+\begin{table}[H]
 \begin{center}
 \begin{tabular}{c|ccccc}
 % FIRST ROW
@@ -65,6 +65,11 @@ Once the representative conformations are extracted as centroids, the software p
 \caption{Scoring matrix Secondary Structur values}~\label{tab:score}
 \end{table}
 
+
+Once the representative conformations are extracted as centroids, the software plots a weighted graph, where each node is a representative model and the edge length is proportional to the distance between each pair. 
+
+
+
 \begin{figure}[H]
 	\begin{minipage}[b]{0.47\textwidth}
 		\centering
@@ -79,7 +84,8 @@ Once the representative conformations are extracted as centroids, the software p
 		\caption{Graph of model 002.}
 		\label{model002}
 	\end{minipage}
-	\hfill
+\end{figure}
+\begin{figure}[H]
 	\begin{minipage}[b]{0.47\textwidth}
 		\centering
 		\includegraphics[width=\textwidth]{PED00020e003_graph.png}
@@ -92,7 +98,8 @@ Once the representative conformations are extracted as centroids, the software p
 		\caption{Graph of model 004.}
 		\label{model004}
 	\end{minipage}
-	\hfill
+\end{figure}
+\begin{figure}[H]
 	\begin{minipage}[b]{0.47\textwidth}
 		\centering
 		\includegraphics[width=\textwidth]{PED00020e005_graph.png}
@@ -103,7 +110,6 @@ Once the representative conformations are extracted as centroids, the software p
 
 In figures \ref{model001}, \ref{model002}, \ref{model003}, \ref{model004} and \ref{model005} the obtained graphs are reported. By running the script several times, a high results variability can be observed.
 This is probably caused by the proximity of the points (represented in the features space) and the random initialization of clustering. The centroids are usually different but found in the same cardinality.
-It can be observed that in the various ensemble, the distance between the centroids is different but the number of representative conformations is always the same. This could mean that the ensembles are very similar to each other. %Non ho capito
 
 
 
@@ -114,11 +120,11 @@ We decided to generate one image for each ensemble with their representative con
 As a matter of fact, generating an image representating the conformations superimposition, it would give a too messy result and not reporting important information.
 
 The residue variability is calculated using a metric built by us. Note that the radius of gyration is not used since it is not residual-dependent.
-This metric returns the sum of partial distances:
+This metric returns the sum of the following partial distances:
 \begin{itemize}
 \item Standard deviation of ASA which evaluates the difference between the surface areas for each residual of the representative conformations of an ensemble.
-\item The sum of the different secondary structures. %Non chiaro
-\item The sum of all the variations in distances for each residual using the inverse of the correlation. %Non chiaro
+\item The number of different secondary structures pairs. We scan all the structure and then if the SS pair in the conformation is different from each other, a counter is increased.
+\item The sum of all the variations of the distances for each residual pair in the conformation. It is computed using the complementary of the correlation. 
 \end{itemize}
 
 \begin{figure}[H]
@@ -160,4 +166,4 @@ This metric returns the sum of partial distances:
 \medskip
 \medskip
 
-Looking at figures \ref{model001p}, \ref{model002p}, \ref{model003p}, \ref{model004p} and \ref{model005p}, it is possible to see that the visualized structures are very disordered. Owing of the entropic high cost of folding, the well-defined structures (e.g. alpha-helix) are few and mainly in the central regions. In general the variability of the representative conformations is less. %Non mi suona bene
+Looking at figures \ref{model001p}, \ref{model002p}, \ref{model003p}, \ref{model004p} and \ref{model005p}, it is possible to see that the visualized structures are very disordered. Due to the entropic high cost of folding, the well-defined structures (e.g. alpha-helix) are not many. In general, the representative conformations are not very variable.
