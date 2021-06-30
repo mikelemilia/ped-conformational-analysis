@@ -3,7 +3,7 @@ In this report, the main project choices and the results for structural emsemble
 \section{Task 1}\label{sec:task1}
 \graphicspath{ {./figures/} }
 
-The goal of the first task is to implement a tool to identify conformational relationships within a single ensemble. The input is a set of files, each containing the PDB structure of one PED. From now on, they will be analyzed separately and relationships between the conformations within an ensemble are identified analyzing the model structural features. 
+The goal of the first task is to implement a tool to identify conformational relationships within a single ensemble. The input is a set of files, each containing the PDB structure of one ensemble. From now on, they will be analyzed separately and relationships between the conformations within an ensemble are identified analyzing the model structural features. 
 
 
 \subsection{Single conformation features}
@@ -13,7 +13,7 @@ Firstly, for each conformations, the software extracts the structural features a
 \item Radius of gyration of the structure: it is computed using the coordinates of each atom and their barycenter.
 \item Relative accessible surface area (ASA) for each residue: it is computed thanks to DSSP; note that the values obtained for the conformations within an ensembles are equal. It may happen that the DSSP does not return the ASA value for each residue: for this limitation, a check on the array dimension and, if needed, a zero-padding are performed. 
 \item Secondary structure for each residue: they are determined thanks to the Ramachandran regions associated with Phi and Psi angles of the each residue. For the first and last residue, for which the value is not computable, `-' is inserted. For a simpler store and data analysis, each obtained value is converted into the correspondent integer value reported in table \ref{tab:ss}. 
-\item Distance matrix: it computes the pairwise distances between each pair of residues. For a simpler store and data analysis, each obtained value is converted into the correspondent integer value reported in table x.
+\item Distance matrix: it computes the pairwise distances between each pair of residues.% For a simpler store and data analysis, each obtained value is converted into the correspondent integer value reported in table x.
 \end{itemize}
 
 \begin{table}[H]
@@ -66,7 +66,7 @@ The metric function uses different distance metrics to measure the distances bet
 \end{table}
 
 
-Once the representative conformations are extracted as centroids, the software plots a weighted graph, where each node is a representative model and the edge length is proportional to the distance between each pair. 
+Once the representative conformations are extracted as centroids, the software plots a weighted graph, where each node is a representative model and the edge length is proportional to the distance between each pair. Moreover the edge labels are the distances between the two conformations at the extremes computed by the metric showed above. 
 
 
 
@@ -120,11 +120,12 @@ We decided to generate one image for each ensemble with their representative con
 As a matter of fact, generating an image representating the conformations superimposition, it would give a too messy result and not reporting important information.
 
 The residue variability is calculated using a metric built by us. Note that the radius of gyration is not used since it is not residual-dependent.
+In order to compute the residue variability, it condiders the neighbors of the residue under analysis thanks to a window of size nine to the left and to the right of the current position.
 This metric returns the sum of the following partial distances:
 \begin{itemize}
-\item Standard deviation of ASA which evaluates the difference between the surface areas for each residual of the representative conformations of an ensemble.
-\item The number of different secondary structures pairs. We scan all the structure and then if the SS pair in the conformation is different from each other, a counter is increased.
-\item The sum of all the variations of the distances for each residual pair in the conformation. It is computed using the complementary of the correlation. 
+\item Standard deviation of ASA which evaluates the difference between the surface areas for each residual of the representative conformations of an ensemble. Then it compute the mean of the standard deviation for each residues in the window takes in consideration.
+\item Distance between SS vectors pairs using the above scoring matrix accordingly to their definition and properties. It consider the residues in the window with respect the residues considered.
+\item The sum of all the variations of the distances for each residual pair in the conformation. It is computed using the cosine distance between residual pair in the window considered. 
 \end{itemize}
 
 \begin{figure}[H]
@@ -164,6 +165,7 @@ This metric returns the sum of the following partial distances:
 
 \medskip
 \medskip
-\medskip
+To understand the color variability in pymol images, here a brief description. Red identifies the residues in the structure with high variability with respect to the features considered. Blue the most stable areas. Also intermediate scenarios are displayed with color shades of red or blue.  
 
-Looking at figures \ref{model001p}, \ref{model002p}, \ref{model003p}, \ref{model004p} and \ref{model005p}, it is possible to see that the visualized structures are very disordered. Due to the entropic high cost of folding, the well-defined structures (e.g. alpha-helix) are not many. In general, the representative conformations are not very variable.
+\medskip
+Looking at figures \ref{model001p}, \ref{model002p}, \ref{model003p}, \ref{model004p} and \ref{model005p}, it is possible to see that the visualized structures are very disordered, in general. Due to the entropic high cost of folding, the well-defined structures (e.g. alpha-helix) are not many. 
