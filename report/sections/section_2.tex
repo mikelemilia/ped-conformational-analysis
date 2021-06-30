@@ -18,7 +18,7 @@ At the begining, the software extracts the features for each ensamble (multiple 
 
 \subsection{Global metric}
 The global metric evaluates the distance between ensembles pairs. It takes into account the different nature of the features evaluated.
-This metric return the sum of partial distances of different features:
+This metric return the sum of partial distances for each feature:
 \begin{itemize}
 \item The absolute value of the difference between the mean radius of gyration for the two ensembles.
 \item The Chebyshev distance between the entropies of the two ensembles. It finds the distance as the greatest of their differences along any coordinate dimension.
@@ -34,6 +34,9 @@ Using the global metric just described, the software displays the distances betw
 \item Dendrogram: using a linkage matrix and the presented global metric, the dendrogram built combining the most similar ensembles with respect to the calculated features (with a \emph{complete} approach) is plot.
 \end{itemize}
 
+In figures \ref{heatmap} and \ref{dendrogram}, it is possible to visualize respectively the distance and similarity between the five ensembles. It can be observed that ensembles 1 and 2 are the most similar while ensemble 4 is the most distant.
+%update new graph comment
+
 \begin{figure}[H]
 	\begin{minipage}[b]{0.93\textwidth}
 		\centering
@@ -42,7 +45,7 @@ Using the global metric just described, the software displays the distances betw
 		\label{heatmap}
 	\end{minipage}
 \end{figure}
-\begin{figure}
+\begin{figure}[H]
 	\begin{minipage}[b]{0.93\textwidth}
 		\centering
 		\includegraphics[width=\textwidth]{PED00020_dendrogram.png}
@@ -51,18 +54,18 @@ Using the global metric just described, the software displays the distances betw
 	\end{minipage}
 \end{figure}
 
-In figures \ref{heatmap} and \ref{dendrogram}, it is possible to visualize respectively the distance and similarity between the five ensemblesù. It can be observed that ensembles 1 and 2 are the most similar while ensemble 4 is the most distant.
-
 
 \subsection{Local metric}
 The local metric evaluates the variability of all the features for each position in the ensemble.
-This metric computes the mean of the total values for each residues with respect all the ensamble features: %Presentazione della metrica non mi convince tanto
+In order to compute the local variability, it condiders the neighbors of the residue under analysis thanks to a window of size nine to the left and to the right of the current position.
+This metric computes the mean of total values with respect each ensamble feature: 
+
 \begin{itemize}
-\item Total Entropy is the standard deviation of the conformations entropy for each position.
-\item Total median ASA is the standard deviation of the conformations accessible surface area for each position.
-\item Total median RMSD is the standard deviation of the conformations median RMSD for each position.
-\item Total standard deviation of distance is the trimmed mean of the conformations median RMSD for each position. 
-The use of a trimmed mean helps eliminate the influence of outliers or data points on the tails on the traditional mean.
+\item Total entropy: it considers the standard deviation among conformations entropy for each position, then it computes the mean of these values inside the window around each residual.
+\item Total median ASA: it calculates the standard deviation among conformations accessible surface area for each residue, then it computes the mean of these values inside the window around the current residual.
+\item Total median RMSD: it computes the standard deviation among conformations RMSD for each residue, then it calculates the mean of these values inside the window around the current residual.
+\item Total standard deviation of distance: it is the trimmed mean of the standard deviation of conformations distances for each position. 
+The use of a trimmed mean helps to eliminate the influence of outliers or data points on the tails on the traditional mean. Then it takes the mean of this values with respect the window arount each residual.
 \end{itemize}
 
 \begin{figure}[H]
@@ -73,6 +76,15 @@ The use of a trimmed mean helps eliminate the influence of outliers or data poin
 		\label{plot}
 	\end{minipage}	
 \end{figure}
+
 In \ref{plot} it is possible to visualize the ensembles features variation for each residue using the local metric. 
 
-Looking at the graph above and taking into consideration the information extracted from the various comparisons in this project, we can conclude that the structure of the measles virus nucleoprotein is quite disordered in the initial part where the variability is greater. Furthermore, there is a continuous change in the variability of local distances within the structure. There are minimum points where even more defined structures can be identified through pymol images (e.g. alpha-helix).%Riportare maggiore correlazione con Pymol?
+\medskip
+Firstly, it is necessary to underline that the graph shows an average value among all the conformations within an ensemble. Therefore, it is not possible to make a precise comparison between the trend of the curve and the variability of the structure in pymol images. 
+
+Looking at the graph above and taking into consideration the information extracted from the various comparisons in this project, we can observe that the structure of the measles virus nucleoprotein is quite disordered and there are some point where the variability is greater. 
+
+In particular, we can identify high variability at the beginning of the local graph. Then there are two main minimum points that corrispons to a stable regions on the structures. At the end, .....
+This situation can be compared against the pymol color variation. ...... 
+. 
+%min max - red blue
