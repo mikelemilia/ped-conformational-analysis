@@ -89,10 +89,7 @@ def ask_input():
     return [folder, ped_name]
 
 
-def extract_filenames(folder, name="", extensions=None):
-
-    if extensions is None:
-        extensions = ['pdb', 'ent']
+def extract_filenames(folder, name="", extensions='pdb'):
 
     files = []
 
