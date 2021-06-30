@@ -118,7 +118,7 @@ class ModelFeatures:
 
         self._max_radius = None
 
-    def choice_maker(self):
+    def choice_maker(self, model_name=''):
         """
         This function allows you to check if the file containing the features of
         the selected ped has already been created. If yes, it loads the features
@@ -128,10 +128,10 @@ class ModelFeatures:
         """
 
         if os.path.exists(self._folder + self._file):
-            print('\n\t- Loading features...')
+            print('\t- Loading {}model features...'.format(model_name))
             self.extract(self._folder + self._file)
         else:
-            print('\n\t- Computing features...')
+            print('\t- Computing {}model features...'.format(model_name))
             self.compute()
             self.save(self._folder + self._file)
 
@@ -139,6 +139,8 @@ class ModelFeatures:
 
         radius = np.array(extract_vectors_model_feature(self._residues, key='RG', features=self._features))
         self._max_radius = float(max(radius))
+
+        return self._features
 
     def compute(self):
         """
@@ -382,13 +384,13 @@ class ModelFeatures:
         s_max = max(silhouettes)
         k_opt = k_set[silhouettes.index(s_max)]
 
-        print('Number of representative conformations: {}'.format(k_opt))
-        print('Correspondent silhouette value: {}'.format(s_max))
+        print('\n\t\tNumber of representative conformations: {}'.format(k_opt))
+        print('\t\tCorrespondent silhouette value: {}'.format(s_max))
 
         kMed = cluster.KMedoids(n_clusters=k_opt, metric=self.metrics, init='k-medoids++', max_iter=1000)
         self._labels = kMed.fit_predict(self._features)
         self._centroids = kMed.medoid_indices_
-        print('Indexes of the representative conformations: {}'.format(self._centroids))
+        print('\t\tIndexes of the representative conformations: {}'.format(self._centroids))
 
     def generate_graph(self):
         """
@@ -497,5 +499,3 @@ class ModelFeatures:
             cmd.set_color("col_{}".format(i), list(rgb)[:3])
             cmd.color("col_{}".format(i), "resi {}".format(residue.id[1]))
         cmd.png("{}/{}_pymol.png".format(self._output_folder, self._id), width=4000, height=2000, ray=1)
-
-        # p.stop()

@@ -92,57 +92,50 @@ def extract_vectors_ped_feature(residues, conformations, key=None, peds=None, fe
 class PedFeatures:
 
     def __init__(self, folder, ped_name):
-        # Extract all the files PEDxxxxxexxx_features.csv
-        # model_folder = folder + '/model_features/'
-        model_folder = 'data/model-features/'
-        ped_names = extract_filenames(model_folder, ped_name, ['csv'])
 
-        # Extract PEDxxxxxexxx from filenames
-        self._ped_ids = []
-        for name in ped_names:
-            self._ped_ids.append(name.split('_')[0])
+        # PEDxxxxx name
+        self._ped_name = ped_name
 
-        if len(self._ped_ids) != 0:
+        # Folders
 
-            # PEDxxxxx name
-            self._ped_name = ped_name
+        self._folder = 'data/ped-features/'  # create ped-features always inside data folder
+        os.makedirs(self._folder, exist_ok=True)
+        self._output_folder = 'output/ped-features'  # create ped-features always inside output folder
+        os.makedirs(self._output_folder, exist_ok=True)
+        self._data_folder = folder
+        self._ped_ids = extract_filenames(self._data_folder, ped_name, ['pdb'])
 
-            # Build all the paths to the features files and extract them
-            self._models_features = []
+        # Prepare the variables for the subsequent analysis
+        self._num_residues = 0
+        self._num_conformations = 0
+        self._models_features = []
+        self._ped_features = []
 
-            conformations = []
-            for i in range(len(self._ped_ids)):
-                path = model_folder + ped_names[i] + '.csv'
-                models = ModelFeatures('data', self._ped_name)
-                self._models_features.append(models.extract(path))
-                conformations.append(self._models_features[i].shape[0])
+        self._file = ped_name + '_features.csv'
 
-            # Prepare the variables for the subsequent analysis
-            self._num_residues = int(self._models_features[0][0, 1])
-            self._num_conformations = max(conformations)
-            self._ped_features = []
+    def load_models_files(self):
 
-            # Folders
-            self._data_folder = folder
-            # self._folder = folder + '/ped-features/'  # create ped-features inside the input folder
-            self._folder = 'data/ped-features/'         # create ped-features always inside data folder
-            os.makedirs(self._folder, exist_ok=True)
+        # Build all the paths to the features files and extract them
+        print('\n\t- Looking for model features...')
+        conformations = []
 
-            self._output_folder = 'output/ped-features'       # create ped-features always inside output folder
-            os.makedirs(self._output_folder, exist_ok=True)
+        for i, ped_id in enumerate(self._ped_ids):
+            models = ModelFeatures(self._data_folder, ped_id)
+            self._models_features.append(models.choice_maker(ped_id+' '))
+            conformations.append(self._models_features[i].shape[0])
 
-            self._file = ped_name + '_features.csv'
+        self._num_residues = int(self._models_features[0][0, 1])
+        self._num_conformations = max(conformations)
 
     def choice_maker(self):
 
-        if len(self._ped_ids) == 0:
-            return -1
+        self.load_models_files()
 
         if os.path.exists(self._folder + self._file):
-            print('\n\t- Loading features for comparison...')
+            print('\n\t- Loading PED features...')
             self.extract(self._folder + self._file)
         else:
-            print('\n\t- Computing features for comparison...')
+            print('\n\t- Computing PED features...')
             self.compute()
             self.save(self._folder + self._file)
 
