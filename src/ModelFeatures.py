@@ -144,7 +144,7 @@ class ModelFeatures:
             self.save(self._file_path)
 
         # Extraction of the number of residues (second column of each row - Note that it is always the same value)
-        self._residues = self._features[0][1]
+        self._residues = int(self._features[0][1])
         # Extraction the number of conformations present inside this PED (number of rows)
         self._conformations = len(self._features)
 

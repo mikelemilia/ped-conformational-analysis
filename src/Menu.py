@@ -35,8 +35,7 @@ class Menu:
         # Method for exiting the program
         print('Exiting...')
 
-    @staticmethod
-    def first_task(folder, ped_name):
+    def first_task(self, folder, ped_name):
         """
         First task of the project
         :param folder: path of the folder containing PDB files of the ensembles with name ped_name
@@ -60,8 +59,7 @@ class Menu:
             graph = model_features.generate_graph()
             model_features.generate_pymol_image(graph)
 
-    @staticmethod
-    def second_task(folder, ped_name):
+    def second_task(self, folder, ped_name):
         """
         Second task of the project
         :param folder: path of the folder containing PDB files of the ensembles with name ped_name
