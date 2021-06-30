@@ -96,7 +96,7 @@ Specifically, `data` contains all the input files related to the PED that we int
 In addition, there are two sub-folders, `model-features` and `ped-features` which are used to better organize the
 partial results (features file) produced by both project task.
 
-The `output` for coherence is organized in the same way, in fact inside it there are two sub-folders  `model-features`
+The `output`, for coherence, is organized in the same way, in fact inside it there are two sub-folders  `model-features`
 and `ped-features`, in which are respectively saved the graphical results produced by first and second task of the
 project.
 
@@ -146,16 +146,42 @@ This class takes care of generating a useful menu for the user with the allowed 
 In order to select an option it is sufficient to report its number. To undo any wrong selection, it is enough to
 digit `Q` (QUIT) or `B` (BACK) or `U` (UNDO).
 
-Choosing to execute the first task, you are asked for the PED of interest for which you wish to generate the features,
-which must be provided in the `PEDxxxxx` format (where `x` is a digit). As soon as the PED is correctly supplied, an
-instance of the `ModelFeatures` class which will take care of the correct operation of the first task in all its aspects
-is initialized.
+Choosing to execute the first task or the second task, you are asked to insert the path to the folder containing the PED of interest. 
+Subsequently, the PED ID list of the files found inside the provided folder is shown and you are asked to insert the 
+index or the ID of the one of interest. As soon as the PED ID is correctly supplied, an
+instance of the `ModelFeatures` class, if the first task has been chosen, or instance of the `PEDFeatures` class, if the 
+case of the second one, is initialized. 
 
-Choosing to execute the second task, you are asked again for the PED of interest for which you wish to generate the
-features, which must be provided in the same format as before. As soon as the PED is correctly supplied, an instance of
-the `PEDFeatures` class which will take care of the correct operation of the second task in all its aspects is
-initialized.
-> **N.B. if the PED is correctly supplied but its features files have not been generated within the first task, you are asked to firstly run the other task .**
+> **N.B. The folder path that can be inserted when requested can be absolute or relative. Note that whenever a relative
+> path is provided, it must be referred to the working directory that has been set in the program as the project folder.**
+
+An example of Menu usage for the `data` folder and PED00020 is here provided: 
+
+```shell
+== == == == == == == == == == == == == == == == == == ==
+1.    Task 1 : Analyze features of models inside a PED
+2.    Task 2 : Compare inter and intra features of a PED
+3.    Exit
+== == == == == == == == == == == == == == == == == == ==
+You can reverse any wrong selection with
+  - Q (QUIT)
+  - B (BACK)
+  - U (UNDO)
+== == == == == == == == == == == == == == == == == == ==
+
+Select what do you want to do: 1
+
+Insert the folder path containing the PED you want to analyze: data
+
+Which PED do you want to analyze: 
+
+0 - PED00020
+
+Your choice: 0
+Your choice is PED00020
+
+Analyzing PED00020e001...
+```
 
 #### Model features class
 
@@ -183,18 +209,18 @@ initialized, the workflow is the following:
 This class, named `PedFeatures`, takes care of the whole second task workflow. In detail, once an instance is
 initialized, the workflow is the following:
 
-- firstly, class method `choice_maker` is called in order to check whether features files should be generated or
-  loaded (as before). The only difference is the folder within each feature file is saved that is `data/ped-features`
+- firstly, class method `choice_maker` is called. Initially it loads (or if not present, compute) the models features of
+  corresponding to the first task with `load_models_files`: as a matter of fact, if the features files have not been generated 
+  within the first task, the program will automatically generate them (but will not perform the first task analysis steps). 
+  The function then checks whether ped features files should be generated or
+  loaded (as happens in the first task). The only difference is the folder within each feature file is saved that is `data/ped-features`
   and the name of the file that now is simply `PEDxxxxx_features.csv`
 
-- class method `global_dendrogram` is called in order to plot the weighted distance between pair of ensembles with
+- class method `global_dendrogram` is called in order to plot the weighted distance between a pair of ensembles with
   respect of a global metric that can be found inside `global_metric` method
 
 - then the same metric is applied inside the class method `global_heatmap` in order to obtain the pairwise difference of
   ensembles
-
-- in order to compare our results with only the adoption of a plain RMSD metric, we
-  used `distance_matrix_med_rmsd_peds` class method
 
 - finally, class method `local_metric` is called in order to plot how variable a residue is with respect to all the
   other ensambles
@@ -225,14 +251,11 @@ cd src                            # move inside src folder
 python main.py                    # execute w/ default command line parameters
 ```
 
-### Run with custom dataset
-
-If the path to folder containing PED files is not specified, `data` folder of this project is considered the default
-input folder. So, in order to test our code with different PED, you must provide a custom path (pointing to their
-location) as parameter or simply insert the PED .pdb (or .ent) file inside the `data` folder.
-
-To provide a custom path, you can use `-p` flag, as in the following example:
-
-```shell
-python main.py -p custom-path     # execute w/ custom path
-```
+[comment]: <> (### Run with custom dataset)
+[comment]: <> (If the path to folder containing PED files is not specified, `data` folder of this project is considered the default)
+[comment]: <> (input folder. So, in order to test our code with different PED, you must provide a custom path &#40;pointing to their)
+[comment]: <> (location&#41; as parameter or simply insert the PED .pdb &#40;or .ent&#41; file inside the `data` folder.)
+[comment]: <> (To provide a custom path, you can use `-p` flag, as in the following example:)
+[comment]: <> (```shell)
+[comment]: <> (python main.py -p custom-path     # execute w/ custom path)
+[comment]: <> (```)
