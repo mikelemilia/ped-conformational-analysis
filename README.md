@@ -157,7 +157,7 @@ case of the second one, is initialized.
 
 An example of Menu usage for the `data` folder and PED00020 is here provided: 
 
-```shell
+```
 == == == == == == == == == == == == == == == == == == ==
 1.    Task 1 : Analyze features of models inside a PED
 2.    Task 2 : Compare inter and intra features of a PED
