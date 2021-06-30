@@ -93,13 +93,17 @@ class ModelFeatures:
             (-180, -120, 180, 170, 'H', 'red'),
             (0, -180, 180, 360, 'L', 'yellow')
         ]
+        self._dist_matrix = [[0, 1, 1, 1, 1],
+                             [1, 0, 1, 1, 1],
+                             [1, 1, 0, 1, 1],
+                             [1, 1, 1, 0, 0.5],
+                             [1, 1, 1, 0.5, 0]]
 
         self._features = []
         self._residues = None
         self._conformations = []
         # Folder to the feature file
-        # self._folder = folder + '/model-features/'  # create model-features inside the input folder
-        self._folder = 'data/model-features/'         # create model-features always inside data folder
+        self._folder = 'data/model-features/'  # create model-features always inside data folder
         os.makedirs(self._folder, exist_ok=True)
 
         self._output_folder = 'output/model-features'  # create model-features always inside output folder
@@ -342,24 +346,19 @@ class ModelFeatures:
 
         indexes = extract_vectors_model_feature(residues=self._residues, index_slices=True)
 
-        rg = np.abs(x[indexes[0]] - y[indexes[0]]) # /self._max_radius
+        rg = np.abs(x[indexes[0]] - y[indexes[0]])  # /self._max_radius
         asa = euclidean(x[indexes[1]], y[indexes[1]])
 
-        dist_matrix = [[0, 1, 1, 1, 1],
-                       [1, 0, 1, 1, 1],
-                       [1, 1, 0, 1, 1],
-                       [1, 1, 1, 0, 0.5],
-                       [1, 1, 1, 0.5, 0]]
         ss = 0
         for i in range(self._residues):
-            ss += dist_matrix[int(x[indexes[2]][i])][int(y[indexes[2]][i])]
+            ss += self._dist_matrix[int(x[indexes[2]][i])][int(y[indexes[2]][i])]
 
         ss = ss / self._residues
         dist = cosine(x[indexes[3]], y[indexes[3]])
 
         metric = rg + asa + ss + dist
 
-        return metric
+        return metric[0]
 
     def compute_clustering(self, k_set=range(3, 9)):
         """
@@ -393,7 +392,7 @@ class ModelFeatures:
 
     def generate_graph(self):
         """
-        This function generates the weighted graph of the representative conformatios extracted in
+        This function generates the weighted graph of the representative conformations extracted in
         the clustering process
         :return: the graph
         """
@@ -402,13 +401,17 @@ class ModelFeatures:
         for medoid in self._centroids:
             g.add_node(medoid)
 
+        labels = {}
         for i in range(len(self._centroids)):
             for j in range(i + 1, len(self._centroids)):
-                g.add_edge(self._centroids[i], self._centroids[j],
-                           weight=np.sum(self._features[self._centroids[i]] - self._features[self._centroids[j]]))
+                dist = self.metrics(self._features[self._centroids[i]], self._features[self._centroids[j]])
+                g.add_edge(self._centroids[i], self._centroids[j], weight=dist)
+                labels.update({(self._centroids[i], self._centroids[j]): round(dist, ndigits=4)})
 
         options = {'node_color': 'orange', 'node_size': 700, 'width': 2}
-        nx.draw_spectral(g, with_labels=True, **options)
+        pos = nx.spring_layout(g, weight='weight')
+        nx.draw(g, with_labels=True, pos=pos, **options)
+        nx.draw_networkx_edge_labels(g, pos, edge_labels=labels, font_color='red')
         path = "{}/{}_graph.png".format(self._output_folder, self._id)
         plt.savefig(path)
         plt.show()
@@ -423,17 +426,21 @@ class ModelFeatures:
         :return: distance between conformations
         """
 
-        asa_dist = np.std(asa)
+        asa = np.array(asa, dtype='float64')
+        asa_dist = np.mean(np.std(asa, axis=0))
 
         sum_ss = 0
-        for i in range(len(ss)):
-            for j in range(i, len(ss)):
-                sum_ss += 0 if ss[i] == ss[j] else 1
+        for residue in range(ss.shape[1]):
+            for i in range(len(ss)):
+                for j in range(i, len(ss)):
+                    sum_ss += self._dist_matrix[int(ss[i, residue])][int(ss[j, residue])]
+        sum_ss = sum_ss / ss.shape[1]
 
         sum_dist = 0.0
-        for k in range(dist.shape[0]):
-            for h in range(k, dist.shape[0]):
-                sum_dist += 1 - correlation(dist[k], dist[h])
+        for residue in range(ss.shape[1]):
+            for k in range(dist.shape[0]):
+                for h in range(k, dist.shape[0]):
+                    sum_dist += cosine(dist[k, residue], dist[h, residue])
 
         return asa_dist + sum_ss + sum_dist
 
@@ -444,10 +451,6 @@ class ModelFeatures:
         :param g: graph of representative conformations of one ensemble
         :return: pymol image
         """
-
-        # pymol.finish_launching()  # Open Pymol
-        # p = PyMOL()
-        # p.start()
 
         # Load the structure conformations
         structure = PDBParser(QUIET=True).get_structure(self._id, self._path)
@@ -477,8 +480,11 @@ class ModelFeatures:
 
         # For each residue, apply the metric and save it
         residue_variability = []
+        window_size = 9
         for residue in range(self._residues):
-            residue_variability.append(self.pymol_metric(asa[:, residue], ss[:, residue], dist[:, residue]))
+            start = max(0, residue - window_size)
+            end = min(self._residues - 1, residue + window_size)
+            residue_variability.append(self.pymol_metric(asa[:, start:end], ss[:, start:end], dist[:, start:end]))
 
         cmd.delete("all")
         cmd.load("data/pymol/{}.pdb".format(self._id), self._id)  # Load from file

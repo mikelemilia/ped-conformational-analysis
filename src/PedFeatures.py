@@ -244,17 +244,15 @@ class PedFeatures:
 
                     # Calculate rotation/translation matrices
                     super_imposer.set_atoms(ref_fragment, alt_fragment)
-                    # print(super_imposer.rms, super_imposer.rotran)
 
                     # Rotate-translate coordinates
                     alt_fragment_coord = np.array([atom.get_coord() for atom in alt_fragment])
                     alt_fragment_coord = np.dot(super_imposer.rotran[0].T, alt_fragment_coord.T).T
                     alt_fragment_coord = alt_fragment_coord + super_imposer.rotran[1]
 
-                    # Calculate RMSD: https://en.wikipedia.org/wiki/Root-mean-square_deviation_of_atomic_positions
+                    # Calculate RMSD:
                     ref_fragment_coord = np.array([atom.get_coord() for atom in ref_fragment])
                     dist = ref_fragment_coord - alt_fragment_coord
-                    # rmsd_fragment = np.sqrt(np.sum(dist * dist) / window_size)  # Total RMSD of the fragment. Identical to super_imposer.rms
                     rmsd_res = np.sqrt(np.sum(dist * dist, axis=1))  # RMSD for each residue of the fragment
 
                     model_rmsd.append(rmsd_res)
@@ -351,31 +349,8 @@ class PedFeatures:
         med_dist = 1 - correlation(np.array(x[indexes[5]], dtype='float32'), np.array(y[indexes[5]], dtype='float32'))
 
         m = rd + en + med_asa + med_rmsd + med_dist
-        print(m)
 
         return m
-
-    def distance_matrix_med_rmsd_peds(self):
-        """
-        This function visualizes the distance matrix heatmap using only RMSD between pair of peds
-        :return: Plot heatmap with respect RMSD
-        """
-
-        print('\t- Plotting heatmap (with only RMSD)...')
-
-        medians = extract_vectors_ped_feature(self._num_residues, self._num_conformations, 'MED_RMSD', features=self._ped_features)
-        dists = np.zeros((medians.shape[0], medians.shape[0]))
-
-        for i in range(medians.shape[0]):
-            for j in range(i + 1, medians.shape[0]):
-                num_pairs = (self._num_residues * (self._num_residues - 1)) / 2
-                dists[i, j] = np.sqrt(1 / num_pairs * np.sum((medians[i] - medians[j]) ** 2, axis=0))
-                dists[j, i] = np.sqrt(1 / num_pairs * np.sum((medians[i] - medians[j]) ** 2, axis=0))
-
-        seaborn.heatmap(dists)
-        plt.show()
-
-        return dists
 
     def global_dendrogram(self):
         """
@@ -385,7 +360,7 @@ class PedFeatures:
 
         print('\t- Plotting global dendrogram...')
 
-        linkage_matrix = linkage(np.array(self._ped_features), 'complete', metric=self.global_metric)  # TODO capire se è realmente necessario il cast, in teoria no
+        linkage_matrix = linkage(np.array(self._ped_features), 'complete', metric=self.global_metric)
         dendrogram(linkage_matrix)
         plt.title('Global Dendrogram for {}'.format(self._ped_name))
         plt.savefig('{}/{}_dendrogram.png'.format(self._output_folder, self._ped_name))
@@ -428,20 +403,11 @@ class PedFeatures:
                                               features=self._ped_features)
         med_rmsd = extract_vectors_ped_feature(self._num_residues, self._num_conformations, key='MED_RMSD',
                                                features=self._ped_features)
-        med_dist = []
         std_dist = []
 
         # Convert dist from flatten to matrix
-        for k in range(np.array(self._ped_features).shape[0]): # TODO capire se è realmente necessario il cast, in teoria no
-            temp_med_dist = extract_vectors_ped_feature(self._num_residues, self._num_conformations, key='MED_DIST', features=self._ped_features, peds=k)
+        for k in range(np.array(self._ped_features).shape[0]):
             temp_std_dist = extract_vectors_ped_feature(self._num_residues, self._num_conformations, key='STD_DIST', features=self._ped_features, peds=k)
-
-            med_dist_k = np.zeros((self._num_residues, self._num_residues))
-            idx = np.triu_indices(self._num_residues, k=1)
-            med_dist_k[idx] = temp_med_dist
-
-            # Let the magic happen... be symmetric
-            med_dist_k = med_dist_k + med_dist_k.T
 
             std_dist_k = np.zeros((self._num_residues, self._num_residues))
             idx = np.triu_indices(self._num_residues, k=1)
@@ -449,43 +415,42 @@ class PedFeatures:
 
             # Let the magic happen... be symmetric
             std_dist_k = std_dist_k + std_dist_k.T
-
-            med_dist.append(med_dist_k)
             std_dist.append(std_dist_k)
 
         # Conversion list to array
-        med_dist = np.array(med_dist)
         std_dist = np.array(std_dist)
 
         # Total values for each residue
         total_entropy = []
         total_med_asa = []
         total_med_rmsd = []
-        total_med_dist = []
         total_std_dist = []
 
+        entropy = np.array(entropy, dtype='float64')
+        med_asa = np.array(med_asa, dtype='float64')
+        med_rmsd = np.array(med_rmsd, dtype='float64')
+        std_dist = np.array(std_dist, dtype='float64')
+
         # Scanning each element of the sequence
-        for i in range(self._num_residues):
-            total_entropy.append(np.std(entropy[:, i]))
-            total_med_asa.append(np.std(med_asa[:, i]))  # TODO check how to normalize ASA
-            total_med_rmsd.append(np.std(med_rmsd[:, i]))
+        window_size = 9
+        for residue in range(self._num_residues):
+            start = max(0, residue - window_size)
+            end = min(self._num_residues - 1, residue + window_size)
+            total_entropy.append(np.mean(np.std(entropy[:, start:end], axis=0)))
+            total_med_asa.append(np.mean(np.std(med_asa[:, start:end], axis=0)))
+            total_med_rmsd.append(np.mean(np.std(med_rmsd[:, start:end], axis=0)))
 
             # Compute std deviations for residue i
-            total_std_dist.append(scipy.stats.trim_mean(np.std(std_dist[:, :, i], axis=0), proportiontocut=0.2))
+            current_dist = []
+            for i in range(start, end):
+                current_dist.append(scipy.stats.trim_mean(np.std(std_dist[:, :, i], axis=0), proportiontocut=0.2))
+            total_std_dist.append(np.mean(current_dist))
 
         p = np.stack((total_entropy, total_med_asa, total_med_rmsd, total_std_dist), axis=1)
         val = np.mean(p, axis=1)
 
         # Plot results same plot
-        fig, axes = plt.subplots(1, 1, figsize=(24, 12))
-        # axes[0].set_title("Plots")
-        # axes[0].axhline()
-        # plt.plot(np.arange(self.residues), total_entropy, color='blue', ls='--')
-        # plt.plot(np.arange(self.residues), total_med_asa, color='red', ls='--')
-        # plt.plot(np.arange(self.residues), total_med_rmsd, color='green', ls='--')
-        # # plt.plot(np.arange(self.residues), total_med_dist, color='orange', ls='--')
-        # plt.plot(np.arange(self.residues), total_std_dist, color='pink', ls='--')
-
+        plt.subplots(1, 1, figsize=(24, 12))
         plt.plot(np.arange(self._num_residues), val, color='red', ls='--')
         plt.title('Local Metric for {}'.format(self._ped_name))
         plt.savefig('{}/{}_local.png'.format(self._output_folder, self._ped_name))

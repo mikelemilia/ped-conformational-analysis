@@ -106,30 +106,27 @@ the following sections.
 In addition to the main folders, the files `Makefile` and `requirements.txt` are made available, both of which can be
 useful to install the minimum requirements to allow proper execution.
 
-### Features
+### Features extraction policies
 
 As stated in the subsections of [Project specification](#project-specification), both tasks require the extraction of a
-set of features. To make the output files more understandable, regardless of the task, we decided to map them with a one
-to one policy, namely each line is a feature set.
+set of features. In order to make the code execution smoother, if the features files for the PED under analysis are already present 
+inside `data/model-features`
+or `data/ped-features` folders (respectively for the first or second task, calculated during a previous code run), 
+every feature will be loaded from those files, instead of being recomputed from scratch.
 
-Clearly, this decision required some additions to each feature set:
+To make the output files more understandable, we decided to map each set of features extracted during the analysis in a 
+single row, applying a one to one policy. 
+Clearly, this decision required some additions to each row:
 
-- regarding the first task, it was necessary to insert both the model ID and the number of residues
-- regarding the second task, it was necessary to insert the PED ID
-
-#### Extraction policies
-
-In order to make the code execution smoother, if the features files are already present inside the `data/model-features`
-or `data/ped-features` folders (calculated during a previous code run), every feature will be extracted from the stored
-files, instead of being recomputed from scratch.
+- in task 1, it was necessary to insert both the model ID and the number of residues
+- in task 2, it was necessary to insert the PED ID
 
 The extraction functions `extract_vectors_model_feature(...)` and `extract_vectors_ped_feature(...)`, allow to obtain
-different parts of the features file depending on the need. Specifically, once passed the data frame containing the
+different parts of features file depending on the needs. Specifically, once passed the data frame containing the
 feature matrix, it is possible to obtain:
 
-- all rows, or a specific subset from a certain column 'till the end
-- all rows, or a specific subset between a certain interval
-- all rows containing a certain feature (i.e., RG, ASA, SS, etc ...)
+- all rows or a specific subset of them, containing a certain feature (i.e., RG, ASA, SS, etc ...)
+- the interval extremes for a certain features (i.e., RG, ASA, SS, etc ...)
 - all the feature intervals as slices
 
 ### Classes

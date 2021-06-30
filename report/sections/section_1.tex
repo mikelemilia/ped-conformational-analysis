@@ -12,7 +12,7 @@ Firstly, for each conformations, the software extracts the structural features a
 \begin{itemize}
 \item Radius of gyration of the structure: it is computed using the coordinates of each atom and their barycenter.
 \item Relative accessible surface area (ASA) for each residue: it is computed thanks to DSSP; note that the values obtained for the conformations within an ensembles are equal. It may happen that the DSSP does not return the ASA value for each residue: for this limitation, a check on the array dimension and, if needed, a zero-padding are performed. 
-\item Secondary structure for each residue: they are determined thanks to the Ramachandran regions associated with Phi and Psi angles of the each residue. For the first and last residue, for which the value is not computable, '-' is inserted. For a simpler store and data analysis, each obtained value is converted into the correspondent integer value reported in table \ref{tab:ss}. 
+\item Secondary structure for each residue: they are determined thanks to the Ramachandran regions associated with Phi and Psi angles of the each residue. For the first and last residue, for which the value is not computable, `-' is inserted. For a simpler store and data analysis, each obtained value is converted into the correspondent integer value reported in table \ref{tab:ss}. 
 \item Distance matrix: it computes the pairwise distances between each pair of residues. For a simpler store and data analysis, each obtained value is converted into the correspondent integer value reported in table x.
 \end{itemize}
 
@@ -20,7 +20,7 @@ Firstly, for each conformations, the software extracts the structural features a
 \begin{center}
 \begin{tabular}{lr}
 % FIRST ROW
-Secondary Structure & Int \\
+\textbf{Secondary Structure} & \textbf{Int}\\
 \hline
 - & 0\\
 \hline

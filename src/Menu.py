@@ -122,10 +122,10 @@ class Menu:
 
         else:
 
+            print('Features files for the current PED found in data/model-features')
             print('\n\t- Comparing {}'.format(ped_name))
             ped_features.global_dendrogram()
             ped_features.global_heatmap()
-            ped_features.distance_matrix_med_rmsd_peds()
             ped_features.local_metric()
 
     def run(self):
