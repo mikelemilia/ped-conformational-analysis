@@ -13,7 +13,6 @@ def extract_names(folder):
 
 
 def check_path(folder, name=""):
-
     if not os.path.isdir(folder):
         print('You must provide an existing data location')
         return False
@@ -89,20 +88,14 @@ def ask_input():
     return [folder, ped_name]
 
 
-def extract_filenames(folder, name="", extensions=None):
-
-    if extensions is None:
-        extensions = ['pdb', 'ent']
-
+def extract_filenames(folder, name="", extension='pdb'):
     files = []
 
-    for extension in extensions:
+    paths = glob.glob(folder + "/" + name + "*." + extension)
 
-        paths = glob.glob(folder + "/" + name + "*." + extension)
-
-        for path in paths:
-            base = os.path.basename(path)
-            file = os.path.splitext(base)[0]
-            files.append(file)
+    for path in paths:
+        base = os.path.basename(path)
+        file = os.path.splitext(base)[0]
+        files.append(file)
 
     return sorted(files)
