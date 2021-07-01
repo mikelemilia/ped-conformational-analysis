@@ -1,4 +1,4 @@
-In this report, the main project choices and the results for structural emsemble PED00020 of measles virus nucleoprotein (for its five deposited ensembles) are reported.
+In this report, the main project choices and the results for structural ensemble PED00020 of measles virus nucleoprotein (for its five deposited ensembles) are reported.
 
 \section{Task 1}\label{sec:task1}
 \graphicspath{ {./figures/} }
@@ -39,12 +39,14 @@ Left-handed Helix & 4\\
 
 
 \subsection{Representative conformations} 
-In order to extract the representative conformations, the software clusters the models within a single PED exploiting KMedoids approach and a customed metric function. The proper number of clusters is set thanks to Silhouette measure. 
+In order to extract the representative conformations, the software clusters the models within a single PED exploiting KMedoids approach and a custom metric function. The proper number of clusters is set thanks to Silhouette measure. 
 KMedoids is exploited since it allows to use an arbitrary dissimilarity measures and the centroids are chosen between the points already present in the analyzed set. 
+
+\medskip
 The metric function uses different distance metrics to measure the distances between the features calculated at the previous point. It takes in input the feature vectors for two conformations and compute their distance as sum of the following partial features distances:
 \begin{itemize}
 \item Absolute difference between radius of gyration to understand its variation.
-\item Euclidian distance of ASA vectors.
+\item Euclidean distance of ASA vectors.
 \item Distance between SS vectors using a scoring matrix accordingly to their definition and properties. The scoring matrix is reported in table \ref{tab:score}. 
 \item The cosine distance between distance matrix. 
 \end{itemize}
@@ -119,12 +121,14 @@ For each ensemble, the software generates a Pymol image to visualize the 3D stru
 We decided to generate one image for each ensemble with their representative conformations extracted within the clustering step.
 As a matter of fact, generating an image representating the conformations superimposition, it would give a too messy result and not reporting important information.
 
+\medskip
 The residue variability is calculated using a metric built by us. Note that the radius of gyration is not used since it is not residual-dependent.
-In order to compute the residue variability, it condiders the neighbors of the residue under analysis thanks to a window of size nine to the left and to the right of the current position.
+In order to compute the residue variability, it considers the neighbors of the residue under analysis thanks to a window of size nine to the left and to the right of the current position.
+
 This metric returns the sum of the following partial distances:
 \begin{itemize}
 \item Standard deviation of ASA which evaluates the difference between the surface areas for each residual of the representative conformations of an ensemble. Then it compute the mean of the standard deviation for each residues in the window takes in consideration.
-\item Distance between SS vectors pairs using the above scoring matrix accordingly to their definition and properties. It consider the residues in the window with respect the residues considered.
+\item Distance between SS vectors pairs using the above scoring matrix accordingly to their definition and properties. It consider the residues in the current window.
 \item The sum of all the variations of the distances for each residual pair in the conformation. It is computed using the cosine distance between residual pair in the window considered. 
 \end{itemize}
 
