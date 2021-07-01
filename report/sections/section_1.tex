@@ -13,7 +13,7 @@ Firstly, for each conformations, the software extracts the following structural 
 \item Radius of gyration of the structure: it is computed using the coordinates of each atom and their barycenter.
 \item Relative accessible surface area (ASA) for each residue: it is computed thanks to DSSP; note that the values obtained for the conformations within an ensembles are equal. It may happen that the DSSP does not return the ASA value for each residue: for this limitation, a check on the array dimension and, if needed, a zero-padding are performed. 
 \item Secondary structure (SS) for each residue: they are determined thanks to the Ramachandran regions associated with Phi and Psi angles of the each residue. For the first and last residue, for which the value is not computable, `-' is inserted. For a simpler store and data analysis, each obtained value is converted into an integer value as reported in table \ref{tab:ss}. 
-\item Distance matrix: it computes the pairwise distances between each pair of residues.% For a simpler store and data analysis, each obtained value is converted into the correspondent integer value reported in table x.
+\item Distance matrix: it computes the pairwise distances between each pair of residues. For the subsequent store, only the upper triangular matrix is maintained and it is linearized. 
 \end{itemize}
 
 \begin{table}[H]
@@ -122,13 +122,14 @@ We decided to generate one image for each ensemble representing one of its repre
 As a matter of fact, the generation of an image representating the conformations superimposition would give a too messy result and would not reporting important information.
 
 \medskip
-The residue variability is calculated using a metric built by us. Note that the radius of gyration is not used since it is not residue-dependent.
-This metric considers the neighbors of the residue under analysis thanks to a window of size nine on the left and on the right of the current position and calculates the variability as the sum of the following partial distances:
+The residue variability is calculated using a metric built by us. 
+This metric considers the neighbors of the residue under analysis thanks to a window of size nine on the left and on the right of the current position and extract the features vectors of those residues for each considered conformation. The metric then calculates the variability as the sum of the following partial distances:
 \begin{itemize}
-\item Standard deviation of ASA, to evaluate the difference between the surface areas for each residual of the representative conformations of an ensemble. Then it computes the mean of the standard deviation for each residues in the window takes in consideration. %Non chiaro
-\item Distance between SS windows pairs using the scoring matrix reported in table \ref{tab:ss} and normalizing by the number of residues considered.
-\item The sum of all the variations of the distances for each residual pair in the conformation. It is computed using the cosine distance between residual pair in the window considered. %Non chiaro
+\item Standard deviation of ASA values available for each residue is calculated and the mean of them is subsequently calculated to have an average value.
+\item Normalized distance between SS vectors pairs is calculated using the scoring matrix reported in table \ref{tab:ss}.
+\item For each pair of analyzed conformation, the cosine dissimilarity between distance vectors (rows/columns of distance matrix) of corresponding residues are summed.
 \end{itemize}
+Note that the radius of gyration is not used since it is not residue-dependent.
 
 \begin{figure}[H]
 	\begin{minipage}[b]{0.97\textwidth}
