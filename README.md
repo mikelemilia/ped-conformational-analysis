@@ -16,14 +16,12 @@ Department of Mathematics - University of Padua, Italy
     + [Task 1](#task-1)
     + [Task 2](#task-2)
 - [Project structure](#project-structure)
-    + [Features](#features)
-        * [Extraction policies](#extraction-policies)
+    + [Features extraction policies](#features-extraction-policies)
     + [Classes](#classes)
         * [Menu](#menu-class)
         * [Model features](#model-features-class)
         * [PED features](#ped-features-class)
 - [Getting started](#getting-started)
-    + [Run with custom dataset](#run-with-custom-dataset)
 
 ## Project specification
 
@@ -137,52 +135,11 @@ point of view, suggested a modular organization. Specifically, three distinct cl
 
 #### Menu class
 
-This class takes care of generating a useful menu for the user with the allowed options, which are:
-
-1. Analyze features of models inside a PED
-2. Compare inter and intra features of a PED
-3. Exit
-
-In order to select an option it is sufficient to report its number. To undo any wrong selection, it is enough to
-digit `Q` (QUIT) or `B` (BACK) or `U` (UNDO).
-
-Choosing to execute the first task or the second task, you are asked to insert the path to the folder containing .pdb files of the 
-PED of interest (for example `data` for our analysis).
-Subsequently, the PED ID list of .pdb files found inside the provided folder is shown and you are asked to insert the 
-index or the ID of the one of interest. As soon as the PED ID is correctly supplied, an
-instance of the `ModelFeatures` class, if the first task has been chosen, or an instance of the `PEDFeatures` class, if the 
-case of the second one, is initialized. 
-
-> **N.B. The folder path that can be inserted can be absolute or relative. Note that whenever a relative
-> path is provided, it must be referred to the working directory that has been already set as the project folder.**
-
-An example of Menu usage with `data` folder and PED00020 is here provided: 
-
-```
-== == == == == == == == == == == == == == == == == == ==
-1.    Task 1 : Analyze features of models inside a PED
-2.    Task 2 : Compare inter and intra features of a PED
-3.    Exit
-== == == == == == == == == == == == == == == == == == ==
-You can reverse any wrong selection with
-  - Q (QUIT)
-  - B (BACK)
-  - U (UNDO)
-== == == == == == == == == == == == == == == == == == ==
-
-Select what do you want to do: 1
-
-Insert the folder path containing the PED you want to analyze: data
-
-Which PED do you want to analyze: 
-
-0 - PED00020
-
-Your choice: 0
-Your choice is PED00020
-
-Analyzing PED00020e001...
-```
+This class takes care of generating a useful menu for the user: in particular it prints the menu according to the methods
+made available inside the class and allows the user to select which execute. The methods will then request for the proper 
+parameters to be input (data folder and PED name, thanks to `ask_input` in utils.py) and implements the usage of the 
+class corresponding to the chosen task as described in the following sections, respectively in methods `first_task` and 
+`second_task`. 
 
 #### Model features class
 
@@ -252,11 +209,50 @@ cd src                            # move inside src folder
 python main.py                    # execute w/ default command line parameters
 ```
 
-[comment]: <> (### Run with custom dataset)
-[comment]: <> (If the path to folder containing PED files is not specified, `data` folder of this project is considered the default)
-[comment]: <> (input folder. So, in order to test our code with different PED, you must provide a custom path &#40;pointing to their)
-[comment]: <> (location&#41; as parameter or simply insert the PED .pdb &#40;or .ent&#41; file inside the `data` folder.)
-[comment]: <> (To provide a custom path, you can use `-p` flag, as in the following example:)
-[comment]: <> (```shell)
-[comment]: <> (python main.py -p custom-path     # execute w/ custom path)
-[comment]: <> (```)
+Once the program starts, menu showing the possible options is shown. In particular, they are:
+
+1. Analyze features of models inside a PED
+2. Compare inter and intra features of a PED
+3. Exit
+
+In order to select an option it is sufficient to report its number. To undo any wrong selection, it is enough to
+digit `Q` (QUIT) or `B` (BACK) or `U` (UNDO).
+
+Choosing to execute the first task or the second task, you are asked to insert the path to the folder containing .pdb files of the 
+PED of interest (for example `data` for our analysis).
+If the folder does not exist or if it does not contain PED files (in .pdb format), you are asked to provide a new 
+folder; on the contrary, once the path is correctly provided, the list containing PED ID of .pdb files is shown and you 
+are asked to insert the index or the ID of the one of interest. As soon as the PED ID is correctly supplied, an
+instance of the `ModelFeatures` class, if the first task has been chosen, or an instance of the `PEDFeatures` class, if the 
+case of the second one, is initialized.
+
+> **N.B. The folder path that can be inserted can be absolute or relative. Note that whenever a relative
+> path is provided, it must be referred to the working directory that has been already set as the project folder.**
+
+An example of menu usage with `data` folder and PED00020 is here provided: 
+
+```
+== == == == == == == == == == == == == == == == == == ==
+1.    Task 1 : Analyze features of models inside a PED
+2.    Task 2 : Compare inter and intra features of a PED
+3.    Exit
+== == == == == == == == == == == == == == == == == == ==
+You can reverse any wrong selection with
+  - Q (QUIT)
+  - B (BACK)
+  - U (UNDO)
+== == == == == == == == == == == == == == == == == == ==
+
+Select what do you want to do: 1
+
+Insert the folder path containing the PED you want to analyze: data
+
+Which PED do you want to analyze: 
+
+0 - PED00020
+
+Your choice: 0
+Your choice is PED00020
+
+Analyzing PED00020e001...
+```
