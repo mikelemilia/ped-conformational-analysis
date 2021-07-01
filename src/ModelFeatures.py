@@ -6,7 +6,7 @@ import pandas
 
 from Bio.PDB import PDBParser, DSSP, PPBuilder, PDBIO, Selection
 from matplotlib import pyplot as plt, colors, cm
-from networkx.drawing.nx_agraph import graphviz_layout
+from pygraphviz import *
 from pymol import cmd
 from scipy.spatial.distance import *
 from sklearn_extra import cluster
@@ -422,32 +422,32 @@ class ModelFeatures:
         :return: the graph
         """
 
-        g = nx.Graph()
+        A = AGraph()
 
         # Add the representative conformations (centroids) as nodes
         for medoid in self._centroids:
-            g.add_node(medoid)
+            A.add_node(medoid)
 
         # Add the edges between the nodes weighted with the distance between the correspondent conformations
         labels = {}
         for i in range(len(self._centroids)):
             for j in range(i + 1, len(self._centroids)):
                 dist = self.metrics(self._features[self._centroids[i]], self._features[self._centroids[j]])
-                g.add_edge(self._centroids[i], self._centroids[j], weight=dist, len=dist)
-                labels.update({(self._centroids[i], self._centroids[j]): round(dist, ndigits=4)})
+                A.add_edge(self._centroids[i], self._centroids[j], len=dist)
+                labels.update({(str(self._centroids[i]), str(self._centroids[j])): round(dist, ndigits=4)})
 
         # Print a customized graph and save it
         options = {'node_color': 'orange', 'node_size': 700}
-        pos = nx.spring_layout(g, weight='weight')
-        edge_widths = [w for (*edge, w) in g.edges.data('weight')]
-        nx.draw(g, width=edge_widths, with_labels=True, pos=pos, **options)
-        nx.draw_networkx_edge_labels(g, pos, edge_labels=labels, font_color='red')
+        G = nx.nx_agraph.from_agraph(A)
+        pos = nx.nx_agraph.graphviz_layout(G)
+        nx.draw(G, pos, with_labels=True, **options)
+        nx.draw_networkx_edge_labels(G, pos, edge_labels=labels)
 
         path = "{}/{}_graph.png".format(self._output_folder, self._id)
         plt.savefig(path)
         plt.show()
 
-        return g
+        return G
 
     def pymol_metric(self, asa, ss, dist):
         """
@@ -497,7 +497,8 @@ class ModelFeatures:
         representative_features = []
         first = True
 
-        for model in g.nodes():
+        models = [int(m) for m in g.nodes()]
+        for model in models:
             representative_features.append(self._features[model])
             # If not done yet, open the structure for Pymol
             if first:

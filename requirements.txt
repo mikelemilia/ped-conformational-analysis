@@ -1,7 +1,7 @@
 biopython
 networkx~=2.5.1
+pygraphviz~=1.7
 pymol~=2.4.1
-scikit-learn-extra
 
 numpy~=1.20.2
 matplotlib~=3.3.4
