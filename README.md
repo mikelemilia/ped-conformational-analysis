@@ -209,20 +209,13 @@ cd src                            # move inside src folder
 python main.py                    # execute w/ default command line parameters
 ```
 
-Once the program starts, menu showing the possible options is shown. In particular, they are:
+Once the program starts, menu showing the possible options is shown. In order to select an option it is sufficient to report its number. To undo any wrong selection, it is enough to digit `Q` (QUIT) or `B` (BACK) or `U` (UNDO).
 
-1. Analyze features of models inside a PED
-2. Compare inter and intra features of a PED
-3. Exit
-
-In order to select an option it is sufficient to report its number. To undo any wrong selection, it is enough to
-digit `Q` (QUIT) or `B` (BACK) or `U` (UNDO).
-
-Choosing to execute the first task or the second task, you are asked to insert the path to the folder containing .pdb files of the 
-PED of interest (for example `data` for our analysis).
-If the folder does not exist or if it does not contain PED files (in .pdb format), you are asked to provide a new 
-folder; on the contrary, once the path is correctly provided, the list containing PED ID of .pdb files is shown and you 
-are asked to insert the index or the ID of the one of interest. As soon as the PED ID is correctly supplied, an
+Regardless which task you're willing to execute, you are asked to insert the path to the folder containing `.pdb` files of the 
+PED of interest (for example `data` in our analysis).
+If the folder does not exist or if it does not contain PED files (in `.pdb` format), you are asked to provide a new 
+folder; on the contrary, once the path is correctly provided, a unique list containing all possible PED IDs is shown and you 
+are asked to insert the index or the ID of the PED of interest. As soon as the PED ID is correctly supplied, an
 instance of the `ModelFeatures` class, if the first task has been chosen, or an instance of the `PEDFeatures` class, if the 
 case of the second one, is initialized.
 
