@@ -384,7 +384,7 @@ class PedFeatures:
         med_rmsd = euclidean(x[indexes[4]], y[indexes[4]])
 
         # Median Distance matrix
-        med_dist = 1 - correlation(np.array(x[indexes[5]], dtype='float32'), np.array(y[indexes[5]], dtype='float32'))
+        med_dist = cosine(np.array(x[indexes[5]], dtype='float32'), np.array(y[indexes[5]], dtype='float32'))
 
         m = rd + en + med_asa + med_rmsd + med_dist
 
