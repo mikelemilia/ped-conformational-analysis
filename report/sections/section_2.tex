@@ -56,16 +56,16 @@ In figures \ref{heatmap} and \ref{dendrogram}, it is possible to visualize respe
 
 \subsection{Local metric}
 The local metric evaluates the variability of all the features for each position in the ensemble.
-In order to compute the local variability, it considers the neighbors of the residue under analysis thanks to a window of size nine to the left and to the right of the current position.
-This metric computes the mean of total values with respect each ensemble feature: 
+In order to compute the local variability, it considers the neighbors of the residue under analysis thanks to a window of size nine on the left and on the right of the current position and, for that, computes a variability score for each analyzed feature from the features vectors corresponding to the window. The scores for each residue are then used to calculate the mean variability value, used for the subsequent plot. In particular, the variability scores provided are the following:
 
 \begin{itemize}
-\item Total entropy: it considers the standard deviation among conformations entropy for each position, then it computes the mean of these values inside the window around each residual.
-\item Total median ASA: it calculates the standard deviation among conformations accessible surface area for each residue, then it computes the mean of these values inside the window around the current residual.
-\item Total median RMSD: it computes the standard deviation among conformations RMSD for each residue, then it calculates the mean of these values inside the window around the current residual.
-\item Total standard deviation of distance: it is the trimmed mean of the standard deviation of conformations distances for each position. 
-The use of a trimmed mean helps to eliminate the influence of outliers or data points on the tails on the traditional mean. Then it takes the mean of these values with respect to the window around each residual.
+\item Mean value of the standard deviations calculated among conformational entropies for each position in the window.
+\item Mean value of the standard deviations calculated among conformational accessible surface areas for each residue in the window.
+\item Mean value of the standard deviations calculated among conformational RMSD values for each residue in the window. 
+\item Trimmed mean of the standard deviation of conformations distances for each position in the window. 
 \end{itemize}
+
+In the last case, the use of a trimmed mean helps to eliminate the influence of outliers or data points on the tails on the traditional mean. Then it takes the mean of these values with respect to the window around each residual.
 
 \begin{figure}[H]
 	\begin{minipage}[b]{0.97\textwidth}
