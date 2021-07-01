@@ -6,6 +6,7 @@ import pandas
 
 from Bio.PDB import PDBParser, DSSP, PPBuilder, PDBIO, Selection
 from matplotlib import pyplot as plt, colors, cm
+from networkx.drawing.nx_agraph import graphviz_layout
 from pymol import cmd
 from scipy.spatial.distance import *
 from sklearn_extra import cluster
@@ -432,13 +433,14 @@ class ModelFeatures:
         for i in range(len(self._centroids)):
             for j in range(i + 1, len(self._centroids)):
                 dist = self.metrics(self._features[self._centroids[i]], self._features[self._centroids[j]])
-                g.add_edge(self._centroids[i], self._centroids[j], weight=dist)
+                g.add_edge(self._centroids[i], self._centroids[j], weight=dist, len=dist)
                 labels.update({(self._centroids[i], self._centroids[j]): round(dist, ndigits=4)})
 
         # Print a customized graph and save it
-        options = {'node_color': 'orange', 'node_size': 700, 'width': 2}
+        options = {'node_color': 'orange', 'node_size': 700}
         pos = nx.spring_layout(g, weight='weight')
-        nx.draw(g, with_labels=True, pos=pos, **options)
+        edge_widths = [w for (*edge, w) in g.edges.data('weight')]
+        nx.draw(g, width=edge_widths, with_labels=True, pos=pos, **options)
         nx.draw_networkx_edge_labels(g, pos, edge_labels=labels, font_color='red')
 
         path = "{}/{}_graph.png".format(self._output_folder, self._id)
@@ -531,6 +533,8 @@ class ModelFeatures:
         cmd.remove("resn hoh")  # Remove water molecules
         cmd.hide("lines", "all")  # Hide lines
         cmd.show("cartoon", "all")  # Show cartoon
+        cmd.orient()
+        cmd.zoom()
         norm = colors.Normalize(vmin=min(residue_variability), vmax=max(residue_variability))
 
         # Changing of the residue color according to its window variability
