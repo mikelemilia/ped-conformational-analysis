@@ -78,7 +78,7 @@ Features analyzed for ensembles (multiple conformations)
 ├── data/                 
 │   ├── model-features/           # first task features data
 │   ├── ped-features/             # second task features data
-│   └── ...                       # .pdb / .ent files
+│   └── ...                       # .pdb files
 ├── output/               
 │   ├── model-features/           # first task output
 │   └── ped-features/             # second task output
@@ -92,7 +92,7 @@ Features analyzed for ensembles (multiple conformations)
 
 The project is structured in three main folders: `data`, `output` and `src`.
 
-Specifically, `data` contains all the input files related to the PED that we intend to analyze in .pdb (or .ent) format.
+Specifically, `data` contains all the input files related to the PED that we intend to analyze in .pdb format.
 In addition, there are two sub-folders, `model-features` and `ped-features` which are used to better organize the
 partial results (features file) produced by both project task.
 
@@ -114,7 +114,7 @@ inside `data/model-features`
 or `data/ped-features` folders (respectively for the first or second task, calculated during a previous code run), 
 every feature will be loaded from those files, instead of being recomputed from scratch.
 
-To make the output files more understandable, we decided to map each set of features extracted during the analysis in a 
+To make the output files more understandable, when the set of features is computed, we decided to map each of them in a 
 single row, applying a one to one policy. 
 Clearly, this decision required some additions to each row:
 
@@ -146,16 +146,17 @@ This class takes care of generating a useful menu for the user with the allowed 
 In order to select an option it is sufficient to report its number. To undo any wrong selection, it is enough to
 digit `Q` (QUIT) or `B` (BACK) or `U` (UNDO).
 
-Choosing to execute the first task or the second task, you are asked to insert the path to the folder containing the PED of interest. 
-Subsequently, the PED ID list of the files found inside the provided folder is shown and you are asked to insert the 
+Choosing to execute the first task or the second task, you are asked to insert the path to the folder containing .pdb files of the 
+PED of interest (for example `data` for our analysis).
+Subsequently, the PED ID list of .pdb files found inside the provided folder is shown and you are asked to insert the 
 index or the ID of the one of interest. As soon as the PED ID is correctly supplied, an
-instance of the `ModelFeatures` class, if the first task has been chosen, or instance of the `PEDFeatures` class, if the 
+instance of the `ModelFeatures` class, if the first task has been chosen, or an instance of the `PEDFeatures` class, if the 
 case of the second one, is initialized. 
 
-> **N.B. The folder path that can be inserted when requested can be absolute or relative. Note that whenever a relative
-> path is provided, it must be referred to the working directory that has been set in the program as the project folder.**
+> **N.B. The folder path that can be inserted can be absolute or relative. Note that whenever a relative
+> path is provided, it must be referred to the working directory that has been already set as the project folder.**
 
-An example of Menu usage for the `data` folder and PED00020 is here provided: 
+An example of Menu usage with `data` folder and PED00020 is here provided: 
 
 ```
 == == == == == == == == == == == == == == == == == == ==
@@ -190,8 +191,8 @@ initialized, the workflow is the following:
 
 - firstly, class method `choice_maker` is called and the presence of feature files is checked, if they're found the
   class method `extract` is subsequently called, otherwise the pair of class method `compute` and `save` take care of
-  computing each requested feature of the model and storing it inside the `data/model-features` folder in a specific
-  file called `PEDxxxxxexxx_features.csv`. Once `choice_maker` concludes its execution, we're sure that features of the
+  computing each requested feature of the model and storing it inside the `data/model-features` folder, in a specific
+  file called `PEDxxxxxexxx_features.csv`. Once `choice_maker` concludes its execution, we are sure that features of the
   PED of interest are computed or at least loaded.
 
 - then class method `compute_clustering` is called and **K-medoids** clustering is performed on the PED features. Since
@@ -209,9 +210,9 @@ initialized, the workflow is the following:
 This class, named `PedFeatures`, takes care of the whole second task workflow. In detail, once an instance is
 initialized, the workflow is the following:
 
-- firstly, class method `choice_maker` is called. Initially it loads (or if not present, compute) the models features of
-  corresponding to the first task with `load_models_files`: as a matter of fact, if the features files have not been generated 
-  within the first task, the program will automatically generate them (but will not perform the first task analysis steps). 
+- firstly, class method `choice_maker` is called. Initially it loads the models features
+  corresponding to the first task with `load_models_files`: if the features files have not been previously generated , the program 
+  will automatically generate them (but will not perform the first task analysis steps). 
   The function then checks whether ped features files should be generated or
   loaded (as happens in the first task). The only difference is the folder within each feature file is saved that is `data/ped-features`
   and the name of the file that now is simply `PEDxxxxx_features.csv`
