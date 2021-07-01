@@ -3,28 +3,28 @@
 The goal of the second task is to implement a software to quantify global differences between ensembles of a PED and, from them, identify the variance level along the sequence. The input of this task are files containing the features of one PED ensemble generated during Task 1.
 
 \subsection{Ensembles features}
-Relationships between different ensembles will be identified considering the structural features of a single ensemble using the features file of task 1.
+Relationships between different ensembles will be evaluated thanks to the structural features of a single ensemble that can be extracted starting from features file of task 1.
 
 At the beginning, the software extracts the features for each ensemble (multiple conformations):
 \begin{itemize}
-\item Radius of gyration of each model in the ensemble. It may happen that the number of the values returned are less then the number of the ensemble's conformations, then we check on the array dimension and, if needed, a zero-padding is added.
-\item Secondary structure entropy for each position across ensemble conformations exploiting its probabilistic definition between each model. 
-\item Median ASA for each position across ensemble's conformations. We extract the ASA vector for each position and then we compute the median of this vector. 
+\item Radius of gyration of each model in the ensemble. It may happen that an ensemble contains a lower number of conformations with respect to the one with the maximum number and this could cause subsequent alignment problems: for this reason, we check on the array dimension and, if needed, a zero-padding is added.
+\item Secondary structure entropy for each position across ensemble conformations, calculated exploiting its probabilistic definition between each model. 
+\item Median ASA for each position across ensemble's conformations. 
 \item Median RMSD using rotate-translation matrices for each conformation.
-\item Median distance of each pair of equivalent positions. We consider the columns of conformation distance matrices and we return their median values.
+\item Median distance of each pair of equivalent positions. The median values of the columns of conformation distance matrices are considered.
 \item Standard deviation of the distances for each position across all the ensemble's conformations.
 \end{itemize}
 
 
 \subsection{Global metric}
-The global metric evaluates the distance between ensemble pairs. It takes into account the different nature of the features evaluated.
+The global metric evaluates the distance between ensembles pairs. It takes into account the different nature of the features evaluated in order to provide an accurate measure of dissimilarity.
 This metric returns the sum of partial distances for each feature:
 \begin{itemize}
-\item The absolute value of the difference between the mean radius of gyration for the two ensembles.
+\item The absolute difference between the mean radius of gyration calculated for the two ensembles (removing the zeros added for the padding).
 \item The Chebyshev distance between the entropies of the two ensembles. It finds the distance as the greatest of their differences along any coordinate dimension.
 \item The Euclidean distance between the median ASA of the two ensembles.
 \item The Euclidean distance between the median RMSD of the two ensembles.
-\item The complementary of the correlation between the median distance of the two ensembles.
+\item The cosine distance between the median distance of the two ensembles.
 \end{itemize}
 
 
