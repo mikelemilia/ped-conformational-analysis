@@ -37,20 +37,17 @@ Using the global metric just described, the software displays the distances betw
 In figures \ref{heatmap} and \ref{dendrogram}, it is possible to visualize respectively the distance and similarity between the five ensembles. It can be observed that the closest ensembles are 001 and 002, also all the ensembles are similar.
 
 \begin{figure}[H]
-	\begin{minipage}[b]{0.93\textwidth}
-		\centering
+    \centering
 		\includegraphics[width=\textwidth]{PED00020_heatmap.png}
 		\caption{Heatmap of all the ensembles.}
 		\label{heatmap}
-	\end{minipage}
 \end{figure}
+
 \begin{figure}[H]
-	\begin{minipage}[b]{0.93\textwidth}
-		\centering
+    \centering
 		\includegraphics[width=\textwidth]{PED00020_dendrogram.png}
 		\caption{Dendrogram of all the ensembles.}
 		\label{dendrogram}
-	\end{minipage}
 \end{figure}
 
 
@@ -68,13 +65,12 @@ In order to compute the local variability, it considers the neighbors of the res
 In the last case, the use of a trimmed mean helps to eliminate the influence of outliers or data points on the tails on the traditional mean. Then it takes the mean of these values with respect to the window around each residual.
 
 \begin{figure}[H]
-	\begin{minipage}[b]{0.97\textwidth}
-		\centering
+    \centering
 		\includegraphics[width=\textwidth]{PED00020_local.png}
 		\caption{Plot of local score.}
 		\label{plot}
-	\end{minipage}	
 \end{figure}
+
 
 In figure \ref{plot} it is possible to visualize the ensembles' features variation for each residue using the local metric. 
 

@@ -494,7 +494,7 @@ class PedFeatures:
         val = np.mean(p, axis=1)
 
         # Plot results and save them
-        plt.subplots(1, 1, figsize=(24, 12))
+        plt.subplots(1, 1)
         plt.plot(np.arange(self._num_residues), val, color='red', ls='--')
         plt.title('Local Metric for {}'.format(self._ped_name))
         plt.savefig('{}/{}_local.png'.format(self._output_folder, self._ped_name))
