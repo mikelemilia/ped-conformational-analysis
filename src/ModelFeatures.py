@@ -5,6 +5,7 @@ import os
 import pandas
 
 from Bio.PDB import PDBParser, DSSP, PPBuilder, PDBIO, Selection
+from PIL import Image
 from matplotlib import pyplot as plt, colors, cm
 from pygraphviz import *
 from pymol import cmd
@@ -502,9 +503,11 @@ class ModelFeatures:
             representative_features.append(self._features[model])
             # If not done yet, open the structure for Pymol
             if first:
+                print('\n\t- Model {} used for Pymol image'.format(model))
                 io = PDBIO()
                 io.set_structure(structure[model])
                 io.save("data/pymol/{}.pdb".format(self._id))
+                first = False
 
         representative_features = np.matrix(representative_features)
 
@@ -545,4 +548,8 @@ class ModelFeatures:
             cmd.color("col_{}".format(i), "resi {}".format(residue.id[1]))
 
         # Pymol image saving
-        cmd.png("{}/{}_pymol.png".format(self._output_folder, self._id), width=4000, height=2000, ray=1)
+        cmd.png("{}/{}_pymol.png".format(self._output_folder, self._id), ray=1)
+
+        # Showing Pymol image
+        pymol_image = Image.open("{}/{}_pymol.png".format(self._output_folder, self._id))
+        pymol_image.show()

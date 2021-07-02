@@ -22,6 +22,7 @@ Department of Mathematics - University of Padua, Italy
         * [Model features](#model-features-class)
         * [PED features](#ped-features-class)
 - [Getting started](#getting-started)
+    + [Usage example](#usage-example)
 
 ## Project specification
 
@@ -219,10 +220,11 @@ are asked to insert the index or the ID of the PED of interest. As soon as the P
 instance of the `ModelFeatures` class, if the first task has been chosen, or an instance of the `PEDFeatures` class, if the 
 case of the second one, is initialized.
 
-> **N.B. The folder path that can be inserted can be absolute or relative. Note that whenever a relative
-> path is provided, it must be referred to the working directory that has been already set as the project folder.**
+> **N.B. The folder path can be absolute or relative. Note that whenever a relative
+> path is provided, it must be referred to the working directory that is set as the project folder.**
 
-An example of menu usage with `data` folder and PED00020 is here provided: 
+### Usage example
+Menu usage with `data` folder and PED00020 is here provided: 
 
 ```
 == == == == == == == == == == == == == == == == == == ==

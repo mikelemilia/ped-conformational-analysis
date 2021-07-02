@@ -34,7 +34,7 @@ def check_path(folder, name=""):
 
     # Check existence
     if not os.path.isdir(folder):
-        print('You must provide an existing data location')
+        print('WARNING : You must provide an existing data location\n')
         return False
 
     # Check that it contains at least one pdb file
@@ -101,7 +101,7 @@ def ask_input():
         if folder in _undo_operation:
             return None
         if not os.path.isdir(folder):
-            print('You must provide an existing data location')
+            print('WARNING : You must provide an existing data location\n')
         else:
             folder_found = True
 
@@ -111,7 +111,7 @@ def ask_input():
         # Extract PED ID of files contained in the folder: if no one is present, return to the menu
         ped_names = extract_names(folder)
         if len(ped_names) == 0:
-            print('WARNING : Folder not containing PED files!')
+            print('WARNING : Folder not containing PED files!\n')
             return None
 
         # Request for the PED to be analyzed showing the ones present in the folder

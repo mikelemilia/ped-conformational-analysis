@@ -7,12 +7,12 @@ Relationships between different ensembles will be evaluated thanks to the struct
 
 At the beginning, the software extracts the features for each ensemble (multiple conformations):
 \begin{itemize}
-\item Radius of gyration of each model in the ensemble. It may happen that an ensemble contains a lower number of conformations with respect to the one with the maximum number and this could cause subsequent alignment problems: for this reason, we check on the array dimension and, if needed, a zero-padding is added.
-\item Secondary structure entropy for each position across ensemble conformations, calculated exploiting its probabilistic definition between each model. 
-\item Median ASA for each position across ensemble's conformations. 
+\item[-] Radius of gyration of each model in the ensemble. It may happen that an ensemble contains a lower number of conformations with respect to the one with the maximum number and this could cause subsequent alignment problems: for this reason, we check on the array dimension and, if needed, a zero-padding is added.
+\item[-] Secondary structure entropy for each position across ensemble conformations, calculated exploiting its probabilistic definition between each model. 
+\item[-] Median ASA for each position across ensemble's conformations. 
 \item Median RMSD using rotate-translation matrices for each conformation.
-\item Median distance of each pair of equivalent positions. The median values of the columns of conformation distance matrices are considered.
-\item Standard deviation of the distances for each position across all the ensemble's conformations.
+\item[-] Median distance of each pair of equivalent positions. The median values of the columns of conformation distance matrices are considered.
+\item[-] Standard deviation of the distances for each position across all the ensemble's conformations.
 \end{itemize}
 
 
@@ -20,18 +20,18 @@ At the beginning, the software extracts the features for each ensemble (multiple
 The global metric evaluates the distance between ensembles pairs. It takes into account the different nature of the features evaluated in order to provide an accurate measure of dissimilarity.
 This metric returns the sum of partial distances for each feature:
 \begin{itemize}
-\item The absolute difference between the mean radius of gyration calculated for the two ensembles (removing the zeros added for the padding).
-\item The Chebyshev distance between the entropies of the two ensembles. It finds the distance as the greatest of their differences along any coordinate dimension.
-\item The Euclidean distance between the median ASA of the two ensembles.
-\item The Euclidean distance between the median RMSD of the two ensembles.
-\item The cosine distance between the median distance of the two ensembles.
+\item[-] The absolute difference between mean radius of gyration calculated for the two ensembles (removing the zeros added for the padding).
+\item[-] The Chebyshev distance between the entropies of the two ensembles. It finds the distance as the greatest of their differences along any coordinate dimension.
+\item[-] The Euclidean distance between the median ASA of the two ensembles.
+\item[-] The Euclidean distance between the median RMSD of the two ensembles.
+\item[-] The Cosine distance between the median distance of the two ensembles.
 \end{itemize}
 
 
 Using the global metric just described, the software displays the distances between two ensembles through:
 \begin{itemize}
-\item Heatmap: it calculates the matrix of the distances between the features of the ensembles and then builds and displays the heatmap. The distance between ensembles is highlighted with different colors based on the similarity scale reported on the right. 
-\item Dendrogram: using a linkage matrix and the presented global metric, the dendrogram built combining the most similar ensembles with respect to the calculated features (with a \emph{complete} approach) is plot.
+\item[-] Heatmap: it calculates the matrix of the distances between the features of the ensembles and then builds and displays the heatmap. The distance between ensembles is highlighted with different colors based on the similarity scale reported on the right. 
+\item[-] Dendrogram: using a linkage matrix and the presented global metric, the dendrogram built combining the most similar ensembles with respect to the calculated features (with a \emph{complete} approach) is plot.
 \end{itemize}
 
 In figures \ref{heatmap} and \ref{dendrogram}, it is possible to visualize respectively the distance and similarity between the five ensembles. It can be observed that the closest ensembles are 001 and 002, also all the ensembles are similar.
@@ -40,7 +40,7 @@ In figures \ref{heatmap} and \ref{dendrogram}, it is possible to visualize respe
 	\begin{minipage}[b]{0.93\textwidth}
 		\centering
 		\includegraphics[width=\textwidth]{PED00020_heatmap.png}
-		\caption{Heatmap of all the models.}
+		\caption{Heatmap of all the ensembles.}
 		\label{heatmap}
 	\end{minipage}
 \end{figure}
@@ -48,21 +48,21 @@ In figures \ref{heatmap} and \ref{dendrogram}, it is possible to visualize respe
 	\begin{minipage}[b]{0.93\textwidth}
 		\centering
 		\includegraphics[width=\textwidth]{PED00020_dendrogram.png}
-		\caption{Dendrogram of all the models.}
+		\caption{Dendrogram of all the ensembles.}
 		\label{dendrogram}
 	\end{minipage}
 \end{figure}
 
 
 \subsection{Local metric}
-The local metric evaluates the variability of all the features for each position in the ensemble.
-In order to compute the local variability, it considers the neighbors of the residue under analysis thanks to a window of size nine on the left and on the right of the current position and, for that, computes a variability score for each analyzed feature from the features vectors corresponding to the window. The scores for each residue are then used to calculate the mean variability value, used for the subsequent plot. In particular, the variability scores provided are the following:
+The local metric evaluates the variability of all the features for each position in the ensembles.
+In order to compute the local variability, it considers the neighbors of the residue under analysis thanks to a window of size 9 on the left and on the right of the current position and, for that, computes a variability score for each analyzed feature from the features vectors corresponding to the window. The scores for each residue are then used to calculate the mean variability value, used for the subsequent plot. In particular, the variability scores provided are the following:
 
 \begin{itemize}
-\item Mean value of the standard deviations calculated among conformational entropies for each position in the window.
-\item Mean value of the standard deviations calculated among conformational accessible surface areas for each residue in the window.
-\item Mean value of the standard deviations calculated among conformational RMSD values for each residue in the window. 
-\item Trimmed mean of the standard deviation of conformations distances for each position in the window. 
+\item[-] Mean value of the standard deviations calculated among conformational entropies for each position in the window.
+\item[-] Mean value of the standard deviations calculated among conformational accessible surface areas for each residue in the window.
+\item[-] Mean value of the standard deviations calculated among conformational RMSD values for each residue in the window. 
+\item[-] Trimmed mean of the standard deviation of conformations distances for each position in the window. 
 \end{itemize}
 
 In the last case, the use of a trimmed mean helps to eliminate the influence of outliers or data points on the tails on the traditional mean. Then it takes the mean of these values with respect to the window around each residual.
@@ -71,12 +71,12 @@ In the last case, the use of a trimmed mean helps to eliminate the influence of 
 	\begin{minipage}[b]{0.97\textwidth}
 		\centering
 		\includegraphics[width=\textwidth]{PED00020_local.png}
-		\caption{Plot of local features.}
+		\caption{Plot of local score.}
 		\label{plot}
 	\end{minipage}	
 \end{figure}
 
-In \ref{plot} it is possible to visualize the ensembles' features variation for each residue using the local metric. 
+In figure \ref{plot} it is possible to visualize the ensembles' features variation for each residue using the local metric. 
 
 \medskip
 Firstly, it is necessary to underline that the graph shows an average value among all the conformations within an ensemble. Therefore, it is not possible to make a precise comparison between the trend of the curve and the variability of the structure in pymol images. 
@@ -84,9 +84,9 @@ Firstly, it is necessary to underline that the graph shows an average value amon
 \medskip
 Looking at the graph above and taking into consideration the information extracted from the various comparisons in this project, we can observe that the structure of the measles virus nucleoprotein is quite disordered and there are some points where the variability is greater. 
 
-In particular, we can identify high variability at the beginning of the local graph. Then there are two main minimum points that correspond to stable regions on the structure. At the end the structure variability increases.
+In particular, we can identify two high variability regions, one at the beginning and the other at the end of the local graph. Then there are two main minimum points that correspond to stable regions on the structure. 
 
-This situation can be compared against the pymol color variation. In fact, the region where there is more variability (high value) in the local graph corresponds to a red region in Pymol images, in general. Otherwise, the minimum points are the same blue regions in Pymol.
+This situation can be compared against the Pymol color variation. In fact, the region where there is more variability (higher values) in the local graph corresponds in general to a red region. On the contrary, the minimum points are analogous blue regions in Pymol.
 
 In conclusion, we can observe that along the ensemble structures there are a few stable points and on average the structure is very messy.
 
