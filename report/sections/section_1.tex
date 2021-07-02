@@ -8,11 +8,11 @@ The goal of the first task is to implement a tool to identify conformational rel
 
 \subsection{Single conformation features}
 
-Firstly, for each conformations, the software extracts the following structural features and saves them into a unique dictionary:
+Firstly, for each conformations, the software extracts the following structural features:
 \begin{itemize}
-\item Radius of gyration of the structure: it is computed using the coordinates of each atom and their barycenter.
-\item Relative accessible surface area (ASA) for each residue: it is computed thanks to DSSP; note that the values obtained for the conformations within an ensembles are equal. It may happen that the DSSP does not return the ASA value for each residue: for this limitation, a check on the array dimension and, if needed, a zero-padding are performed. 
-\item Secondary structure (SS) for each residue: they are determined thanks to the Ramachandran regions associated with Phi and Psi angles of the each residue. For the first and last residue, for which the value is not computable, `-' is inserted. For a simpler store and data analysis, each obtained value is converted into an integer value as reported in table \ref{tab:ss}. 
+\item Radius of gyration of the structure is computed using the coordinates of each atom and their barycenter.
+\item Relative accessible surface area (ASA) for each residue is computed thanks to DSSP; note that the values obtained for the conformations within an ensembles are equal. It may happen that the DSSP does not return the ASA value for each residue and we check on the array dimension and, if needed, a zero-padding are performed. 
+\item Secondary structure (SS) for each residue are determined thanks to the Ramachandran regions associated with Phi and Psi angles of them. For the first and last residue, for which the value is not computable, `-' is inserted. For a simpler store and data analysis, each value is converted into an integer value as reported in table \ref{tab:ss}. 
 \item Distance matrix: it computes the pairwise distances between each pair of residues. For the subsequent store, only the upper triangular matrix is maintained and it is linearized. 
 \end{itemize}
 
@@ -38,15 +38,15 @@ Left-handed Helix & 4\\
 
 
 \subsection{Representative conformations} 
-In order to extract the representative conformations, the software clusters the models within a single PED exploiting KMedoids approach and a customized metric function. The proper number of clusters is set thanks to Silhouette measure. 
+In order to extract the representative conformations, the software clusters the models within a single ensamble exploiting KMedoids approach and a customized metric function. The proper number of clusters is set thanks to Silhouette measure. 
 KMedoids is exploited since it allows to use arbitrary dissimilarity measures and the centroids are chosen between the points already present in the analyzed set, so in this case without generating 'new' conformations. 
 
 \medskip
-The implemented metric function uses different distance metrics to measure the dissimilarity between features calculated at the previous point. It takes in input the feature vectors for two conformations and compute their distance as sum of the following partial features distances. They have been chosen according to the meaning and the behavior of the single features.
+The implemented metric function uses different distance metrics to measure the dissimilarity between features calculated at the previous point. It computes the distance of two conformation's feature vectors as sum of the following partial features distances. They have been chosen according to the meaning and the behavior of the single features.
 \begin{itemize}
 \item[-] Absolute difference between radius of gyration to understand its variation.
 \item[-] Euclidean distance of ASA vectors.
-\item[-] Normalized Hamming distance between SS vectors using a scoring matrix accordingly to their definition and properties. The scoring matrix is reported in table \ref{tab:score}. 
+\item[-] Normalized Hamming distance between SS vectors using a scoring matrix accordingly to their definition. The scoring matrix is reported in table \ref{tab:score}. 
 
 \begin{table}[H]
 \begin{center}
@@ -132,15 +132,13 @@ This is probably caused by the proximity of the points (represented in the featu
 
 
 \subsection{Pymol image}
-For each ensemble, the software generates a Pymol image to visualize the 3D structure of one representative conformation and the variability of each residue in terms of features (only considering the conformations extracted thanks to clustering) through the changing of the color. %%Non sono sicura che sia giusto anche nel codice!!
+For each ensemble, we decide to generate one Pymol image to visualize the 3D structure of one representative conformation and the variability of each residue in terms of features through the changing of the color. 
 
-We decided to generate one image for each ensemble representing one of its representative conformations extracted within the clustering step.
 As a matter of fact, the generation of an image representating the conformations superimposition would give a too messy result and would not reporting important information. 
 Another limitation has been the computing time needed for the features comparison: indeed, considering the residue variability over all the models, the time needed only for the Pymol image generation is about one hour. For this reason, we have decided to take into consideration only the representative conformations extracted by clustering step for the subsequent analysis since each of these conformations is a good approximation of its cluster.
 
 \medskip
-The residue variability is calculated using a metric built by us. 
-This metric considers the neighbors of the residue under analysis thanks to a window of size 9 on the left and on the right of the current position and extract the features vectors of those residues for each considered conformation. 
+The residue variability is calculated using a metric built by us that considers the neighbors of the residue under analysis thanks to a window of size 9 on the left and on the right of the current position and extract the features vectors of those residues for each considered conformation. 
 The metric then calculates the variability as the sum of the following partial distances:
 \begin{itemize}
 \item[-] Standard deviation of ASA values available for each residue is calculated and the mean of them is subsequently calculated to have an average value.
@@ -187,7 +185,7 @@ Note that the radius of gyration is not used since it is not residue-dependent.
 
 \medskip
 \medskip
-To understand the color variability in pymol images, a brief description is provided. Red identifies the residues in the structure with high variability with respect to the features considered, while blue identifies the most stable areas. Also intermediate scenarios are displayed with color shades of red or blue.  
+In Pymol image, the color variability corrispond to red for the residues in the structure with high variability with respect to the features considered, while blue identifies the most stable areas. Also intermediate scenarios are displayed with color shades of red or blue.  
 
 \medskip
-Looking at figures \ref{model001p}, \ref{model002p}, \ref{model003p}, \ref{model004p} and \ref{model005p}, it is possible to see that the visualized structures are very disordered, in general. Due to the entropic high cost of folding, the well-defined structures (e.g. alpha-helix) are not many. %da aggiungere basato sui nuovi grafici
+Looking at figures \ref{model001p}, \ref{model002p}, \ref{model003p}, \ref{model004p} and \ref{model005p}, it is possible to see that the visualized structures are very disordered. Due to the entropic high cost of folding, the well-defined structures (e.g. alpha-helix) are not many. %da aggiungere basato sui nuovi grafici
