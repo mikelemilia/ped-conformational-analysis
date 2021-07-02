@@ -477,7 +477,9 @@ class ModelFeatures:
 
         # Distance matrix (cosine distance)
         sum_dist = 0.0
+        # Scan the residues
         for residue in range(ss.shape[1]):
+            # For each pair of conformations
             for k in range(dist.shape[0]):
                 for h in range(k, dist.shape[0]):
                     sum_dist += cosine(dist[k, residue], dist[h, residue])
@@ -552,4 +554,9 @@ class ModelFeatures:
 
         # Showing Pymol image
         pymol_image = Image.open("{}/{}_pymol.png".format(self._output_folder, self._id))
-        pymol_image.show()
+
+        fig, axes = plt.subplots()
+        axes.imshow(pymol_image)
+        axes.set_xticks([])
+        axes.set_yticks([])
+        plt.show()

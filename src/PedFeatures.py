@@ -399,7 +399,8 @@ class PedFeatures:
         print('\t- Plotting global dendrogram...')
 
         linkage_matrix = linkage(np.array(self._ped_features), 'complete', metric=self.global_metric)
-        dendrogram(linkage_matrix)
+        labels = [pid.split('e')[1] for pid in self._ped_ids]
+        dendrogram(linkage_matrix, labels=labels)
         plt.title('Global Dendrogram for {}'.format(self._ped_name))
         plt.savefig('{}/{}_dendrogram.png'.format(self._output_folder, self._ped_name))
         plt.show()
@@ -421,7 +422,8 @@ class PedFeatures:
                 dist[j, i] = self.global_metric(self._ped_features[i], self._ped_features[j])
 
         # Generate the heatmap corresponding to the distance matrix
-        seaborn.heatmap(dist)
+        labels = [pid.split('e')[1] for pid in self._ped_ids]
+        seaborn.heatmap(dist, xticklabels=labels, yticklabels=labels)
         plt.title('Global Heatmap for {}'.format(self._ped_name))
         plt.savefig('{}/{}_heatmap.png'.format(self._output_folder, self._ped_name))
         plt.show()
@@ -465,10 +467,10 @@ class PedFeatures:
         std_dist = np.array(std_dist, dtype='float64')
 
         # For each feature, a variability vector is determined (one value for each residue)
-        total_entropy = []
-        total_med_asa = []
-        total_med_rmsd = []
-        total_std_dist = []
+        var_entropy = []
+        var_med_asa = []
+        var_med_rmsd = []
+        var_std_dist = []
 
         # Scanning each element of the sequence and for it, consider a window for the variability computation
         window_size = 9
@@ -478,19 +480,19 @@ class PedFeatures:
 
             # Determine the mean variability within the window around the residue of interest
             # for entropy, med asa and med rmsd
-            total_entropy.append(np.mean(np.std(entropy[:, start:end], axis=0)))
-            total_med_asa.append(np.mean(np.std(med_asa[:, start:end], axis=0)))
-            total_med_rmsd.append(np.mean(np.std(med_rmsd[:, start:end], axis=0)))
+            var_entropy.append(np.mean(np.std(entropy[:, start:end], axis=0)))
+            var_med_asa.append(np.mean(np.std(med_asa[:, start:end], axis=0)))
+            var_med_rmsd.append(np.mean(np.std(med_rmsd[:, start:end], axis=0)))
 
             # Determine the trimmed mean variability within the window around the residue of interest for std dist
             current_dist = []
             for i in range(start, end):
                 current_dist.append(scipy.stats.trim_mean(np.std(std_dist[:, :, i], axis=0), proportiontocut=0.2))
-            total_std_dist.append(np.mean(current_dist))
+            var_std_dist.append(np.mean(current_dist))
 
         # Stack the features variability in the columns of a matrix and compute the mean by column,
         # in order to have a single variability value for each residue
-        p = np.stack((total_entropy, total_med_asa, total_med_rmsd, total_std_dist), axis=1)
+        p = np.stack((var_entropy, var_med_asa, var_med_rmsd, var_std_dist), axis=1)
         val = np.mean(p, axis=1)
 
         # Plot results and save them
