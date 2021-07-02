@@ -46,6 +46,8 @@ The implemented metric\footnote{\textbf{Metric}: take in input feature vectors o
 \item[-] Absolute difference between radius of gyration to understand its variation.
 \item[-] Euclidean distance of ASA vectors.
 \item[-] Normalized hamming distance between SS vectors using the scoring matrix reported in table \ref{tab:score} and defined accordingly to their definition and properties.
+\item[-] Cosine distance between distance matrix.
+\end{itemize}
 
 \begin{table}[H]
 \begin{center}
@@ -62,9 +64,6 @@ The implemented metric\footnote{\textbf{Metric}: take in input feature vectors o
 \end{center}
 \caption{Scoring matrix Secondary Structure values}~\label{tab:score}
 \end{table}
-
-\item[-] Cosine distance between distance matrix.
-\end{itemize}
 
 In table \ref{tab:silhouette} we report both the optimal number of clusters and the corresponding silhouette scores obtained with the described clustering procedure for the analyzed ensembles.
 
@@ -88,7 +87,7 @@ In table \ref{tab:silhouette} we report both the optimal number of clusters and 
 \caption{Silhouette values obtained during clustering}~\label{tab:silhouette}
 \end{table}
 
-Afterwards, a weighted graph is built, inside which each node is a representative model with edge length between pairs of nodes proportional to the distance between correspondent pairs of conformations according to the built metric. In figures \ref{model001}, \ref{model002}, \ref{model003}, \ref{model004} and \ref{model005}, built graphs are reported.
+Afterwards, a weighted graph is built, inside which each node is a representative model and edge length between pairs of nodes proportional to the distance between correspondent pairs of conformations according to the built metric. In figures \ref{model001}, \ref{model002}, \ref{model003}, \ref{model004} and \ref{model005}, built graphs are reported.
 
 \begin{figure}[H]
     \centering
@@ -125,7 +124,7 @@ Afterwards, a weighted graph is built, inside which each node is a representativ
 		\label{model005}
 \end{figure}
 
-A high results variability can be observed, in terms of selected medoids but not in the optimal number of clusters.
+A high results variability can be observed, in terms of selected medoids but in general not in the optimal number of clusters.
 This is probably caused by two main factors:
 \begin{itemize}
     \item[-] Proximity of the points in the features space.
@@ -141,14 +140,14 @@ In order to reduce the computing time needed to compare the features\footnote{\t
 The i-th residue variability is calculated using a customized metric, which considers a window of 19 (9 before and 9 after) residues around the current one. After extracting the features vectors of those residues for each considered conformation, the metric calculates the variability as the sum of the following partial distances:
 \begin{itemize}
 \item[-] Standard deviations of ASA values for each residue are calculated and their mean is computed to obtain an average window value.
-\item[-] Normalized hamming distances between SS vectors pairs are calculated using the scoring matrix reported in table \ref{tab:ss}.
+\item[-] Normalized hamming distances between SS vector pairs are calculated using the scoring matrix reported in table \ref{tab:ss}.
 \item[-] Cosine dissimilarities are computed and summed for each pair of analyzed conformations between distance vectors of corresponding residues.
 \end{itemize}
 Note that the radius of gyration is not used since it is not residue-dependent.
 
 \medskip
 A BWR color-map\footnote{\textbf{BWR} : is a color-map that use blue, white and red color to characterize respectively low, mid and high values inside a plot.} is used to highlight which residues own the highest or lowest variability inside each Pymol image.
-Looking at figures \ref{model001p}, \ref{model002p}, \ref{model003p}, \ref{model004p} and \ref{model005p}, it is possible to notice that structures are in general very disordered since contains few well-defined secondary structures, that in these cases are only alpha-helices. This may happen because the entropic high cost of folding. %%???
+Looking at figures \ref{model001p}, \ref{model002p}, \ref{model003p}, \ref{model004p} and \ref{model005p}, it is possible to notice that structures are in general very disordered since contains few well-defined secondary structures, that in these cases are only alpha-helices. This low complexity may be caused by the high energy level of folding.
 Further considerations about the protein structure are provided in the conclusions of this report.
 
 \begin{figure}[H]
