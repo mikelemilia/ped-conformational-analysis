@@ -3,17 +3,16 @@ In this report, the main project choices and the results for structural ensemble
 \section{Task 1}\label{sec:task1}
 \graphicspath{ {./figures/} }
 
-The goal of the first task is to implement a tool to identify conformational relationships between models within a single ensemble. The input is a set of files, each containing the PDB structure of one ensemble. Each file will be analyzed separately and relationships between the conformations are identified analyzing the model structural features. 
-
+The goal of the first task is to implement a tool to identify conformational relationships thanks to models structural features within an ensemble. The input is a set of files, each containing the PDB structure of one ensemble, which will be analyzed independently. 
 
 \subsection{Single conformation features}
 
-Firstly, for each conformations, the software extracts the following structural features and saves them into a unique dictionary:
+For each conformation, the following structural features are extracted and subsequently saved:
 \begin{itemize}
-\item Radius of gyration of the structure: it is computed using the coordinates of each atom and their barycenter.
-\item Relative accessible surface area (ASA) for each residue: it is computed thanks to DSSP; note that the values obtained for the conformations within an ensembles are equal. It may happen that the DSSP does not return the ASA value for each residue: for this limitation, a check on the array dimension and, if needed, a zero-padding are performed. 
-\item Secondary structure (SS) for each residue: they are determined thanks to the Ramachandran regions associated with Phi and Psi angles of the each residue. For the first and last residue, for which the value is not computable, `-' is inserted. For a simpler store and data analysis, each obtained value is converted into an integer value as reported in table \ref{tab:ss}. 
-\item Distance matrix: it computes the pairwise distances between each pair of residues. For the subsequent store, only the upper triangular matrix is maintained and it is linearized. 
+\item[-] \emph{Radius of gyration} is computed from the coordinates of each atom and their barycenter.
+\item[-] \emph{Relative accessible surface area} (ASA) is computed for each residue thanks to DSSP\footnote{\textbf{DSSP}: the values obtained for the conformations within an ensemble are equal. It may happen that the DSSP does not return the ASA value for some residues: for this limitation, a check on the array dimension and, if needed, a zero-padding are performed. }.
+\item[-] \emph{Secondary structure} (SS) is determined for each residue thanks to the Ramachandran regions\footnote{\textbf{SS}: for the first and last residue, for which the value is not computable, `-' is inserted.} associated to Phi and Psi angles. For an easiest subsequent analysis, each value is converted into an integer as reported in table \ref{tab:ss}. 
+\item[-] \emph{Distance matrix} contains the pairwise distances between each pair of residues. For an easiest analysis, since it is symmetric, only the linearized version of its upper triangular sub-matrix is considered. 
 \end{itemize}
 
 \begin{table}[H]
@@ -38,11 +37,11 @@ Left-handed Helix & 4\\
 
 
 \subsection{Representative conformations} 
-In order to extract the representative conformations, the software clusters the models within a single PED exploiting KMedoids approach and a customized metric function. The proper number of clusters is set thanks to Silhouette measure. 
-KMedoids is exploited since it allows to use arbitrary dissimilarity measures and the centroids are chosen between the points already present in the analyzed set, so in this case without generating 'new' conformations. 
+In order to extract the representative conformations, the models are clustered due to \emph{K-Medoids} approach and a customized metric function, selecting the optimal number of clusters thanks to Silhouette score. 
+\emph{K-Medoids} has been chosen since centroids are selected between the input set points, without generating unseen conformations. 
 
 \medskip
-The implemented metric function uses different distance metrics to measure the dissimilarity between features calculated at the previous point. It takes in input the feature vectors for two conformations and compute their distance as sum of the following partial features distances. They have been chosen according to the meaning and the behavior of the single features.
+The implemented metric\footnote{\textbf{Metric}: take in input feature vectors of two conformations and compute their distance as sum of partial features distances.} is tailored for each feature set, in order to measure the dissimilarity between models. The distance metrics have been chosen according to the meaning and the behavior of single features. %Scrivere che consideriamo le seguenti cose:  
 \begin{itemize}
 \item[-] Absolute difference between radius of gyration to understand its variation.
 \item[-] Euclidean distance of ASA vectors.
