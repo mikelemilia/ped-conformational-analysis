@@ -6,18 +6,18 @@ The goal of the second task is to implement a tool able to describe the relation
 For each ensemble, PED features are extracted from the previously computed models features. In details, the obtained features are the following:
 
 \begin{itemize}
-\item[-] \emph{Radius of gyration} (RG) is retrieved for each model. It may happen that an ensemble contains a lower number of conformations with respect to the others. To avoid alignment problems, zero-padding is performed.
+\item[-] \emph{Radius of gyration}\footnote{\textbf{RG}: It may happen that an ensemble contains a lower number of conformations with respect to the others. To avoid alignment problems, zero-padding is performed.} (RG) is retrieved for each model.
 \item[-] \emph{SS entropy} is calculated for each position across ensemble's conformations, exploiting its probabilistic definition.
 \item[-] \emph{Median ASA} is computed for each position across ensemble's conformations.
 \item[-] \emph{Median RMSD} is computed using roto-translation matrices across ensemble's conformations.
 \item[-] \emph{Median distance matrix} is computed by calculating median distance for each pair of equivalent positions across ensemble's conformations.
-\item[-] \emph{Standard deviation distance matrix} is computed calculating standard deviation distance for each pair of equivalent positions across ensemble's conformations.
+\item[-] \emph{Standard deviation} (STD) \emph{distance matrix} is computed calculating standard deviation distance for each pair of equivalent positions across ensemble's conformations.
 \end{itemize}
 
 \subsection{Global metric}
-The global metric aims to provide an accurate measure of dissimilarity between ensemble pairs represented with their features, building an evaluation that takes into account the different nature of the features evaluated. Given two ensemble features vectors, the sum of the following partial distances is returned:
+The global metric aims to provide an accurate measure of dissimilarity between ensembles pairs represented with their features, building an evaluation that takes into account the different nature of the features evaluated. Given two PED features vectors, the sum of the following partial distances is returned:
 \begin{itemize}
-\item[-] Absolute difference of RG mean values extracted from each feature vector, after zero-padding removal.
+\item[-] Absolute difference of RG mean values extracted from each features vector, after zero-padding removal.
 \item[-] Chebyshev distance\footnote{\textbf{Chebyshev distance} : a.k.a maximum metric, is a metric defined on a vector space where the distance between two vectors is the greatest of their differences along any coordinate dimension.} calculated between entropies vectors.
 \item[-] Euclidean distance calculated between median ASA vectors.
 \item[-] Euclidean distance calculated between median RMSD vectors.
@@ -51,7 +51,7 @@ The i-th residue variability is calculated considering a window of 19 (9 before 
 \item[-] Mean window value of the standard deviations calculated among conformational entropies for each residue.
 \item[-] Mean window value of the standard deviations calculated among conformational ASA for each residue.
 \item[-] Mean window value of the standard deviations calculated among conformational RMSD values for each residue.
-\item[-] Trimmed mean\footnote{\textbf{Trimmed mean}: used to to avoid outliers influence.} window value of the standard deviation of conformations distances for each residue.
+\item[-] Mean window value of standard deviation's trimmed mean\footnote{\textbf{Trimmed mean}: used to to avoid outliers influence.} of STD distance vectors for each residue.
 \end{itemize}
 
 Each variability score is then used to calculate the residue mean variability value. In figure \ref{plot} each residue variability in terms of ensembles' features is shown.
@@ -63,6 +63,10 @@ Each variability score is then used to calculate the residue mean variability va
 	\label{plot}
 \end{figure}
 
-Since the graph shows an average value among all the ensembles, it is not possible to make an exhaustive comparison between its behaviour and the structure variability in Pymol images, even if it allows to infer general considerations about disordered content. The measles virus nucleoprotein seems to be quite disordered: in particular, all the ensembles share a central high variability region (that could be associated with one of the local maxima), whereas some of them have another variable region in one of the extremities. Due to the smaller available window on the trailing parts, correspondent scores could be less trusted with respect to the central parts of the protein in which, except ensemble 005, is located the most stable region.
+\newpage
+\section{Conclusions}
+Since the graph reported in figure \ref{plot} shows an average value among all the ensembles, it is not possible to make an exhaustive comparison between its behaviour and the structure variability in Pymol images (figures \ref{model001p}, \ref{model002p}, \ref{model003p}, \ref{model004p} and \ref{model005p}), even if it allows to infer general considerations about disordered content.
 
-The previous analysis can lead to these intuitions but the final protein study should be performed with additional information. Since the protein has the stable region in its center, these residues might be in charge of some functional properties. On the contrary, the most variable regions could not be useful from a functional point of view or could allow the protein to respond to stimuli in different ways.
+The measles virus nucleoprotein seems to be quite disordered: in particular, all the ensembles share a central high variability region (that could be associated with one of the local maxima), whereas some of them have another variable region in one of the extremities. Due to the smaller available window on the trailing parts, correspondent scores could be less trusted with respect to the central parts of the protein in which, except ensemble 005, is located the most stable region.
+
+The previous analysis can lead to these inferences but the final protein study should be performed with additional information. Since the protein has the stable region in its center, these residues might be in charge of some functional properties. On the contrary, the most variable regions could not be useful from a functional point of view or could allow the protein to respond to stimuli in different ways.

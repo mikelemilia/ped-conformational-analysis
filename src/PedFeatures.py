@@ -110,12 +110,10 @@ class PedFeatures:
         self._ped_ids = extract_filenames(self._data_folder, ped_name, 'pdb')
 
         # Initialization for the subsequent analysis
-        self._num_residues = 0
-        self._num_conformations = 0
-        # models_features will contain a set of matrices, one for each model features file
-        self._models_features = []
-        # ped_features will contain a matrix with the features extracted from each ensemble in the rows
-        self._ped_features = []
+        self._num_residues = 0                          # Number of residues analyzed
+        self._num_conformations = 0                     # Maximum number of conformations present in the ensembles
+        self._models_features = []                      # Set of matrices, one for each model features file
+        self._ped_features = []                         # Matrix with the features extracted from each ensemble in the rows
 
     def load_models_files(self):
         """
@@ -347,7 +345,7 @@ class PedFeatures:
                 f.write("\n")   # New line
         print("\t- {} saved".format(self._file))
 
-    # ----------------------------------------------------------------------------------------
+    # ------------------------------------------------------------------------------------------------------------------
     # Ped features analysis
 
     def global_metric(self, x, y):
@@ -372,18 +370,19 @@ class PedFeatures:
         x_rg_nozero = x_rg[x_rg != 0]
         y_rg = y[indexes[1]]
         y_rg_nozero = y_rg[y_rg != 0]
+        # Mean of RG values for each input and absolute difference of them
         rd = np.abs(np.mean(x_rg_nozero) - np.mean(y_rg_nozero))
 
-        # Entropy
+        # Entropy (Chebyshev distance)
         en = chebyshev(x[indexes[2]], y[indexes[2]])
 
-        # Median Relative accessible surface area
+        # Median ASA (euclidean distance)
         med_asa = euclidean(x[indexes[3]], y[indexes[3]])
 
-        # Median RMSD
+        # Median RMSD (euclidean distance)
         med_rmsd = euclidean(x[indexes[4]], y[indexes[4]])
 
-        # Median Distance matrix
+        # Median Distance matrix (cosine distance)
         med_dist = cosine(np.array(x[indexes[5]], dtype='float32'), np.array(y[indexes[5]], dtype='float32'))
 
         m = rd + en + med_asa + med_rmsd + med_dist
@@ -398,8 +397,11 @@ class PedFeatures:
 
         print('\t- Plotting global dendrogram...')
 
+        # Build linkage matrix and the corresponding labels from the IDs
         linkage_matrix = linkage(np.array(self._ped_features), 'complete', metric=self.global_metric)
-        labels = [pid.split('e')[1] for pid in self._ped_ids]
+        labels = np.array([pid.split('e')[1] for pid in self._ped_ids])
+
+        # Plot the dendrogram
         dendrogram(linkage_matrix, labels=labels)
         plt.title('Global Dendrogram for {}'.format(self._ped_name))
         plt.savefig('{}/{}_dendrogram.png'.format(self._output_folder, self._ped_name))
@@ -415,7 +417,6 @@ class PedFeatures:
 
         # Compute the distance matrix between each pair of ensembles
         dist = np.zeros((len(self._ped_features), len(self._ped_features)))
-
         for i in range(dist.shape[0]):
             for j in range(dist.shape[1]):
                 dist[i, j] = self.global_metric(self._ped_features[i], self._ped_features[j])
@@ -466,7 +467,7 @@ class PedFeatures:
         med_rmsd = np.array(med_rmsd, dtype='float64')
         std_dist = np.array(std_dist, dtype='float64')
 
-        # For each feature, a variability vector is determined (one value for each residue)
+        # For each feature, feature variability vectors are determined for each feature (one value for each residue)
         var_entropy = []
         var_med_asa = []
         var_med_rmsd = []
@@ -478,13 +479,12 @@ class PedFeatures:
             start = max(0, residue - window_size)
             end = min(self._num_residues - 1, residue + window_size)
 
-            # Determine the mean variability within the window around the residue of interest
-            # for entropy, med asa and med rmsd
+            # Mean variability within the window around the residue of interest for entropy, med asa and med rmsd
             var_entropy.append(np.mean(np.std(entropy[:, start:end], axis=0)))
             var_med_asa.append(np.mean(np.std(med_asa[:, start:end], axis=0)))
             var_med_rmsd.append(np.mean(np.std(med_rmsd[:, start:end], axis=0)))
 
-            # Determine the trimmed mean variability within the window around the residue of interest for std dist
+            # Determine the trimmed mean variability within the window for std dist
             current_dist = []
             for i in range(start, end):
                 current_dist.append(scipy.stats.trim_mean(np.std(std_dist[:, :, i], axis=0), proportiontocut=0.2))

@@ -348,7 +348,7 @@ class ModelFeatures:
                 f.write("\n")
         print("\t- Successfully saved in {}".format(output))
 
-    # ----------------------------------------------------------------------------------------
+    # ------------------------------------------------------------------------------------------------------------------
     # Model features analysis
 
     def metrics(self, x, y):
@@ -373,8 +373,10 @@ class ModelFeatures:
 
         # Secondary Structure (hamming with scoring matrix)
         ss = 0
+        # Scan each residue and add it contribute
         for i in range(self._residues):
             ss += self._dist_matrix[int(x[indexes[2]][i])][int(y[indexes[2]][i])]
+        # Normalized hamming
         ss = ss / self._residues
 
         # Distance (cosine)
@@ -457,31 +459,40 @@ class ModelFeatures:
             asa (mean of the standard deviations considering separately each residue),
             ss (normalized hamming with scoring matrix considering separately each residue),
             dist (cosine distance considering separately each residue)
-        :param asa: relative accessible surface area of the conformations for the residues window under analysis
-        :param ss: secondary structure of the conformations for the residues window under analysis
-        :param dist: distance matrix of the conformations for the residues window under analysis
+        :param asa: relative accessible surface area of the conformations for the residues in the window under analysis
+                    (conformations x residues)
+        :param ss: secondary structure of the conformations for the residues in the window under analysis
+                    (conformations x residues)
+        :param dist: distance matrix of the conformations for the residues in the window under analysis
+                    (conformations x residues x residues)
         :return: variability of the central residue
         """
 
-        # Relative accessible surface area (mean of the standard deviations)
+        # Relative accessible surface area (mean over the residues of the standard deviations calculated over the
+        # ASA values of the conformations for the same residue)
         asa = np.array(asa, dtype='float64')
         asa_dist = np.mean(np.std(asa, axis=0))
 
         # Secondary structures (normalized hamming distance)
         sum_ss = 0
+        # Scan each residue
         for residue in range(ss.shape[1]):
+            # For each pair of conformations
             for i in range(len(ss)):
                 for j in range(i, len(ss)):
+                    # Compute the hamming distance and add it
                     sum_ss += self._dist_matrix[int(ss[i, residue])][int(ss[j, residue])]
+        # Normalize distance
         sum_ss = sum_ss / ss.shape[1]
 
         # Distance matrix (cosine distance)
         sum_dist = 0.0
-        # Scan the residues
+        # Scan the residues inside the window
         for residue in range(ss.shape[1]):
             # For each pair of conformations
             for k in range(dist.shape[0]):
                 for h in range(k, dist.shape[0]):
+                    # Compute the cosine distance and add it
                     sum_dist += cosine(dist[k, residue], dist[h, residue])
 
         return asa_dist + sum_ss + sum_dist
