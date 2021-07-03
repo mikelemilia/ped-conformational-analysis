@@ -128,11 +128,11 @@ class PedFeatures:
         # if not present).
         for i, ped_id in enumerate(self._ped_ids):
             models = ModelFeatures(self._data_folder, ped_id)
-            self._models_features.append(models.choice_maker(ped_id+' '))
-            conformations.append(np.array(self._models_features[i]).shape[0])
+            self._models_features.append(np.array(models.choice_maker(ped_id + ' ')))
+            conformations.append(self._models_features[i].shape[0])
 
         # Save the number of residues and maximum number of conformations for the ensembles considered
-        self._num_residues = int(np.array(self._models_features[0])[0, 1])
+        self._num_residues = int(self._models_features[0][0, 1])
         self._num_conformations = max(conformations)
 
     def choice_maker(self):
