@@ -1,17 +1,17 @@
 import math
+import os
+
 import networkx as nx
 import numpy as np
-import os
 import pandas
-
 from Bio.PDB import PDBParser, DSSP, PPBuilder, PDBIO, Selection
 from PIL import Image
 from matplotlib import pyplot as plt, colors, cm
 from pygraphviz import *
 from pymol import cmd
 from scipy.spatial.distance import *
-from sklearn_extra import cluster
 from sklearn.metrics import silhouette_score
+from sklearn_extra import cluster
 
 
 def extract_vectors_model_feature(residues, key=None, models=None, features=None, indexes=False, index_slices=False):
@@ -125,12 +125,12 @@ class ModelFeatures:
 
     def choice_maker(self, model_name=''):
         """
-                This function allows to check if the file containing the features for the selected PED has already been
-                generated and stored. If so, it loads these features, otherwise it calculates the correspondent matrix
-                and saves the file.
-                :param model_name: model name, eventually to be printed
-                :return: the features vector
-                """
+        This function allows to check if the file containing the features for the selected PED has already been
+        generated and stored. If so, it loads these features, otherwise it calculates the correspondent matrix
+        and saves the file.
+        :param model_name: model name, eventually to be printed
+        :return: the features vector
+        """
 
         if os.path.exists(self._file_path):
 
@@ -146,6 +146,7 @@ class ModelFeatures:
 
         # Extraction of the number of residues (second column of each row - Note that it is always the same value)
         self._residues = int(self._features[0][1])
+
         # Extraction the number of conformations present inside this PED (number of rows)
         self._conformations = len(self._features)
 
@@ -162,15 +163,16 @@ class ModelFeatures:
 
         # Extract the structure and save the number of residues
         structure = PDBParser(QUIET=True).get_structure(self._id, self._path)
-        self._residues = int(len(list(structure[0]['A'].get_residues())))
 
         # Loop to analyze every conformation inside PED
         for model in structure:
 
+            self._residues = int(len(list(model.get_residues())))
+
             # Dictionary of the correspondent features
             features = {
                 'N': self._residues,    # Number of residues (needed for computation)
-                'RG': self.compute_gyration_radius(model['A']),     # Radius of gyration
+                'RG': self.compute_gyration_radius(model),     # Radius of gyration
                 'ASA': [],
                 'SS': [],
                 'DIST': []
@@ -180,7 +182,9 @@ class ModelFeatures:
             dssp = DSSP(model, self._path, dssp="binx/dssp/mkdssp")  # WARNING Check the path of mkdssp
 
             for ss in dssp:
-                features['ASA'].append(ss[3])
+
+                x = ss[3] if ss[3] != 'NA' else 0  # Check if DSSP return NA as value
+                features['ASA'].append(x)
 
             if len(features['ASA']) < self._residues:
                 features['ASA'] = np.concatenate(
@@ -255,11 +259,13 @@ class ModelFeatures:
         ppb = PPBuilder()
         rama = {}  # { chain : [[residue_1, ...], [phi_residue_1, ...], [psi_residue_2, ...] ] }
 
+        residue_found = 0
         for chain in model:
             for pp in ppb.build_peptides(chain):
                 phi_psi = pp.get_phi_psi_list()
 
                 for i, residue in enumerate(pp):
+
                     if phi_psi[i][0] is not None and phi_psi[i][1] is not None:
                         # Conversion to degrees when the values are not None (for first and last)
                         rama.setdefault(chain.id, [[], [], []])
@@ -273,13 +279,15 @@ class ModelFeatures:
                         rama[chain.id][1].append(math.nan)
                         rama[chain.id][2].append(math.nan)
 
-            # Eventual nan-padding if something goes wrong during the angle computation
-            if len(rama[chain.id][0]) < self._residues:
-                for i in range(self._residues - len(rama[chain.id][0])):
-                    rama.setdefault(chain.id, [[], [], []])
-                    rama[chain.id][0].append(None)
-                    rama[chain.id][1].append(math.nan)
-                    rama[chain.id][2].append(math.nan)
+                    residue_found += 1
+
+        # Eventual nan-padding if something goes wrong during the angle computation
+        if residue_found < self._residues:
+            for i in range(self._residues - residue_found):
+                rama.setdefault('Z', [[], [], []])
+                rama['Z'][0].append(None)
+                rama['Z'][1].append(math.nan)
+                rama['Z'][2].append(math.nan)
 
         # Comparison of the angles with the Ramachandran regions
         ss = []
@@ -308,13 +316,21 @@ class ModelFeatures:
         """
 
         distances = []
-        for residue1 in residues:
+
+        for i, residue1 in enumerate(residues):
+            row = []
+
             if residue1.id[0] == " " and residue1.has_id("CA"):  # Exclude hetero/water residues and atoms without CA
-                row = []
-                for residue2 in residues:
+                for j, residue2 in enumerate(residues):
                     if residue2.id[0] == " " and residue2.has_id("CA"):  # Exclude hetero/water residues
                         row.append(residue1["CA"] - residue2["CA"])
-                distances.append(row)
+                    else:
+                        row.append(1000)
+            else:
+
+                row = [1000 for _ in range(len(residues))]
+
+            distances.append(row)
 
         # Reshape based on the number of residues
         np.array(distances).reshape(len(residues), -1)
@@ -357,8 +373,11 @@ class ModelFeatures:
         """
         This function implements a specific metric for all the extracted features to compute the distance
         between two model features vectors.
-            rg (absolute difference), asa (euclidean distance),
-            ss (normalized hamming with scoring matrix), dist (cosine distance)
+            - rg (absolute difference)
+            - asa (euclidean distance),
+            - ss (normalized hamming with scoring matrix)
+            - dist (cosine distance)
+
         :param x: features vector of one model
         :param y: features vector of one model
         :return: distance between x and y
@@ -369,7 +388,11 @@ class ModelFeatures:
         indexes = extract_vectors_model_feature(residues=self._residues, index_slices=True)
 
         # Radius of gyration (absolute difference)
-        rg = np.abs(x[indexes[0]] - y[indexes[0]])
+        if isinstance(x[indexes[0]], list) and isinstance(y[indexes[0]], list):
+            rg = np.abs(x[indexes[0]][0] - y[indexes[0]][0])
+        else:
+            rg = np.abs(x[indexes[0]] - y[indexes[0]])
+
         # Relative accessible surface area (euclidean distance)
         asa = euclidean(x[indexes[1]], y[indexes[1]])
 
@@ -386,7 +409,11 @@ class ModelFeatures:
 
         metric = rg + asa + ss + dist
 
-        return metric[0]
+        # Check whether metric is interpreted as list or int
+        if isinstance(metric, list) or isinstance(metric, np.ndarray):
+            return metric[0]
+        else:
+            return metric
 
     def compute_clustering(self, k_set=range(3, 9)):
         """
@@ -458,9 +485,10 @@ class ModelFeatures:
         """
         This function computes the variability of a residue based on the features of a window of residues around it
         (already computed). It is used to generate the pymol image.
-            asa (mean of the standard deviations considering separately each residue),
-            ss (normalized hamming with scoring matrix considering separately each residue),
-            dist (cosine distance considering separately each residue)
+            - asa (mean of the standard deviations considering separately each residue),
+            - ss (normalized hamming with scoring matrix considering separately each residue),
+            - dist (cosine distance considering separately each residue)
+
         :param asa: relative accessible surface area of the conformations for the residues in the window under analysis
                     (conformations x residues)
         :param ss: secondary structure of the conformations for the residues in the window under analysis
@@ -484,8 +512,7 @@ class ModelFeatures:
                 for j in range(i, len(ss)):
                     # Compute the hamming distance and add it
                     sum_ss += self._dist_matrix[int(ss[i, residue])][int(ss[j, residue])]
-        # Normalize distance
-        sum_ss = sum_ss / ss.shape[1]
+        sum_ss = sum_ss / ss.shape[1]  # Normalize distance
 
         # Distance matrix (cosine distance)
         sum_dist = 0.0
@@ -508,6 +535,9 @@ class ModelFeatures:
 
         # Load the structure conformations
         structure = PDBParser(QUIET=True).get_structure(self._id, self._path)
+
+        # Creating pymol folder
+        os.makedirs('data/pymol', exist_ok=True)
 
         # Build the matrix with the features of the representative conformations
         representative_features = []
@@ -564,6 +594,7 @@ class ModelFeatures:
 
         # Pymol image saving
         cmd.png("{}/{}_pymol.png".format(self._output_folder, self._id), ray=1)
+        print('\t- Successfully saved {}_pymol.png in {}'.format(self._id, self._output_folder))
 
         # Showing Pymol image
         pymol_image = Image.open("{}/{}_pymol.png".format(self._output_folder, self._id))

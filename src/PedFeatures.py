@@ -251,14 +251,14 @@ class PedFeatures:
         # Get the current structure
         ped_id = self._ped_ids[k]
         structure = PDBParser(QUIET=True).get_structure(ped_id, "{}/{}.pdb".format(self._data_folder, ped_id))
-        ref_model = [atom for atom in structure[0].get_atoms() if atom.get_name() == "CA"]  # TODO: capire!!!
+        ref_model = [atom for atom in structure[0].get_atoms() if atom.get_name() == "CA"]
 
         for i, model in enumerate(structure):
             if i > 0:
                 model_rmsd = []  # no_fragment X fragment_size
                 alt_model = [atom for atom in model.get_atoms() if atom.get_name() == "CA"]  # coords of the model
 
-                # Iterate fragments and calcualte the correspondent RMSD thanks to the super_imposer operation
+                # Iterate fragments and calculate the correspondent RMSD thanks to the super_imposer operation
                 for start in range(len(ref_model) - window_size):
                     end = start + window_size
                     ref_fragment = ref_model[start:end]
@@ -355,9 +355,12 @@ class PedFeatures:
         """
         This function implements a specific metric for the ped features to compute the distance
         between two ped features vectors
-            rg (absolute difference of the means), entropy (Chebyshev distance),
-            median asa (euclidean distance), median rmsd (euclidean distance),
-            median distance (complementary of correlation)
+            - rg (absolute difference of the means)
+            - entropy (Chebyshev distance)
+            - median asa (euclidean distance)
+            - median rmsd (euclidean distance),
+            - median distance (complementary of correlation)
+
         :param x: features of one ped
         :param y: features of one ped
         :return: distance between x and y
