@@ -125,19 +125,18 @@ class ModelFeatures:
 
     def choice_maker(self, model_name=''):
         """
-        This function allows to check if the file containing the features for the selected PED has already been
-        generated and stored. If so, it loads these features, otherwise it calculates the correspondent matrix
-        and saves the file.
-        :param model_name: model name, eventually to be printed
-        :return: the features vector
-        """
+                This function allows to check if the file containing the features for the selected PED has already been
+                generated and stored. If so, it loads these features, otherwise it calculates the correspondent matrix
+                and saves the file.
+                :param model_name: model name, eventually to be printed
+                :return: the features vector
+                """
 
         if os.path.exists(self._file_path):
 
             # If file existing, load it
             print('\t- Loading {}model features...'.format(model_name))
             self.extract(self._file_path)
-
         else:
 
             # If file not existing, compute all the features and save it
@@ -151,6 +150,9 @@ class ModelFeatures:
         self._conformations = len(self._features)
 
         return self._features
+
+    # ------------------------------------------------------------------------------------------------------------------
+    # Model features computation
 
     def compute(self):
         """

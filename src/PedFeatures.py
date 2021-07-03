@@ -165,6 +165,9 @@ class PedFeatures:
                 if math.isnan(self._ped_features[i, j]):
                     self._ped_features[i, j] = 0
 
+    # ------------------------------------------------------------------------------------------------------------------
+    # Ped features computation
+
     def compute(self):
         """
         This function allows you to insert ped features into a data structures. It's used to compare
