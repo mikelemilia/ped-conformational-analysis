@@ -1,4 +1,4 @@
-# Conformational analysis of protein structural ensembles
+# Conformational analysis of Protein Structural Ensembles
 
 ### Authors
 
