@@ -213,10 +213,14 @@ python main.py                    # execute w/ default command line parameters
 Once the program starts, menu showing the possible options is shown. In order to select an option it is sufficient to report its number. To undo any wrong selection, it is enough to digit `Q` (QUIT) or `B` (BACK) or `U` (UNDO).
 
 Regardless which task you're willing to execute, you are asked to insert the path to the folder containing `.pdb` files of the 
-PED of interest (for example `data` in our analysis).
+PED of interest (for example `data` in our analysis). 
 If the folder does not exist or if it does not contain PED files (in `.pdb` format), you are asked to provide a new 
 folder; on the contrary, once the path is correctly provided, a unique list containing all possible PED IDs is shown and you 
-are asked to insert the index or the ID of the PED of interest. As soon as the PED ID is correctly supplied, an
+are asked to insert the index or the ID of the PED of interest. Since the second task considers only PED with at least 
+two ensembles, the ones with one ensemble will not be shown as selectable (and if the folder contains only that, 
+you will be asked to provide another folder). 
+
+As soon as the PED ID is correctly supplied, an
 instance of the `ModelFeatures` class, if the first task has been chosen, or an instance of the `PEDFeatures` class, if the 
 case of the second one, is initialized.
 
@@ -224,29 +228,31 @@ case of the second one, is initialized.
 > path is provided, it must be referred to the working directory that is set as the project folder.**
 
 ### Usage example
-Menu usage with `data` folder and PED00020 is here provided: 
+An example of tool usage for `data` folder containing only PED00020 is provided, inside angular brackets are highlighted
+our inputs: 
 
 ```
+CONFORMATIONAL ANALYSIS OF PROTEIN STRUCTURAL ENSEMBLES
+
 == == == == == == == == == == == == == == == == == == ==
-1.    Task 1 : Analyze features of models inside a PED
-2.    Task 2 : Compare inter and intra features of a PED
+1.    Task 1 : Analyze models features inside a PED
+2.    Task 2 : Compare PED features between ensembles
 3.    Exit
 == == == == == == == == == == == == == == == == == == ==
-You can reverse any wrong selection with
-  - Q (QUIT)
-  - B (BACK)
-  - U (UNDO)
+You can reverse any wrong selection with 
+	- Q (QUIT)
+	- B (BACK)
+	- U (UNDO)
 == == == == == == == == == == == == == == == == == == ==
+Select what do you want to do: <1>
 
-Select what do you want to do: 1
-
-Insert the folder path containing the PED you want to analyze: data
+Insert the folder path containing the PED you want to analyze: <data>
 
 Which PED do you want to analyze: 
 
 0 - PED00020
 
-Your choice: 0
+Your choice: <0>
 Your choice is PED00020
 
 Analyzing PED00020e001...
